@@ -1,0 +1,287 @@
+/* === BODY === */
+body {
+  font-family: "Inter", sans-serif;
+
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: flex-start;
+  background: #c1cbd7;
+  padding: 0px;
+  margin: 0px;
+}
+
+/* === NOVA MOVIMENTAÇÃO (LADO ESQUERDO) === */
+#novaMovimentacao {
+  display: flex;
+  flex-direction: column;
+  width: 30vw;
+  height: 100vh;
+  background-color: #f1f1f1;
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+#btInOut {
+  margin-top: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#btInOut button {
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+#btInOut button.active {
+  opacity: 1;
+}
+
+#btEntrada {
+  background-color: #2ecc71;
+  color: #f1f1f1;
+  padding: 10px 20px;
+  border: 1px solid white;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 30%;
+}
+
+#btSaida {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: 1px solid white;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 30%;
+}
+
+#campos {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#salvarTransacao {
+  padding-inline: 50px;
+}
+
+/* === INPUTS E BOTÕES === */
+
+.hidden {
+  display: none;
+}
+
+input {
+  margin: 15px;
+  padding: 10px;
+  width: 60%;
+  height: 40px;
+  border-radius: 15px;
+  border: 2px solid #c1cbd7;
+  background-color: #f1f1f1;
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+}
+
+button {
+  padding-inline: 50px;
+  align-items: center;
+  justify-content: center;
+  background-color: #334666;
+  color: white;
+  padding: 10px 20px;
+  border: 1px solid white;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#novaMovimentacao button {
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+}
+#movimentacoes button {
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+/* === TÍTULOS === */
+h1 {
+  font-size: 46px;
+  margin-top: 50px;
+  text-align: center;
+  color: #334666;
+  text-shadow: #fff 0px 0px 10px;
+}
+
+#novaMovimentacao h1 {
+  text-shadow: #c1cbd7 0px 0px 10px;
+}
+
+h2 {
+  padding: 3px;
+  margin: 0px;
+  margin-left: 10%;
+  color: #fff;
+}
+
+/* === MOVIMENTAÇÕES (CENTRO) === */
+#movimentacoes {
+  display: flex;
+  flex: 1;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#valores {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0px;
+  margin: 20px;
+}
+
+.valor {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #f1f1f1;
+  border-radius: 15px;
+  width: 200px;
+  padding: 10px;
+  margin: 10px;
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+#valorEntrada {
+  background-color: #2ecc71;
+}
+.valorEntrada {
+  color: #2ecc71;
+  font-weight: bold;
+}
+.valorSaida {
+  color: #e74c3c;
+  font-weight: bold;
+}
+#valorSaida {
+  background-color: #e74c3c;
+}
+#valorCarteira {
+  background-color: #f1f1f1;
+  border: #334666 2px solid;
+}
+
+#valorCarteira h2 {
+  color: #334666;
+}
+
+/* === TABELA === */
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+th,
+td {
+  text-align: center;
+  border: 1px solid #334666;
+}
+
+th {
+  border: 1px solid #fff;
+  border-bottom: #334666 1px solid;
+  padding-top: 5px;
+  padding-bottom: 10px;
+  background-color: #334666;
+  color: white;
+}
+th:first-child {
+  border-top-left-radius: 10px;
+}
+th:last-child {
+  border-top-right-radius: 10px;
+}
+
+td {
+  padding: 10px;
+  padding-inline: 0px;
+  background-color: #fff;
+}
+
+tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+#sectionTabela {
+  margin: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+#btFiltro {
+  display: flex;
+  padding: 3px;
+  padding-inline: 20px;
+  width: fit-content;
+  background-color: #fff;
+  border: #334666 1px solid;
+  color: #334666;
+  justify-content: center;
+  align-items: center;
+}
+
+#btFiltro img {
+  margin-bottom: 0px;
+}
+
+#btMostrarMais {
+  display: flex;
+  padding: 3px;
+  padding-inline: 20px;
+  margin-left: auto;
+  width: fit-content;
+}
+
+#sectionTabela img {
+  padding-left: 10px;
+  width: 25px;
+  height: 25px;
+}
+/* === MENU (LADO DIREITO) === */
+#menu {
+  display: flex;
+  flex-direction: column;
+  width: 70px;
+  height: 100vh;
+  background: #334666;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#menu button {
+  margin: 0px;
+  padding: 0px;
+  border: none;
+}
+
+#menu img {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  width: 90%;
+}

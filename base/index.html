@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <!-- Created by: Your Eduardo Nascimento -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestor Financeiro</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="script.js" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <h1>Nova Movimentação</h1>
+      <div class="button-group">
+        <button class="btn-red">Saída</button>
+        <button class="btn-green">Entrada</button>
+      </div>
+      <input type="text" value="18/05/2025" />
+      <input type="text" placeholder="R$ 0,00" />
+      <select>
+        <option>Método</option>
+      </select>
+      <select>
+        <option>Categoria</option>
+      </select>
+      <textarea placeholder="Descrição" rows="4"></textarea>
+      <button class="save-btn">Salvar</button>
+    </div>
+  </body>
+</html>
+<div class="main">
+  <h1>Movimentações</h1>
+  <div class="cards">
+    <div class="card card-red">
+      <p><strong>Saída</strong></p>
+      <p>R$ 3.149,00</p>
+    </div>
+    <div class="card card-green">
+      <p><strong>Entrada</strong></p>
+      <p>R$ 4.700,00</p>
+    </div>
+    <div class="card card-white">
+      <p><strong>Carteira</strong></p>
+      <p>R$ 1.551,00</p>
+    </div>
+  </div>
+
+  <button class="filter-btn">Filtro</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Valor</th>
+        <th>Método</th>
+        <th>Categoria</th>
+        <th>Descrição</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>18/05</td>
+        <td class="text-red">R$1.750,00</td>
+        <td>Banco Inter</td>
+        <td>Celular</td>
+        <td>Conserto</td>
+      </tr>
+      <tr>
+        <td>15/05</td>
+        <td class="text-green">R$3.750,00</td>
+        <td>-</td>
+        <td>Salário</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>11/05</td>
+        <td class="text-red">R$150,00</td>
+        <td>Nubank</td>
+        <td>Presentes</td>
+        <td>Dia das Mães</td>
+      </tr>
+      <tr>
+        <td>10/05</td>
+        <td class="text-green">R$950,00</td>
+        <td>-</td>
+        <td>Aluguel</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>30/04</td>
+        <td class="text-red">R$725,00</td>
+        <td>Pix</td>
+        <td>Faculdade</td>
+        <td>Mensalidade</td>
+      </tr>
+      <tr>
+        <td>28/04</td>
+        <td class="text-red">R$400,00</td>
+        <td>Nubank</td>
+        <td>Roupas</td>
+        <td>Calças</td>
+      </tr>
+      <tr>
+        <td>25/04</td>
+        <td class="text-red">R$699,00</td>
+        <td>Banco Inter</td>
+        <td>Roupas</td>
+        <td>Tênis Puma</td>
+      </tr>
+      <tr>
+        <td>18/04</td>
+        <td class="text-red">R$1.000,00</td>
+        <td>Pix</td>
+        <td>Tatuagens</td>
+        <td>Tatuagem</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="show-more">Mostrar Mais +</button>
+
+  <div class="right-sidebar">
+    <div class="top-icons">
+      <div>⣿</div>
+      <div>⚙️</div>
+    </div>
+    <div>⚙️</div>
+  </div>
+</div>
