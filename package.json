@@ -1,0 +1,21 @@
+{
+  "name": "gestor-financeiro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "categoria.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seu-usuario/ads-a.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/seu-usuario/ads-a/issues"
+  },
+  "homepage": "https://github.com/seu-usuario/ads-a#readme"
+}
