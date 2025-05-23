@@ -1,7 +1,6 @@
 /* === BODY === */
 body {
   font-family: "Inter", sans-serif;
-
   display: flex;
   flex-direction: row;
   width: 100vw;
@@ -11,6 +10,27 @@ body {
   background: #c1cbd7;
   padding: 0px;
   margin: 0px;
+}
+
+@media (max-width: 1024px) {
+  body {
+    flex-direction: column;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    flex-direction: column;
+    height: 100vh;
+  }
 }
 
 /* === NOVA MOVIMENTAÇÃO (LADO ESQUERDO) === */
