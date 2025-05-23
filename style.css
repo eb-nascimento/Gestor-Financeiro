@@ -225,7 +225,6 @@ th:last-child {
 
 td {
   padding: 10px;
-  padding-inline: 0px;
   background-color: #fff;
 }
 
@@ -237,7 +236,7 @@ tr:last-child td:last-child {
 }
 
 #sectionTabela {
-  margin: 40px;
+  margin: 25px;
   display: flex;
   flex-direction: column;
 }
