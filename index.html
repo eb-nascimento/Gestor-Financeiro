@@ -13,99 +13,100 @@
     <script type="module" src="script.js"></script>
   </head>
   <body>
-    <section id="novaMovimentacao">
-      <h1>Nova Movimentação</h1>
-      <div id="btInOut">
-        <button id="btSaida">Saída</button>
-        <button id="btEntrada">Entrada</button>
-      </div>
-      <form id="campos">
-        <input type="date" id="data" name="data" placeholder="18/05/2025" />
-        <input type="number" id="valor" name="valor" placeholder="R$ 0,00" />
-        <input type="text" id="metodo" name="metodo" placeholder="Método" />
-        <input
-          type="text"
-          id="categoria"
-          name="categoria"
-          placeholder="Categoria"
-        />
-        <input
-          type="text"
-          id="descricao"
-          name="descricao"
-          placeholder="Descrição"
-        />
-        <button id="salvarTransacao" type="submit">Salvar</button>
-      </form>
-    </section>
-
-    <section id="movimentacoes">
-      <h1>Movimentações</h1>
-      <section id="valores">
-        <div id="valorSaida" class="valor">
-          <h2>Saída</h2>
-          <h2>R$ 3.149,00</h2>
+    <section id="container">
+      <section id="novaMovimentacao">
+        <h1>Nova Movimentação</h1>
+        <div id="btInOut">
+          <button id="btSaida">Saída</button>
+          <button id="btEntrada">Entrada</button>
         </div>
-        <div id="valorEntrada" class="valor">
-          <h2>Entrada</h2>
-          <h2>R$ 4.700,00</h2>
-        </div>
-        <div id="valorCarteira" class="valor">
-          <h2>Carteira</h2>
-          <h2>R$ 1.551,00</h2>
-        </div>
+        <form id="campos">
+          <input type="date" id="data" name="data" placeholder="18/05/2025" />
+          <input type="number" id="valor" name="valor" placeholder="R$ 0,00" />
+          <input type="text" id="metodo" name="metodo" placeholder="Método" />
+          <input
+            type="text"
+            id="categoria"
+            name="categoria"
+            placeholder="Categoria"
+          />
+          <input
+            type="text"
+            id="descricao"
+            name="descricao"
+            placeholder="Descrição"
+          />
+          <button id="salvarTransacao" type="submit">Salvar</button>
+        </form>
       </section>
-      <section id="sectionTabela">
-        <button id="btFiltro">
-          Filtro <img src="img/Funnel.svg" alt="Fúnil" />
-        </button>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Valor</th>
-              <th>Método</th>
-              <th>Categoria</th>
-              <th>Descrição</th>
-            </tr>
-          </thead>
-          <tbody id="tabelaMovimentacoes">
-            <tr>
-              <td>18/05/2025</td>
-              <td>R$ 1.000,00</td>
-              <td>Cartão de Crédito</td>
-              <td>Alimentação</td>
-              <td>Supermercado</td>
-            </tr>
-            <tr>
-              <td>19/05/2025</td>
-              <td>R$ 500,00</td>
-              <td>Transferência</td>
-              <td>Transporte</td>
-              <td>Gasolina</td>
-            </tr>
-            <tr>
-              <td>20/05/2025</td>
-              <td>R$ 200,00</td>
-              <td>Dinheiro</td>
-              <td>Lazer</td>
-              <td>Cinema</td>
-            </tr>
-            <tr>
-              <td>21/05/2025</td>
-              <td>R$ 300,00</td>
-              <td>Cartão de Débito</td>
-              <td>Saúde</td>
-              <td>Farmácia</td>
-            </tr>
-          </tbody>
-        </table>
-        <button id="btMostrarMais">
-          Mostrar Mais <img src="img/FirstAid.svg" alt="+" />
-        </button>
+
+      <section id="movimentacoes">
+        <h1>Movimentações</h1>
+        <section id="valores">
+          <div id="valorSaida" class="valor">
+            <h2>Saída</h2>
+            <h2>R$ 3.149,00</h2>
+          </div>
+          <div id="valorEntrada" class="valor">
+            <h2>Entrada</h2>
+            <h2>R$ 4.700,00</h2>
+          </div>
+          <div id="valorCarteira" class="valor">
+            <h2>Carteira</h2>
+            <h2>R$ 1.551,00</h2>
+          </div>
+        </section>
+        <section id="sectionTabela">
+          <button id="btFiltro">
+            Filtro <img src="img/Funnel.svg" alt="Fúnil" />
+          </button>
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Valor</th>
+                <th>Método</th>
+                <th>Categoria</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaMovimentacoes">
+              <tr>
+                <td>18/05/2025</td>
+                <td>R$ 1.000,00</td>
+                <td>Cartão de Crédito</td>
+                <td>Alimentação</td>
+                <td>Supermercado</td>
+              </tr>
+              <tr>
+                <td>19/05/2025</td>
+                <td>R$ 500,00</td>
+                <td>Transferência</td>
+                <td>Transporte</td>
+                <td>Gasolina</td>
+              </tr>
+              <tr>
+                <td>20/05/2025</td>
+                <td>R$ 200,00</td>
+                <td>Dinheiro</td>
+                <td>Lazer</td>
+                <td>Cinema</td>
+              </tr>
+              <tr>
+                <td>21/05/2025</td>
+                <td>R$ 300,00</td>
+                <td>Cartão de Débito</td>
+                <td>Saúde</td>
+                <td>Farmácia</td>
+              </tr>
+            </tbody>
+          </table>
+          <button id="btMostrarMais">
+            Mostrar Mais <img src="img/FirstAid.svg" alt="+" />
+          </button>
+        </section>
       </section>
     </section>
-
     <section id="menu">
       <button>
         <img class="menu-item" src="img/CirclesFour.svg" alt="menu" />
