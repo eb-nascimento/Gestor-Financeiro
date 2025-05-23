@@ -1,6 +1,6 @@
 vercel --prod
 ------------------------------------------------------------------
-Vincular o projeto ao Github OK
+OK Vincular o projeto ao Github OK
 ------------------------------------------------------------------
 Ajustar responsividade para celular
 Ajustar para permitir apenas a data no formato correto
