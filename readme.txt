@@ -1,3 +1,7 @@
+git add .
+git commit -m "Descrição do que foi atualizado"
+git push origin main
+----------------------------------------
 vercel --prod
 ------------------------------------------------------------------
 OK Vincular o projeto ao Github OK
