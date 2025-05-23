@@ -31,7 +31,7 @@ body {
 }
 
 #btInOut {
-  margin-top: 60px;
+  margin-top: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,7 +122,8 @@ button {
 /* === TÍTULOS === */
 h1 {
   font-size: 46px;
-  margin-top: 50px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   text-align: center;
   color: #334666;
   text-shadow: #fff 0px 0px 10px;
