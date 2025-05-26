@@ -1,0 +1,9 @@
+{
+  "name": "gestor-financeiro",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "firebase": "^11.8.1",
+    "firebase-admin": "^13.4.0"
+  }
+}

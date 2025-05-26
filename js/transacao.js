@@ -1,3 +1,4 @@
+import { db } from "./firebase.js";
 export class Transacao {
   constructor(
     valor,

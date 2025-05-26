@@ -105,6 +105,16 @@ input {
   box-shadow: #c1cbd7 0px 0px 10px 0px;
 }
 
+#data::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 button {
   padding-inline: 50px;
   align-items: center;
@@ -128,8 +138,8 @@ button {
 /* === TÍTULOS === */
 h1 {
   font-size: clamp(36px, 07vh, 54px);
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 60px;
+  margin-bottom: 60px;
   text-align: center;
   color: #334666;
   text-shadow: #fff 0px 0px 10px;
@@ -160,8 +170,7 @@ h2 {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0px;
-  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
 .valor {
@@ -171,7 +180,7 @@ h2 {
   border-radius: 15px;
   width: 200px;
   padding: 10px;
-  margin: 10px;
+  margin-inline: 10px;
   box-shadow: #334666 0px 0px 10px 0px;
 }
 #valorEntrada {
@@ -343,6 +352,8 @@ tr:last-child td:last-child {
   }
 
   h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
     font-size: 40px;
   }
 

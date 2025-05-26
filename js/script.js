@@ -1,7 +1,7 @@
 import { Metodo } from "./metodo.js";
 import { Categoria } from "./categoria.js";
 import { Transacao } from "./transacao.js";
-
+import { db } from "./firebase.js";
 //BOTÃO ENTRADA/SAÍDA------------------------------------------------------------------------
 const btSaida = document.getElementById("btSaida");
 const btEntrada = document.getElementById("btEntrada");
@@ -9,7 +9,19 @@ const metodoInput = document.getElementById("metodo");
 const descricaoInput = document.getElementById("descricao");
 
 let tipoMovimentacao = "Saída";
-
+// Ao carregar a página, preencher o campo data com a data de hoje
+const inputData = document.getElementById("data");
+const hoje = new Date();
+const dataFormatada = hoje.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+inputData.value = dataFormatada;
+// Preencher o campo data com a data de hoje
+window.addEventListener("DOMContentLoaded", () => {
+  const inputData = document.getElementById("data");
+  const hoje = new Date();
+  const dataFormatada = hoje.toISOString().split("T")[0];
+  inputData.value = dataFormatada;
+});
+// Inicialmente, o botão de saída está ativo
 btSaida.classList.add("active"); //BOTÃO ATIVO
 
 btSaida.addEventListener("click", function () {
@@ -43,6 +55,13 @@ form.addEventListener("submit", function (event) {
   const valor = parseFloat(document.getElementById("valor").value);
   const descricao = document.getElementById("descricao").value;
   const data = document.getElementById("data").value;
+
+  // Verifica se o valor é uma data válida
+  const regexData = /^\d{4}-\d{2}-\d{2}$/;
+  if (!regexData.test(data)) {
+    alert("Data inválida! Use o formato DD-MM-AAAA.");
+    return;
+  }
   const categoria = document.getElementById("categoria").value;
   const metodo = document.getElementById("metodo").value;
   const corpoTabela = document.getElementById("tabelaMovimentacoes");
