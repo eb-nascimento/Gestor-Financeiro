@@ -2,6 +2,7 @@ import { db } from "./firebase.js";
 export class Transacao {
   constructor(
     valor,
+    gastoFixo,
     descricao,
     data,
     parcelas,
@@ -11,6 +12,7 @@ export class Transacao {
     idMetodo
   ) {
     this.valor = valor; // Número, ex: 1000.00
+    this.gastoFixo = gastoFixo; // Booleano, indica se é um gasto fixo
     this.descricao = descricao; // Texto
     this.data = data; // Data (string ou objeto Date)
     this.parcelas = parcelas || 1; // Número total de parcelas (padrão 1)

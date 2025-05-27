@@ -4,6 +4,7 @@ import { Transacao } from "./transacao.js";
 import { db } from "./firebase.js";
 //BOTÃO ENTRADA/SAÍDA------------------------------------------------------------------------
 const btSaida = document.getElementById("btSaida");
+const label = document.getElementById("gastoFixoLabel");
 const btEntrada = document.getElementById("btEntrada");
 const metodoInput = document.getElementById("metodo");
 const descricaoInput = document.getElementById("descricao");
@@ -32,6 +33,8 @@ btSaida.addEventListener("click", function () {
   //MOSTRAR CATEGORIA E DESCRIÇÃO
   metodoInput.classList.remove("hidden");
   descricaoInput.classList.remove("hidden");
+  label.classList.remove("hidden");
+  categoria.classList.remove("margem");
 
   console.log(tipoMovimentacao);
 });
@@ -43,6 +46,8 @@ btEntrada.addEventListener("click", function () {
 
   metodoInput.classList.add("hidden");
   descricaoInput.classList.add("hidden");
+  label.classList.add("hidden");
+  categoria.classList.add("margem");
 
   console.log(tipoMovimentacao);
 });
@@ -53,9 +58,10 @@ form.addEventListener("submit", function (event) {
   event.preventDefault(); // Impede o recarregamento do formulário
 
   const valor = parseFloat(document.getElementById("valor").value);
+  const checkbox = document.getElementById("gastoFixo");
+  const gastoFixo = checkbox.checked;
   const descricao = document.getElementById("descricao").value;
   const data = document.getElementById("data").value;
-
   // Verifica se o valor é uma data válida
   const regexData = /^\d{4}-\d{2}-\d{2}$/;
   if (!regexData.test(data)) {
@@ -81,17 +87,20 @@ form.addEventListener("submit", function (event) {
     return;
   }
 
-  console.log(valor, descricao, data, categoria, metodo);
+  console.log(valor, gastoFixo, descricao, data, categoria, metodo);
   //Limpar os campos do formulário
   form.reset();
 
   //CRIAR NOVA LINHA NA TABELA
-  novaLinha.innerHTML = `
-    <td>${data}</td>
-    <td class = "${classeValor}">${valor.toLocaleString("pt-BR", {
+
+  const valorFormatado = valor.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
-  })}</td>
+  });
+  // Adicionar a nova transação na tabela
+  novaLinha.innerHTML = `
+    <td>${data}</td>
+    <td class="${classeValor}">${valorFormatado}${gastoFixo ? "*" : ""}</td>
     <td>${tipoMovimentacao === "Saída" ? metodo : "-"}</td>
     <td>${categoria}</td>
     <td>${tipoMovimentacao === "Saída" ? descricao : "-"}</td>

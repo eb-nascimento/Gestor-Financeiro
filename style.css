@@ -89,6 +89,11 @@ body {
   display: none;
 }
 
+.margem {
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
 input {
   margin-bottom: 30px;
   padding: 10px;
@@ -98,6 +103,35 @@ input {
   border: 2px solid #c1cbd7;
   background-color: #f1f1f1;
   box-shadow: #c1cbd7 0px 0px 10px 0px;
+}
+
+label {
+  align-items: center;
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  font-size: 16px;
+  color: #334666;
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+
+#valor {
+  margin-bottom: 0px;
+}
+
+#gastoFixo {
+  margin: 0px;
+  margin-right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  color: #334666;
+  font-size: 16px;
 }
 
 #data::-webkit-calendar-picker-indicator {
@@ -178,6 +212,17 @@ h2 {
   margin-inline: 10px;
   box-shadow: #334666 0px 0px 10px 0px;
 }
+/* Formatação utilizada pelo JS */
+.valorEntrada {
+  color: green;
+  font-weight: bold;
+}
+
+.valorSaida {
+  color: red;
+  font-weight: bold;
+}
+
 #valorEntrada {
   background-color: #2ecc71;
 }

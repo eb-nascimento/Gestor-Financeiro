@@ -23,7 +23,10 @@
         <form id="campos">
           <input type="date" id="data" name="data" placeholder="18/05/2025" />
           <input type="number" id="valor" name="valor" placeholder="R$ 0,00" />
-          <input type="text" id="metodo" name="metodo" placeholder="Método" />
+          <label id="gastoFixoLabel">
+            <input type="checkbox" id="gastoFixo" name="gastoFixo" />
+            Gasto fixo?</label
+          >
           <input
             type="text"
             id="categoria"
@@ -36,6 +39,7 @@
             name="descricao"
             placeholder="Descrição"
           />
+          <input type="text" id="metodo" name="método" placeholder="Metodo" />
           <button id="salvarTransacao" type="submit">Salvar</button>
         </form>
       </section>
