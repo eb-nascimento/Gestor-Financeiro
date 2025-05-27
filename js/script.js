@@ -22,6 +22,36 @@ window.addEventListener("DOMContentLoaded", () => {
   const dataFormatada = hoje.toISOString().split("T")[0];
   inputData.value = dataFormatada;
 });
+const valorInput = document.getElementById("valor");
+
+valorInput.addEventListener("input", (e) => {
+  let numeros = e.target.value.replace(/\D/g, ""); // Só dígitos
+
+  if (numeros === "") {
+    e.target.value = "";
+    return;
+  }
+
+  // Limite de 9 dígitos para evitar valores absurdos (até 9.999.999,99)
+  if (numeros.length > 9) numeros = numeros.slice(0, 9);
+
+  // Converte centavos → reais mantendo as casas decimais
+  const valorNumero = parseFloat(numeros) / 100;
+
+  // Formata como moeda brasileira
+  const valorFormatado = valorNumero.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  // Atualiza o campo
+  e.target.value = valorFormatado;
+
+  // Coloca o cursor no fim
+  const len = e.target.value.length;
+  valorInput.setSelectionRange(len, len);
+});
+
 // Inicialmente, o botão de saída está ativo
 btSaida.classList.add("active"); //BOTÃO ATIVO
 
@@ -57,7 +87,18 @@ const form = document.getElementById("campos");
 form.addEventListener("submit", function (event) {
   event.preventDefault(); // Impede o recarregamento do formulário
 
-  const valor = parseFloat(document.getElementById("valor").value);
+  let valorBruto = document.getElementById("valor").value;
+  let valor = parseFloat(
+    valorBruto
+      .replace("R$", "") // remove o símbolo de moeda
+      .replace(/\./g, "") // remove todos os pontos (milhar)
+      .replace(",", ".") // troca vírgula decimal por ponto
+      .trim()
+  );
+  if (isNaN(valor) || valor <= 0) {
+    alert("Digite um valor numérico válido!");
+    return;
+  }
   const checkbox = document.getElementById("gastoFixo");
   const gastoFixo = checkbox.checked;
   const descricao = document.getElementById("descricao").value;
