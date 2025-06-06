@@ -17,72 +17,35 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // BOTÃO ENTRADA/SAÍDA------------------------------------------------------------------------
-
-// Função para carregar e popular as categorias e metodos no dropdown
 async function carregarCategorias(tipoFiltro = null) {
-  // Adicionado tipoFiltro como parâmetro
   console.log(
     `1. Função carregarCategorias iniciada. Filtro de tipo: ${tipoFiltro}`
   );
   const categoriaSelect = document.getElementById("categoria");
-  console.log("2. Elemento select 'categoria':", categoriaSelect);
 
-  if (!categoriaSelect) {
-    console.error(
-      "ERRO: Elemento select com id 'categoria' não foi encontrado!"
-    );
-    return;
-  }
+  if (!categoriaSelect) return;
 
   categoriaSelect.innerHTML =
     '<option value="">Selecione uma categoria</option>';
 
   try {
-    let consultaFB; // Variável para armazenar a consulta do Firebase
-    const baseCollection = collection(db, "categoria");
-    if (tipoFiltro) {
-      // Assume que o campo 'tipo' no Firestore está padronizado (ex: "saida", "entrada")
-      console.log(
-        `3. Aplicando filtro ao carregar categorias: where("tipo", "==", "${tipoFiltro}")`
-      );
-      consultaFB = query(
-        baseCollection,
-        where("tipo", "==", tipoFiltro),
-        orderBy("nome")
-      );
-    } else {
-      console.log("3. Buscando todas as categorias (sem filtro de tipo).");
-      consultaFB = query(baseCollection, orderBy("nome")); // Carrega todas, mas ordenadas
-    }
+    const documentosDeCategorias = await Categoria.buscarTodas(tipoFiltro);
 
-    const querySnapshot = await getDocs(consultaFB);
-    console.log("4. Snapshot da query recebido:", querySnapshot);
-    console.log(
-      `5. Número de documentos na coleção 'categoria' (filtro: ${
-        tipoFiltro || "nenhum"
-      }):`,
-      querySnapshot.size
-    );
-
-    if (querySnapshot.empty) {
+    if (documentosDeCategorias.length === 0) {
       console.warn(
-        `Atenção: Nenhum documento encontrado na coleção 'categoria' para o tipo '${
-          tipoFiltro || "todos"
-        }'.`
+        `Nenhuma categoria encontrada para o filtro '${tipoFiltro}'.`
       );
     }
 
-    querySnapshot.forEach((doc) => {
+    documentosDeCategorias.forEach((doc) => {
       const categoriaData = doc.data();
-      console.log("6. Processando documento:", doc.id, categoriaData);
       const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = categoriaData.nome;
+      option.value = doc.id; // O valor da opção será o ID do documento no Firestore
+      option.textContent = categoriaData.nome; // O texto visível será o nome da categoria
       categoriaSelect.appendChild(option);
     });
-    console.log("7. População do dropdown de categorias concluída.");
   } catch (error) {
-    console.error("ERRO DETALHADO ao carregar categorias:", error);
+    console.error("Erro ao carregar categorias:", error);
     alert(
       "Ocorreu um erro ao carregar as categorias. Verifique o console para mais detalhes."
     );
@@ -90,53 +53,32 @@ async function carregarCategorias(tipoFiltro = null) {
 }
 
 async function carregarMetodos() {
-  console.log("1.1 Função carregarMetodos iniciada."); // Usando prefixo diferente para logs
+  console.log("Populando dropdown de métodos...");
   const metodoSelect = document.getElementById("metodo");
-  console.log("2.1 Elemento select 'metodo':", metodoSelect);
 
-  if (!metodoSelect) {
-    console.error("ERRO: Elemento select com id 'metodo' não foi encontrado!");
-    return;
-  }
+  if (!metodoSelect) return;
 
-  // Limpa as opções existentes e adiciona a opção padrão
   metodoSelect.innerHTML = '<option value="">Selecione um método</option>';
 
   try {
-    console.log(
-      "3.1 Tentando buscar dados da coleção 'metodo' no Firestore..."
-    );
-    // Busca da coleção 'metodo' (singular), conforme sua imagem
-    const consultaFB = query(collection(db, "metodo"), orderBy("nome"));
-    const querySnapshot = await getDocs(consultaFB);
-    console.log("4.1 Snapshot da query de métodos recebido:", querySnapshot);
-    console.log(
-      "5.1 Número de documentos na coleção 'metodo':",
-      querySnapshot.size
-    );
+    // 1. CHAMA O MÉTODO ESTÁTICO DA CLASSE METODO
+    const documentosDeMetodos = await Metodo.buscarTodos();
 
-    if (querySnapshot.empty) {
-      console.warn(
-        "Atenção: Nenhum documento encontrado na coleção 'metodo'. O dropdown ficará vazio exceto pela opção padrão."
-      );
+    // 2. USA O RESULTADO PARA POPULAR O DOM
+    if (documentosDeMetodos.length === 0) {
+      console.warn("Nenhum método encontrado.");
     }
 
-    querySnapshot.forEach((doc) => {
+    documentosDeMetodos.forEach((doc) => {
       const metodoData = doc.data();
-      console.log("6.1 Processando método:", doc.id, metodoData); // Log para cada método
       const option = document.createElement("option");
-      option.value = doc.id; // O valor da opção será o ID do documento no Firestore
-      option.textContent = metodoData.nome; // O texto visível será o nome do método
+      option.value = doc.id;
+      option.textContent = metodoData.nome;
       metodoSelect.appendChild(option);
     });
-    console.log(
-      "7.1 População do dropdown de métodos concluída (se houveram documentos)."
-    );
   } catch (error) {
-    console.error("ERRO DETALHADO ao carregar métodos:", error);
-    alert(
-      "Ocorreu um erro ao carregar os métodos. Verifique o console para mais detalhes."
-    );
+    console.error("Erro ao carregar e popular métodos na interface:", error);
+    alert("Não foi possível carregar os métodos.");
   }
 }
 
@@ -247,16 +189,16 @@ btEntrada.addEventListener("click", function () {
 //BOTÃO SALVAR-------------------------------------------------------------------------------
 const form = document.getElementById("campos");
 
+// Lembre-se de garantir que 'addDoc' está importado no topo do seu script.js
+
 form.addEventListener("submit", async function (event) {
-  // << ADICIONE 'async' AQUI
-  event.preventDefault(); // Impede o recarregamento do formulário
+  // Mantenha 'async'
+  event.preventDefault();
+
+  // --- COLETA E VALIDAÇÃO DE DADOS (Usando seus nomes de variáveis) ---
   let valorBruto = document.getElementById("valor").value;
   let valor = parseFloat(
-    valorBruto
-      .replace("R$", "") // remove o símbolo de moeda
-      .replace(/\./g, "") // remove todos os pontos (milhar)
-      .replace(",", ".") // troca vírgula decimal por ponto
-      .trim()
+    valorBruto.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
   );
   if (isNaN(valor) || valor <= 0) {
     alert("Digite um valor numérico válido!");
@@ -266,74 +208,48 @@ form.addEventListener("submit", async function (event) {
   const gastoFixo = checkbox.checked;
   const descricao = document.getElementById("descricao").value;
   const data = document.getElementById("data").value;
-  // Verifica se o valor é uma data válida
+
   const regexData = /^\d{4}-\d{2}-\d{2}$/;
   if (!regexData.test(data)) {
-    alert("Data inválida! Use o formato DD-MM-AAAA.");
+    alert("Data inválida! Use o formato AAAA-MM-DD.");
     return;
   }
+
+  // Pegando os IDs dos selects com seus nomes de variáveis originais
   const categoria = document.getElementById("categoria").value;
   const metodo = document.getElementById("metodo").value;
-  const corpoTabela = document.getElementById("tabelaMovimentacoes");
-  const novaLinha = document.createElement("tr");
-  const classeValor =
-    tipoMovimentacao === "Entrada" ? "valorEntrada" : "valorSaida";
 
+  // Validações
+  if (!data || !valor || !categoria) {
+    // Usa a variável 'categoria'
+    alert("Preencha os campos Data, Valor e Categoria!");
+    return;
+  }
   if (tipoMovimentacao === "Saída") {
     if (!metodo || !descricao) {
-      alert("Preencha todos os campos!");
+      // Usa as variáveis 'metodo' e 'descricao'
+      alert("Para Saída, preencha Método e Descrição!");
       return;
     }
   }
 
-  if (!data || !valor || !categoria) {
-    alert("Preencha todos os campos!");
-    return;
-  }
-
-  console.log("Dados validados. Preparando para salvar:", {
-    valor,
-    gastoFixo,
-    descricao,
-    data,
-    categoriaId: categoria,
-    metodoId: metodo,
-    tipoMovimentacao,
-  });
-
-  //---------------------------------------------------------------------
-  //---------------------------------------------------------------------
-  //---------------------------------------------------------------------
-  //---------------------------------------------------------------------
-  //---------------------------------------------------------------------
-  //---------------------------------------------------------------------
-  //---------------------------------------------------------------------
-
+  // --- CRIAÇÃO DO OBJETO TRANSAÇÃO (Usando seus nomes de variáveis) ---
   const novaTransacao = new Transacao(
     valor,
     tipoMovimentacao === "Saída" ? gastoFixo : false,
     tipoMovimentacao === "Saída" ? descricao : "-",
     data,
-    undefined, // parcelas (usará o default 1 da classe Transacao)
-    undefined, // parcelaAtual (usará o default 1 da classe Transacao)
+    undefined,
+    undefined,
     tipoMovimentacao,
-    categoria, // << Usando sua variável 'categoria' que contém o ID da categoria
-    tipoMovimentacao === "Saída" ? metodo : null // << Usando sua variável 'metodo' que contém o ID do método
+    categoria, // << CORRIGIDO: Usando sua variável 'categoria'
+    tipoMovimentacao === "Saída" ? metodo : null // << CORRIGIDO: Usando sua variável 'metodo'
   );
 
-  // Convertendo a instância da classe para um objeto simples para o Firestore
   const transacaoParaSalvar = { ...novaTransacao };
 
-  // Opcional: Adicionar um timestamp de quando o registro foi criado
-  // transacaoParaSalvar.criadoEm = new Date(); // Data/hora do cliente
-  // Ou, para usar a data/hora do servidor Firestore:
-  // (você precisaria importar 'serverTimestamp' do Firestore)
-  // transacaoParaSalvar.criadoEm = serverTimestamp();
-
-  // 2. TENTAR SALVAR NO FIREBASE
+  // --- SALVAR NO FIREBASE ---
   try {
-    console.log("Tentando salvar transação no Firestore:", transacaoParaSalvar);
-    // Certifique-se de que sua coleção é 'transacao' (singular)
     const docRef = await addDoc(
       collection(db, "transacao"),
       transacaoParaSalvar
@@ -341,73 +257,58 @@ form.addEventListener("submit", async function (event) {
     console.log("Transação salva com ID no Firestore: ", docRef.id);
     alert("Transação salva com sucesso!");
 
-    // 3. SE O SALVAMENTO NO FIREBASE FOI BEM-SUCEDIDO, ATUALIZE A INTERFACE LOCAL
-    //    MOVA O SEU CÓDIGO EXISTENTE PARA ADICIONAR À TABELA VISUAL E LIMPAR O FORMULÁRIO PARA DENTRO DESTE BLOCO 'TRY', AQUI.
-    //    Seu código original (que vem DEPOIS deste bloco que estou te passando)
-    //    para 'console.log(valor, gastoFixo, ...)', 'form.reset()',
-    //    'novaLinha.innerHTML = ...', 'corpoTabela.appendChild(novaLinha)'
-    //    DEVE SER MOVIDO PARA CÁ.
+    // --- ATUALIZAR INTERFACE APÓS SUCESSO ---
+    const corpoTabela = document.getElementById("tabelaMovimentacoes");
+    const novaLinha = document.createElement("tr");
+    const classeValor =
+      tipoMovimentacao === "Entrada" ? "valorEntrada" : "valorSaida";
 
-    // Exemplo de como ficaria com seu código movido para cá:
-    console.log("Atualizando tabela visual e resetando formulário.");
-    // SEU CÓDIGO PARA CRIAR NOVA LINHA NA TABELA (copie e cole aqui)
-    // const corpoTabela = document.getElementById("tabelaMovimentacoes"); // Já definido antes
-    // const novaLinha = document.createElement("tr"); // Já definido antes
-    // const classeValor = tipoMovimentacao === "Entrada" ? "valorEntrada" : "valorSaida"; // Já definido antes
-    const nomeCategoriaParaTabela =
+    const nomeCategoria =
       document.getElementById("categoria").selectedOptions[0]?.textContent ||
       categoria;
-    const nomeMetodoParaTabela =
+    const nomeMetodo =
       tipoMovimentacao === "Saída"
         ? document.getElementById("metodo").selectedOptions[0]?.textContent ||
           metodo
         : "-";
-    const valorFormatadoParaTabela = valor.toLocaleString("pt-BR", {
+    const valorFormatado = valor.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
 
     novaLinha.innerHTML = `
       <td>${new Date(data + "T00:00:00").toLocaleDateString("pt-BR")}</td>
-      <td class="${classeValor}">${valorFormatadoParaTabela}${
+      <td class="${classeValor}">${valorFormatado}${
       tipoMovimentacao === "Saída" && gastoFixo ? "*" : ""
     }</td>
-      <td>${nomeMetodoParaTabela}</td>
-      <td>${nomeCategoriaParaTabela}</td>
+      <td>${nomeMetodo}</td>
+      <td>${nomeCategoria}</td>
       <td>${tipoMovimentacao === "Saída" && descricao ? descricao : "-"}</td>
     `;
-    corpoTabela.appendChild(novaLinha); // 'corpoTabela' e 'novaLinha' devem estar definidos como no seu código original
+    corpoTabela.appendChild(novaLinha);
 
-    form.reset(); // Limpa o formulário
-
-    // Repõe a data de hoje e o estado padrão do formulário para "Saída"
+    form.reset();
     document.getElementById("data").value = new Date()
       .toISOString()
       .split("T")[0];
     tipoMovimentacao = "Saída";
 
+    // Reajustar a interface para o estado padrão "Saída"
     btSaida.classList.add("active");
     btEntrada.classList.remove("active");
-    carregarCategorias("saida"); // Atualiza categorias para "saida"
+    carregarCategorias("saida");
     metodoInput.classList.remove("hidden");
     descricaoInput.classList.remove("hidden");
-    // 'label' aqui é o seu 'gastoFixoLabel', que já deve estar definido no escopo externo.
-    if (label) label.classList.remove("hidden");
+    const labelGastoFixo = document.getElementById("gastoFixoLabel");
+    if (labelGastoFixo) labelGastoFixo.classList.remove("hidden");
 
-    const categoriaSelectElement = document.getElementById("categoria");
-    if (categoriaSelectElement)
-      categoriaSelectElement.classList.remove("margem");
+    const categoriaSelect = document.getElementById("categoria");
+    if (categoriaSelect) categoriaSelect.classList.remove("margem");
   } catch (e) {
     console.error("Erro ao salvar transação no Firestore: ", e);
-    alert("Erro ao salvar transação. Verifique o console e tente novamente.");
-    // Não fazemos nada na interface visual se deu erro ao salvar.
+    alert("Erro ao salvar transação. Verifique o console.");
   }
-
-  // IMPORTANTE: Remova ou comente o seu código original de 'console.log(valor, gastoFixo, ...)',
-  // 'form.reset()', e a criação/adição da novaLinha à tabela que estiver FORA
-  // e APÓS este bloco try...catch, pois agora essas ações estão DENTRO do 'try'
-  // para ocorrerem apenas em caso de sucesso no salvamento.
-}); // Este é o fechamento do seu form.addEventListener
+});
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
@@ -415,26 +316,3 @@ form.addEventListener("submit", async function (event) {
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-// Adicionar a nova transação na tabela
-
-//   console.log(valor, gastoFixo, descricao, data, categoria, metodo);
-//   //Limpar os campos do formulário
-//   form.reset();
-
-//   //CRIAR NOVA LINHA NA TABELA
-
-//   const valorFormatado = valor.toLocaleString("pt-BR", {
-//     style: "currency",
-//     currency: "BRL",
-//   });
-
-//   novaLinha.innerHTML = `
-//     <td>${data}</td>
-//     <td class="${classeValor}">${valorFormatado}${gastoFixo ? "*" : ""}</td>
-//     <td>${tipoMovimentacao === "Saída" ? metodo : "-"}</td>
-//     <td>${categoria}</td>
-//     <td>${tipoMovimentacao === "Saída" ? descricao : "-"}</td>
-//   `;
-
-//   corpoTabela.appendChild(novaLinha);
-// });
