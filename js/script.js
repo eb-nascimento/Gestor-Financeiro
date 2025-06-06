@@ -2,10 +2,8 @@
 import { Metodo } from "./metodo.js";
 import { Categoria } from "./categoria.js";
 import { Transacao } from "./transacao.js";
-
 // Import da instância 'db' do seu arquivo firebase.js
 import { db } from "./firebase.js";
-
 // Imports de funções específicas do Firestore SDK que você usará no script.js
 import {
   collection,
@@ -17,6 +15,68 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // BOTÃO ENTRADA/SAÍDA------------------------------------------------------------------------
+const btSaida = document.getElementById("btSaida");
+const label = document.getElementById("gastoFixoLabel");
+const btEntrada = document.getElementById("btEntrada");
+const metodoInput = document.getElementById("metodo");
+const descricaoInput = document.getElementById("descricao");
+let tipoMovimentacao = "Saída"; // Ao carregar a página, preencher o campo data com a data de hoje
+const inputData = document.getElementById("data");
+const hoje = new Date();
+const dataFormatada = hoje.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+const form = document.getElementById("campos");
+const valorInput = document.getElementById("valor");
+inputData.value = dataFormatada; // Preencher o campo data com a data de hoje
+btSaida.classList.add("active"); // Inicialmente, o botão de saída está ativo
+
+async function carregarTransacoes(mapaCategorias, mapaMetodos) {
+  const corpoTabela = document.getElementById("tabelaMovimentacoes");
+  if (!corpoTabela) return;
+
+  corpoTabela.innerHTML = ""; // Limpa a tabela antes de popular
+
+  try {
+    // 1. CHAMA O MÉTODO ESTÁTICO DA CLASSE TRANSACAO
+    const documentosDeTransacoes = await Transacao.buscarTodas();
+
+    console.log(`Encontradas ${documentosDeTransacoes.length} transações.`);
+
+    // 2. USA O RESULTADO PARA POPULAR A TABELA (manipulação do DOM)
+    documentosDeTransacoes.forEach((doc) => {
+      const transacao = doc.data();
+
+      const nomeCategoria =
+        mapaCategorias.get(transacao.idCategoria) || "Não encontrada";
+      const nomeMetodo = mapaMetodos.get(transacao.idMetodo) || "-";
+
+      const novaLinha = document.createElement("tr");
+      const classeValor =
+        transacao.tipo === "Entrada" ? "valorEntrada" : "valorSaida";
+      const valorFormatado = transacao.valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      const dataFormatada = new Date(
+        transacao.data + "T00:00:00"
+      ).toLocaleDateString("pt-BR");
+
+      novaLinha.innerHTML = `
+        <td>${dataFormatada}</td>
+        <td class="${classeValor}">${valorFormatado}${
+        transacao.gastoFixo && transacao.tipo === "Saída" ? "*" : ""
+      }</td>
+        <td>${nomeMetodo}</td>
+        <td>${nomeCategoria}</td>
+        <td>${transacao.descricao}</td>
+      `;
+      corpoTabela.appendChild(novaLinha);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar e exibir transações na interface:", error);
+    alert("Não foi possível carregar o histórico de transações.");
+  }
+}
+
 async function carregarCategorias(tipoFiltro = null) {
   console.log(
     `1. Função carregarCategorias iniciada. Filtro de tipo: ${tipoFiltro}`
@@ -82,44 +142,49 @@ async function carregarMetodos() {
   }
 }
 
-// E não se esqueça de chamar a nova função dentro do seu listener DOMContentLoaded:
-window.addEventListener("DOMContentLoaded", () => {
-  console.log("A. Evento DOMContentLoaded disparado.");
+window.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOM Carregado. Iniciando aplicação...");
 
-  // 1. Preencher a data (uma vez)
-  const inputDataHoje = document.getElementById("data");
-  if (inputDataHoje && !inputDataHoje.value) {
-    const hoje = new Date();
-    const dataFormatada = hoje.toISOString().split("T")[0];
-    inputDataHoje.value = dataFormatada;
-  }
+  // Passo 1: Configurações visuais e de dados iniciais do formulário
+  // (Define data, botão 'Saída' como ativo, campos visíveis/ocultos, etc.)
+  // Esta parte você já tem e está funcionando.
+  btSaida.classList.add("active");
+  metodoInput.classList.remove("hidden");
+  descricaoInput.classList.remove("hidden");
+  // ... etc.
 
-  // 2. Carregar dropdowns com filtro inicial para "Saída"
-  carregarCategorias("saida"); // MODIFICADO: Chama com filtro "saida"
+  // Passo 2: Carrega os dados para os dropdowns
+  carregarCategorias("saida"); // Filtro inicial para o dropdown
   carregarMetodos();
-});
 
-//BOTÃO ENTRADA/SAÍDA------------------------------------------------------------------------
-const btSaida = document.getElementById("btSaida");
-const label = document.getElementById("gastoFixoLabel");
-const btEntrada = document.getElementById("btEntrada");
-const metodoInput = document.getElementById("metodo");
-const descricaoInput = document.getElementById("descricao");
+  // Passo 3: Busca TODOS os dados de categoria/método para criar os mapas de consulta.
+  //          Isso é necessário para traduzir os IDs na tabela de transações.
+  try {
+    console.log("Criando mapas de consulta para categorias e métodos...");
+    const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
+      getDocs(query(collection(db, "categoria"), orderBy("nome"))), // Busca todas as categorias
+      getDocs(query(collection(db, "metodo"), orderBy("nome"))), // Busca todos os métodos
+    ]);
 
-let tipoMovimentacao = "Saída";
-// Ao carregar a página, preencher o campo data com a data de hoje
-const inputData = document.getElementById("data");
-const hoje = new Date();
-const dataFormatada = hoje.toISOString().split("T")[0]; // Formato YYYY-MM-DD
-inputData.value = dataFormatada;
-// Preencher o campo data com a data de hoje
-window.addEventListener("DOMContentLoaded", () => {
-  const inputData = document.getElementById("data");
-  const hoje = new Date();
-  const dataFormatada = hoje.toISOString().split("T")[0];
-  inputData.value = dataFormatada;
+    const mapaCategorias = new Map(
+      categoriasSnapshot.docs.map((doc) => [doc.id, doc.data().nome])
+    );
+    const mapaMetodos = new Map(
+      metodosSnapshot.docs.map((doc) => [doc.id, doc.data().nome])
+    );
+
+    console.log("Mapas criados. Carregando transações...");
+
+    // Passo 4: Com os mapas prontos, AGORA chamamos carregarTransacoes para popular a tabela
+    await carregarTransacoes(mapaCategorias, mapaMetodos);
+  } catch (error) {
+    console.error(
+      "Erro durante a inicialização dos mapas ou ao carregar transações:",
+      error
+    );
+    alert("Ocorreu um erro ao carregar os dados iniciais da página.");
+  }
 });
-const valorInput = document.getElementById("valor");
 
 valorInput.addEventListener("input", (e) => {
   let numeros = e.target.value.replace(/\D/g, ""); // Só dígitos
@@ -148,9 +213,6 @@ valorInput.addEventListener("input", (e) => {
   const len = e.target.value.length;
   valorInput.setSelectionRange(len, len);
 });
-
-// Inicialmente, o botão de saída está ativo
-btSaida.classList.add("active"); //BOTÃO ATIVO
 
 btSaida.addEventListener("click", function () {
   tipoMovimentacao = "Saída";
@@ -185,11 +247,6 @@ btEntrada.addEventListener("click", function () {
   }
   console.log(tipoMovimentacao);
 });
-
-//BOTÃO SALVAR-------------------------------------------------------------------------------
-const form = document.getElementById("campos");
-
-// Lembre-se de garantir que 'addDoc' está importado no topo do seu script.js
 
 form.addEventListener("submit", async function (event) {
   // Mantenha 'async'

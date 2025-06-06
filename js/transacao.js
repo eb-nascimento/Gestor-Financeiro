@@ -1,75 +1,42 @@
-// Importe as dependências do Firebase aqui
+// Adicione estas importações no topo do arquivo js/transacao.js
+
 import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
+  getDocs,
+  query,
+  orderBy,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// A sua classe Transacao vem logo abaixo...
 export class Transacao {
-  constructor(
-    valor,
-    gastoFixo,
-    descricao,
-    data,
-    parcelas,
-    parcelaAtual,
-    tipo,
-    idCategoria,
-    idMetodo
-  ) {
-    this.valor = valor;
-    this.gastoFixo = gastoFixo;
-    this.descricao = descricao;
-    this.data = data;
-    this.parcelas = parcelas || 1;
-    this.parcelaAtual = parcelaAtual || 1;
-    this.tipo = tipo;
-    this.idCategoria = idCategoria;
-    this.idMetodo = idMetodo;
+  // Seu construtor atual
+  constructor(valor, gastoFixo /* ... etc */) {
+    // ...
   }
 
-  // --- NOVO MÉTODO ESTÁTICO ---
-  // Este método é responsável por receber os dados, criar uma instância e salvá-la no Firestore.
-  static async salvar(dadosDaTransacao) {
+  // Seu método estático para salvar (static async salvar...)
+  // ...
+
+  // Seu método estático para buscar (static async buscarTodas...)
+  // Agora ele funcionará, pois 'query', 'collection' e 'orderBy' foram importados neste arquivo.
+  static async buscarTodas() {
     console.log(
-      "(Classe Transacao) Salvando nova transação com os dados:",
-      dadosDaTransacao
+      "(Classe Transacao) Buscando todas as transações no Firestore..."
     );
     try {
-      // 1. Cria uma instância da classe para garantir que os dados estejam no formato correto
-      //    e para aplicar valores padrão (como parcelas = 1).
-      const novaTransacao = new Transacao(
-        dadosDaTransacao.valor,
-        dadosDaTransacao.gastoFixo,
-        dadosDaTransacao.descricao,
-        dadosDaTransacao.data,
-        dadosDaTransacao.parcelas, // undefined, usará o default da classe
-        dadosDaTransacao.parcelaAtual, // undefined, usará o default da classe
-        dadosDaTransacao.tipo,
-        dadosDaTransacao.idCategoria,
-        dadosDaTransacao.idMetodo
-      );
-
-      // 2. Converte a instância para um objeto simples para o Firestore.
-      const transacaoParaSalvar = { ...novaTransacao };
-
-      // Opcional: Adicionar um timestamp de criação
-      // transacaoParaSalvar.criadoEm = new Date();
-
-      // 3. Salva no Firestore na coleção 'transacao' (singular).
-      const docRef = await addDoc(
+      const consulta = query(
         collection(db, "transacao"),
-        transacaoParaSalvar
+        orderBy("data", "desc")
       );
-      console.log(
-        "(Classe Transacao) Transação salva com sucesso com o ID: ",
-        docRef.id
-      );
-
-      return docRef; // Retorna a referência do documento, pode ser útil no futuro.
+      const querySnapshot = await getDocs(consulta);
+      return querySnapshot.docs;
     } catch (error) {
-      console.error("Erro na classe Transacao ao salvar dados:", error);
-      throw error; // Propaga o erro para ser tratado no script.js (ex: com um alert)
+      console.error("Erro na classe Transacao ao buscar dados:", error);
+      throw new Error(
+        "Não foi possível buscar as transações no banco de dados."
+      );
     }
   }
 }
