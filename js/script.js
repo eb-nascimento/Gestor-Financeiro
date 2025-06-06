@@ -1,55 +1,93 @@
-// Imports das suas classes locais
+// Imports das suas classes locais (onde a lógica de dados agora reside)
 import { Metodo } from "./metodo.js";
 import { Categoria } from "./categoria.js";
 import { Transacao } from "./transacao.js";
-// Import da instância 'db' do seu arquivo firebase.js
-import { db } from "./firebase.js";
-// Imports de funções específicas do Firestore SDK que você usará no script.js
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  addDoc, // << VERIFIQUE SE ESTÁ AQUI
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// BOTÃO ENTRADA/SAÍDA------------------------------------------------------------------------
+// --- CONSTANTES DOS ELEMENTOS DO FORMULÁRIO ---
 const btSaida = document.getElementById("btSaida");
-const label = document.getElementById("gastoFixoLabel");
 const btEntrada = document.getElementById("btEntrada");
 const metodoInput = document.getElementById("metodo");
 const descricaoInput = document.getElementById("descricao");
-let tipoMovimentacao = "Saída"; // Ao carregar a página, preencher o campo data com a data de hoje
-const inputData = document.getElementById("data");
-const hoje = new Date();
-const dataFormatada = hoje.toISOString().split("T")[0]; // Formato YYYY-MM-DD
-const form = document.getElementById("campos");
+const labelGastoFixo = document.getElementById("gastoFixoLabel");
 const valorInput = document.getElementById("valor");
-inputData.value = dataFormatada; // Preencher o campo data com a data de hoje
-btSaida.classList.add("active"); // Inicialmente, o botão de saída está ativo
+const form = document.getElementById("campos");
+let tipoMovimentacao = "Saída"; // Define o tipo padrão
 
-async function carregarTransacoes(mapaCategorias, mapaMetodos) {
+// --- FUNÇÕES DE INTERFACE (População de Dropdowns e Tabela) ---
+
+// Função para popular o dropdown de CATEGORIAS
+async function carregarCategorias(tipoFiltro = null) {
+  const categoriaSelect = document.getElementById("categoria");
+  if (!categoriaSelect) return;
+  categoriaSelect.innerHTML =
+    '<option value="">Selecione uma categoria</option>';
+  try {
+    const documentos = await Categoria.buscarTodas(tipoFiltro);
+    documentos.forEach((doc) => {
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = doc.data().nome;
+      categoriaSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar categorias na interface:", error);
+    alert("Não foi possível carregar as categorias.");
+  }
+}
+
+// Função para popular o dropdown de MÉTODOS
+async function carregarMetodos() {
+  const metodoSelect = document.getElementById("metodo");
+  if (!metodoSelect) return;
+  metodoSelect.innerHTML = '<option value="">Selecione um método</option>';
+  try {
+    const documentos = await Metodo.buscarTodos();
+    documentos.forEach((doc) => {
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = doc.data().nome;
+      metodoSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar métodos na interface:", error);
+    alert("Não foi possível carregar os métodos.");
+  }
+}
+
+// Função para popular a TABELA de TRANSAÇÕES
+async function carregarTransacoes() {
   const corpoTabela = document.getElementById("tabelaMovimentacoes");
   if (!corpoTabela) return;
-
-  corpoTabela.innerHTML = ""; // Limpa a tabela antes de popular
+  corpoTabela.innerHTML = "";
 
   try {
-    // 1. CHAMA O MÉTODO ESTÁTICO DA CLASSE TRANSACAO
-    const documentosDeTransacoes = await Transacao.buscarTodas();
+    const documentos = await Transacao.buscarTodas(); // Chama o método da classe
+    if (documentos.length === 0) {
+      console.log("Nenhuma transação encontrada no banco de dados.");
+      return;
+    }
 
-    console.log(`Encontradas ${documentosDeTransacoes.length} transações.`);
+    // Para traduzir IDs em nomes, precisamos dos mapas. Vamos buscá-los aqui.
+    // (Esta parte pode ser otimizada, mas para clareza, vamos mantê-la simples por enquanto)
+    const [categoriasDocs, metodosDocs] = await Promise.all([
+      Categoria.buscarTodas(),
+      Metodo.buscarTodos(),
+    ]);
+    const mapaCategorias = new Map(
+      categoriasDocs.map((doc) => [doc.id, doc.data().nome])
+    );
+    const mapaMetodos = new Map(
+      metodosDocs.map((doc) => [doc.id, doc.data().nome])
+    );
 
-    // 2. USA O RESULTADO PARA POPULAR A TABELA (manipulação do DOM)
-    documentosDeTransacoes.forEach((doc) => {
+    documentos.forEach((doc) => {
       const transacao = doc.data();
-
       const nomeCategoria =
         mapaCategorias.get(transacao.idCategoria) || "Não encontrada";
       const nomeMetodo = mapaMetodos.get(transacao.idMetodo) || "-";
 
       const novaLinha = document.createElement("tr");
+      novaLinha.dataset.id = doc.id;
       const classeValor =
         transacao.tipo === "Entrada" ? "valorEntrada" : "valorSaida";
       const valorFormatado = transacao.valor.toLocaleString("pt-BR", {
@@ -72,304 +110,125 @@ async function carregarTransacoes(mapaCategorias, mapaMetodos) {
       corpoTabela.appendChild(novaLinha);
     });
   } catch (error) {
-    console.error("Erro ao carregar e exibir transações na interface:", error);
+    console.error("Erro ao carregar e exibir transações:", error);
     alert("Não foi possível carregar o histórico de transações.");
   }
 }
 
-async function carregarCategorias(tipoFiltro = null) {
-  console.log(
-    `1. Função carregarCategorias iniciada. Filtro de tipo: ${tipoFiltro}`
-  );
+// --- LÓGICA DE INTERFACE (Botões Entrada/Saída, Formatação de Valor) ---
+function ajustarInterfacePorTipoMovimentacao() {
   const categoriaSelect = document.getElementById("categoria");
-
-  if (!categoriaSelect) return;
-
-  categoriaSelect.innerHTML =
-    '<option value="">Selecione uma categoria</option>';
-
-  try {
-    const documentosDeCategorias = await Categoria.buscarTodas(tipoFiltro);
-
-    if (documentosDeCategorias.length === 0) {
-      console.warn(
-        `Nenhuma categoria encontrada para o filtro '${tipoFiltro}'.`
-      );
-    }
-
-    documentosDeCategorias.forEach((doc) => {
-      const categoriaData = doc.data();
-      const option = document.createElement("option");
-      option.value = doc.id; // O valor da opção será o ID do documento no Firestore
-      option.textContent = categoriaData.nome; // O texto visível será o nome da categoria
-      categoriaSelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar categorias:", error);
-    alert(
-      "Ocorreu um erro ao carregar as categorias. Verifique o console para mais detalhes."
-    );
-  }
-}
-
-async function carregarMetodos() {
-  console.log("Populando dropdown de métodos...");
-  const metodoSelect = document.getElementById("metodo");
-
-  if (!metodoSelect) return;
-
-  metodoSelect.innerHTML = '<option value="">Selecione um método</option>';
-
-  try {
-    // 1. CHAMA O MÉTODO ESTÁTICO DA CLASSE METODO
-    const documentosDeMetodos = await Metodo.buscarTodos();
-
-    // 2. USA O RESULTADO PARA POPULAR O DOM
-    if (documentosDeMetodos.length === 0) {
-      console.warn("Nenhum método encontrado.");
-    }
-
-    documentosDeMetodos.forEach((doc) => {
-      const metodoData = doc.data();
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = metodoData.nome;
-      metodoSelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar e popular métodos na interface:", error);
-    alert("Não foi possível carregar os métodos.");
-  }
-}
-
-window.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM Carregado. Iniciando aplicação...");
-
-  // Passo 1: Configurações visuais e de dados iniciais do formulário
-  // (Define data, botão 'Saída' como ativo, campos visíveis/ocultos, etc.)
-  // Esta parte você já tem e está funcionando.
-  btSaida.classList.add("active");
-  metodoInput.classList.remove("hidden");
-  descricaoInput.classList.remove("hidden");
-  // ... etc.
-
-  // Passo 2: Carrega os dados para os dropdowns
-  carregarCategorias("saida"); // Filtro inicial para o dropdown
-  carregarMetodos();
-
-  // Passo 3: Busca TODOS os dados de categoria/método para criar os mapas de consulta.
-  //          Isso é necessário para traduzir os IDs na tabela de transações.
-  try {
-    console.log("Criando mapas de consulta para categorias e métodos...");
-    const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
-      getDocs(query(collection(db, "categoria"), orderBy("nome"))), // Busca todas as categorias
-      getDocs(query(collection(db, "metodo"), orderBy("nome"))), // Busca todos os métodos
-    ]);
-
-    const mapaCategorias = new Map(
-      categoriasSnapshot.docs.map((doc) => [doc.id, doc.data().nome])
-    );
-    const mapaMetodos = new Map(
-      metodosSnapshot.docs.map((doc) => [doc.id, doc.data().nome])
-    );
-
-    console.log("Mapas criados. Carregando transações...");
-
-    // Passo 4: Com os mapas prontos, AGORA chamamos carregarTransacoes para popular a tabela
-    await carregarTransacoes(mapaCategorias, mapaMetodos);
-  } catch (error) {
-    console.error(
-      "Erro durante a inicialização dos mapas ou ao carregar transações:",
-      error
-    );
-    alert("Ocorreu um erro ao carregar os dados iniciais da página.");
-  }
-});
-
-valorInput.addEventListener("input", (e) => {
-  let numeros = e.target.value.replace(/\D/g, ""); // Só dígitos
-
-  if (numeros === "") {
-    e.target.value = "";
-    return;
-  }
-
-  // Limite de 9 dígitos para evitar valores absurdos (até 9.999.999,99)
-  if (numeros.length > 9) numeros = numeros.slice(0, 9);
-
-  // Converte centavos → reais mantendo as casas decimais
-  const valorNumero = parseFloat(numeros) / 100;
-
-  // Formata como moeda brasileira
-  const valorFormatado = valorNumero.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-
-  // Atualiza o campo
-  e.target.value = valorFormatado;
-
-  // Coloca o cursor no fim
-  const len = e.target.value.length;
-  valorInput.setSelectionRange(len, len);
-});
-
-btSaida.addEventListener("click", function () {
-  tipoMovimentacao = "Saída";
-  btSaida.classList.add("active");
-  btEntrada.classList.remove("active");
-
-  carregarCategorias("saida"); // MODIFICADO: Chama com filtro "saida"
-
-  metodoInput.classList.remove("hidden");
-  descricaoInput.classList.remove("hidden");
-  label.classList.remove("hidden");
-  const categoriaSelect = document.getElementById("categoria");
-  if (categoriaSelect) {
-    categoriaSelect.classList.remove("margem");
-  }
-  console.log(tipoMovimentacao);
-});
-
-btEntrada.addEventListener("click", function () {
-  tipoMovimentacao = "Entrada";
-  btEntrada.classList.add("active");
-  btSaida.classList.remove("active");
-
-  carregarCategorias("entrada"); // SUGESTÃO: Chama com filtro "entrada" (confirme se é isso)
-
-  metodoInput.classList.add("hidden"); // Método oculto para Entrada (conforme sua última decisão)
-  descricaoInput.classList.add("hidden");
-  label.classList.add("hidden");
-  const categoriaSelect = document.getElementById("categoria");
-  if (categoriaSelect) {
-    categoriaSelect.classList.add("margem");
-  }
-  console.log(tipoMovimentacao);
-});
-
-form.addEventListener("submit", async function (event) {
-  // Mantenha 'async'
-  event.preventDefault();
-
-  // --- COLETA E VALIDAÇÃO DE DADOS (Usando seus nomes de variáveis) ---
-  let valorBruto = document.getElementById("valor").value;
-  let valor = parseFloat(
-    valorBruto.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
-  );
-  if (isNaN(valor) || valor <= 0) {
-    alert("Digite um valor numérico válido!");
-    return;
-  }
-  const checkbox = document.getElementById("gastoFixo");
-  const gastoFixo = checkbox.checked;
-  const descricao = document.getElementById("descricao").value;
-  const data = document.getElementById("data").value;
-
-  const regexData = /^\d{4}-\d{2}-\d{2}$/;
-  if (!regexData.test(data)) {
-    alert("Data inválida! Use o formato AAAA-MM-DD.");
-    return;
-  }
-
-  // Pegando os IDs dos selects com seus nomes de variáveis originais
-  const categoria = document.getElementById("categoria").value;
-  const metodo = document.getElementById("metodo").value;
-
-  // Validações
-  if (!data || !valor || !categoria) {
-    // Usa a variável 'categoria'
-    alert("Preencha os campos Data, Valor e Categoria!");
-    return;
-  }
   if (tipoMovimentacao === "Saída") {
-    if (!metodo || !descricao) {
-      // Usa as variáveis 'metodo' e 'descricao'
-      alert("Para Saída, preencha Método e Descrição!");
-      return;
-    }
-  }
-
-  // --- CRIAÇÃO DO OBJETO TRANSAÇÃO (Usando seus nomes de variáveis) ---
-  const novaTransacao = new Transacao(
-    valor,
-    tipoMovimentacao === "Saída" ? gastoFixo : false,
-    tipoMovimentacao === "Saída" ? descricao : "-",
-    data,
-    undefined,
-    undefined,
-    tipoMovimentacao,
-    categoria, // << CORRIGIDO: Usando sua variável 'categoria'
-    tipoMovimentacao === "Saída" ? metodo : null // << CORRIGIDO: Usando sua variável 'metodo'
-  );
-
-  const transacaoParaSalvar = { ...novaTransacao };
-
-  // --- SALVAR NO FIREBASE ---
-  try {
-    const docRef = await addDoc(
-      collection(db, "transacao"),
-      transacaoParaSalvar
-    );
-    console.log("Transação salva com ID no Firestore: ", docRef.id);
-    alert("Transação salva com sucesso!");
-
-    // --- ATUALIZAR INTERFACE APÓS SUCESSO ---
-    const corpoTabela = document.getElementById("tabelaMovimentacoes");
-    const novaLinha = document.createElement("tr");
-    const classeValor =
-      tipoMovimentacao === "Entrada" ? "valorEntrada" : "valorSaida";
-
-    const nomeCategoria =
-      document.getElementById("categoria").selectedOptions[0]?.textContent ||
-      categoria;
-    const nomeMetodo =
-      tipoMovimentacao === "Saída"
-        ? document.getElementById("metodo").selectedOptions[0]?.textContent ||
-          metodo
-        : "-";
-    const valorFormatado = valor.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-
-    novaLinha.innerHTML = `
-      <td>${new Date(data + "T00:00:00").toLocaleDateString("pt-BR")}</td>
-      <td class="${classeValor}">${valorFormatado}${
-      tipoMovimentacao === "Saída" && gastoFixo ? "*" : ""
-    }</td>
-      <td>${nomeMetodo}</td>
-      <td>${nomeCategoria}</td>
-      <td>${tipoMovimentacao === "Saída" && descricao ? descricao : "-"}</td>
-    `;
-    corpoTabela.appendChild(novaLinha);
-
-    form.reset();
-    document.getElementById("data").value = new Date()
-      .toISOString()
-      .split("T")[0];
-    tipoMovimentacao = "Saída";
-
-    // Reajustar a interface para o estado padrão "Saída"
     btSaida.classList.add("active");
     btEntrada.classList.remove("active");
     carregarCategorias("saida");
     metodoInput.classList.remove("hidden");
     descricaoInput.classList.remove("hidden");
-    const labelGastoFixo = document.getElementById("gastoFixoLabel");
-    if (labelGastoFixo) labelGastoFixo.classList.remove("hidden");
-
-    const categoriaSelect = document.getElementById("categoria");
+    labelGastoFixo.classList.remove("hidden");
     if (categoriaSelect) categoriaSelect.classList.remove("margem");
-  } catch (e) {
-    console.error("Erro ao salvar transação no Firestore: ", e);
-    alert("Erro ao salvar transação. Verifique o console.");
+  } else {
+    // Entrada
+    btEntrada.classList.add("active");
+    btSaida.classList.remove("active");
+    carregarCategorias("entrada");
+    metodoInput.classList.add("hidden");
+    descricaoInput.classList.add("hidden");
+    labelGastoFixo.classList.add("hidden");
+    if (categoriaSelect) categoriaSelect.classList.add("margem");
+  }
+}
+
+btSaida.addEventListener("click", () => {
+  if (tipoMovimentacao !== "Saída") {
+    tipoMovimentacao = "Saída";
+    ajustarInterfacePorTipoMovimentacao();
   }
 });
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
-//---------------------------------------------------------------------
+
+btEntrada.addEventListener("click", () => {
+  if (tipoMovimentacao !== "Entrada") {
+    tipoMovimentacao = "Entrada";
+    ajustarInterfacePorTipoMovimentacao();
+  }
+});
+
+valorInput.addEventListener("input", (e) => {
+  let valor = e.target.value.replace(/\D/g, "");
+  valor = (parseFloat(valor) / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  e.target.value = valor;
+});
+
+// --- SUBMISSÃO DO FORMULÁRIO ---
+form.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  // Coleta dos dados
+  const valorBruto = document.getElementById("valor").value;
+  const valor = parseFloat(valorBruto.replace(/[^\d,]/g, "").replace(",", "."));
+  const gastoFixo = document.getElementById("gastoFixo").checked;
+  const descricao = document.getElementById("descricao").value;
+  const data = document.getElementById("data").value;
+  const categoriaId = document.getElementById("categoria").value;
+  const metodoId = document.getElementById("metodo").value;
+
+  // Validações
+  if (isNaN(valor) || valor <= 0)
+    return alert("Digite um valor numérico válido!");
+  if (!data || !categoriaId)
+    return alert("Preencha os campos Data e Categoria!");
+  if (tipoMovimentacao === "Saída" && (!metodoId || !descricao))
+    return alert("Para Saída, preencha Método e Descrição!");
+
+  // Monta o objeto com os dados para salvar
+  const dadosParaSalvar = {
+    valor: valor,
+    gastoFixo: tipoMovimentacao === "Saída" ? gastoFixo : false,
+    descricao: tipoMovimentacao === "Saída" ? descricao : "-",
+    data: data,
+    tipo: tipoMovimentacao,
+    idCategoria: categoriaId,
+    idMetodo: tipoMovimentacao === "Saída" ? metodoId : null,
+  };
+
+  try {
+    // Chama o método estático da classe Transacao para salvar
+    await Transacao.salvar(dadosParaSalvar);
+    alert("Transação salva com sucesso!");
+
+    // Atualiza a tabela com a nova transação
+    await carregarTransacoes();
+
+    // Limpa e reseta o formulário
+    form.reset();
+    document.getElementById("data").value = new Date()
+      .toISOString()
+      .split("T")[0];
+    tipoMovimentacao = "Saída";
+    ajustarInterfacePorTipoMovimentacao();
+  } catch (e) {
+    console.error("Erro no processo de salvamento:", e);
+    alert("Erro ao salvar a transação.");
+  }
+});
+
+// --- INICIALIZAÇÃO DA PÁGINA ---
+window.addEventListener("DOMContentLoaded", () => {
+  console.log("Página carregada. Iniciando aplicação...");
+
+  // Define a data inicial
+  document.getElementById("data").value = new Date()
+    .toISOString()
+    .split("T")[0];
+
+  // Carrega dados dos dropdowns
+  carregarMetodos();
+
+  // Configura a interface inicial (para 'Saída') e carrega as categorias filtradas
+  ajustarInterfacePorTipoMovimentacao();
+
+  // Carrega e exibe o histórico de transações na tabela
+  carregarTransacoes();
+});
