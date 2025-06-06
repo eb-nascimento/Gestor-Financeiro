@@ -1,14 +1,18 @@
-// Conteúdo para o arquivo: js/transacao.js
+// Conteúdo completo para o arquivo: js/transacao.js
 
-// Importe as dependências do Firebase aqui
+// 1. ADICIONE AS IMPORTAÇÕES DO FIREBASE AQUI
 import { db } from "./firebase.js";
 import {
   collection,
+  getDocs,
+  query,
+  orderBy,
   addDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// 2. SUA CLASSE TRANSACAO COM OS MÉTODOS ESTÁTICOS
 export class Transacao {
-  // Seu construtor atual (continua igual)
+  // Seu construtor atual (continua o mesmo)
   constructor(
     valor,
     gastoFixo,
@@ -31,10 +35,9 @@ export class Transacao {
     this.idMetodo = idMetodo;
   }
 
-  // --- ADICIONE ESTE MÉTODO ESTÁTICO À SUA CLASSE ---
+  // MÉTODO ESTÁTICO PARA SALVAR (que discutimos antes)
   static async salvar(dadosDaTransacao) {
     try {
-      // Cria uma nova instância da classe para garantir a estrutura correta dos dados
       const novaInstancia = new Transacao(
         dadosDaTransacao.valor,
         dadosDaTransacao.gastoFixo,
@@ -46,25 +49,37 @@ export class Transacao {
         dadosDaTransacao.idCategoria,
         dadosDaTransacao.idMetodo
       );
-
-      // Converte para um objeto simples para salvar no Firestore
       const transacaoParaSalvar = { ...novaInstancia };
-
-      // Salva o objeto na coleção 'transacao'
       const docRef = await addDoc(
         collection(db, "transacao"),
         transacaoParaSalvar
       );
-      console.log(
-        "(Classe Transacao) Dados salvos com sucesso com o ID:",
-        docRef.id
-      );
-
-      return docRef; // Retorna a referência do documento
+      return docRef;
     } catch (error) {
-      console.error("Erro na classe Transacao ao tentar salvar:", error);
-      // Lança um novo erro para ser pego pelo script.js
-      throw new Error("Não foi possível salvar a transação no banco de dados.");
+      console.error("Erro na classe Transacao ao salvar:", error);
+      throw new Error("Não foi possível salvar a transação.");
+    }
+  }
+
+  // --- NOVO MÉTODO ESTÁTICO PARA BUSCAR TRANSAÇÕES ---
+  static async buscarTodas() {
+    console.log("(Classe Transacao) Buscando todas as transações...");
+    try {
+      // Cria a consulta para buscar na coleção 'transacao', ordenando pela data mais recente
+      const consulta = query(
+        collection(db, "transacao"),
+        orderBy("data", "desc")
+      );
+      const querySnapshot = await getDocs(consulta);
+
+      // Retorna o array de documentos para o script.js usar
+      return querySnapshot.docs;
+    } catch (error) {
+      console.error(
+        "Erro na classe Transacao ao buscar todas as transações:",
+        error
+      );
+      throw new Error("Não foi possível buscar as transações.");
     }
   }
 }
