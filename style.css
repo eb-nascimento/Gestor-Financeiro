@@ -117,6 +117,7 @@ label {
   font-size: 16px;
   margin-top: 5px;
   margin-bottom: 20px;
+  color: #334666;
 }
 
 option {
@@ -137,7 +138,7 @@ option {
   width: 15px;
   height: 100%;
   border: none;
-  background-color: transparent;
+  background-color: #f1f1f1;
   color: #334666;
   font-size: 16px;
 }
