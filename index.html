@@ -27,19 +27,19 @@
             <input type="checkbox" id="gastoFixo" name="gastoFixo" />
             Gasto fixo?</label
           >
-          <input
-            type="text"
-            id="categoria"
-            name="categoria"
-            placeholder="Categoria"
-          />
+          <select id="categoria" name="categoria">
+            <option value="">Selecione uma categoria</option>
+          </select>
+
+          <select id="metodo" name="metodo">
+            <option value="">Selecione o método</option>
+          </select>
           <input
             type="text"
             id="descricao"
             name="descricao"
             placeholder="Descrição"
           />
-          <input type="text" id="metodo" name="método" placeholder="Metodo" />
           <button id="salvarTransacao" type="submit">Salvar</button>
         </form>
       </section>
