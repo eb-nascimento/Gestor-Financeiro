@@ -1,4 +1,4 @@
-// Importe as dependências do Firebase aqui
+// js/metodo.js
 import { db } from "./firebase.js";
 import {
   collection,
@@ -15,21 +15,15 @@ export class Metodo {
   }
 
   // --- NOVO MÉTODO ESTÁTICO ---
-  // Este método é responsável por buscar os métodos no Firestore.
   static async buscarTodos() {
-    console.log("(Classe Metodo) Buscando métodos no Firestore...");
+    // Nome no plural para consistência
     try {
-      const baseCollection = collection(db, "metodo");
-      // Cria a consulta com ordenação por nome
-      const consultaFB = query(baseCollection, orderBy("nome"));
-
-      const querySnapshot = await getDocs(consultaFB);
-
-      // Retorna o array de documentos encontrados
+      const consulta = query(collection(db, "metodo"), orderBy("nome"));
+      const querySnapshot = await getDocs(consulta);
       return querySnapshot.docs;
     } catch (error) {
       console.error("Erro na classe Metodo ao buscar dados:", error);
-      throw error; // Propaga o erro
+      throw error;
     }
   }
 }

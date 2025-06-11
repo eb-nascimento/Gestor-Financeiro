@@ -8,6 +8,12 @@ import {
   query,
   orderBy,
   addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  where,
+  getDoc,
+  setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // 2. SUA CLASSE TRANSACAO COM OS MÉTODOS ESTÁTICOS
@@ -80,6 +86,47 @@ export class Transacao {
         error
       );
       throw new Error("Não foi possível buscar as transações.");
+    }
+  }
+
+  static async atualizar(id, dadosParaAtualizar) {
+    console.log(
+      `(Classe Transacao) Atualizando documento ${id} com os dados:`,
+      dadosParaAtualizar
+    );
+    try {
+      // Cria a referência para o documento específico que queremos atualizar
+      const transacaoRef = doc(db, "transacao", id);
+
+      // Usa o 'updateDoc' do Firestore para aplicar as alterações
+      await updateDoc(transacaoRef, dadosParaAtualizar);
+
+      console.log("Documento atualizado com sucesso no Firestore!");
+      return true; // Retorna sucesso
+    } catch (error) {
+      console.error("Erro na classe Transacao ao tentar atualizar:", error);
+      throw new Error(
+        "Não foi possível atualizar a transação no banco de dados."
+      );
+    }
+  }
+
+  static async excluir(id) {
+    console.log(`(Classe Transacao) Excluindo documento com ID: ${id}`);
+    try {
+      // Cria a referência para o documento específico que queremos excluir
+      const transacaoRef = doc(db, "transacao", id);
+
+      // Usa o 'deleteDoc' do Firestore para remover o documento
+      await deleteDoc(transacaoRef);
+
+      console.log("Documento excluído com sucesso do Firestore!");
+      return true; // Retorna sucesso
+    } catch (error) {
+      console.error("Erro na classe Transacao ao tentar excluir:", error);
+      throw new Error(
+        "Não foi possível excluir a transação no banco de dados."
+      );
     }
   }
 }

@@ -112,7 +112,48 @@
           </button>
         </section>
       </section>
+
+      <div id="edit-modal-container" class="modal-container hidden">
+        <section id="edit-movimentacao" class="modal-content">
+          <button id="close-modal-btn" class="close-btn">&times;</button>
+
+          <h1>Editar</h1>
+
+          <form id="edit-campos">
+            <input type="date" id="edit-data" name="data" />
+            <input
+              type="text"
+              id="edit-valor"
+              name="valor"
+              placeholder="R$ 0,00"
+            />
+
+            <label id="edit-gastoFixoLabel">
+              <input type="checkbox" id="edit-gastoFixo" name="gastoFixo" />
+              Gasto fixo?
+            </label>
+
+            <input
+              type="text"
+              id="edit-descricao"
+              name="descricao"
+              placeholder="Descrição"
+            />
+
+            <select name="categoria" id="edit-categoria"></select>
+            <select name="metodo" id="edit-metodo"></select>
+
+            <input type="hidden" id="edit-transacao-id" />
+
+            <div class="modal-actions">
+              <button type="button" id="btExcluir">Excluir</button
+              ><button type="submit" id="btSalvarEdicao">Salvar</button>
+            </div>
+          </form>
+        </section>
+      </div>
     </section>
+
     <section id="menu">
       <button>
         <img class="menu-item" src="img/CirclesFour.svg" alt="menu" />

@@ -563,3 +563,147 @@ tr:last-child td:last-child {
     height: 50px;
   }
 }
+
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* === MODAL DE EDIÇÃO === */
+/* --- ESTILOS DO MODAL DE EDIÇÃO --- */
+
+.modal-container {
+  position: fixed; /* Fica fixo na tela */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Garante que fique sobre todo o conteúdo */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Classe para esconder o modal */
+.modal-container.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.modal-content {
+  background-color: #f1f1f1;
+  padding: 10px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  height: 90%;
+  width: 400px; /* Largura do modal, ajuste conforme necessário */
+  max-width: 90%;
+  position: relative; /* Necessário para posicionar o botão de fechar */
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-content h1 {
+  margin: 10px;
+}
+
+.modal-content input {
+  width: 80%; /* Ajusta a largura dos inputs */
+  margin-bottom: 15px; /* Espaçamento entre os inputs */
+}
+
+.modal-content input,
+select {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 60%;
+  height: 54px;
+  border-radius: 15px;
+  border: 2px solid #c1cbd7;
+  background-color: #f1f1f1;
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+  color: #334666;
+}
+
+#edit-campos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#edit-valor,
+#edit-metodo {
+  margin-bottom: 0px;
+}
+
+#edit-gastoFixo {
+  margin: 0px;
+  margin-inline: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 100%;
+  border: none;
+  background-color: #f1f1f1;
+  color: #334666;
+  font-size: 16px;
+}
+
+/* Estilo do botão de fechar (o 'X') */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Estilos para os campos do formulário de edição */
+#edit-movimentacao form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container para os botões de ação do modal */
+.modal-actions {
+  display: flex;
+  justify-content: space-between; /* Coloca um botão em cada ponta */
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+  width: 50%; /* Ajusta a largura dos botões */
+  margin-inline: 10px;
+}
+
+#btSalvarEdicao {
+  background-color: #4caf50; /* Verde */
+  color: white;
+}
+
+#btExcluir {
+  background-color: #f44336; /* Vermelho */
+  color: white;
+}
