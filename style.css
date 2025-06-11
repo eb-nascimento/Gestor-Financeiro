@@ -593,21 +593,18 @@ tr:last-child td:last-child {
 
 .modal-content {
   background-color: #f1f1f1;
-  padding: 10px;
   border-radius: 15px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  height: 90%;
-  width: 400px; /* Largura do modal, ajuste conforme necessário */
-  max-width: 90%;
+  height: 95%;
+  width: 500px; /* Largura do modal, ajuste conforme necessário */
+  max-width: 100%;
   position: relative; /* Necessário para posicionar o botão de fechar */
-  align-items: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .modal-content h1 {
-  margin: 10px;
+  margin: 20px;
 }
 
 .modal-content input {

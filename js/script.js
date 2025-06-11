@@ -88,6 +88,59 @@ if (btExcluir) {
     }
   });
 }
+
+if (formEdicao) {
+  formEdicao.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Impede o recarregamento da página
+
+    // 1. Coleta os dados dos campos do modal de edição
+    const transacaoId = document.getElementById("edit-transacao-id").value;
+    if (!transacaoId) {
+      return alert("Erro: ID da transação não encontrado.");
+    }
+
+    const data = document.getElementById("edit-data").value;
+    const valorBruto = document.getElementById("edit-valor").value;
+    const gastoFixo = document.getElementById("edit-gastoFixo").checked;
+    const descricao = document.getElementById("edit-descricao").value;
+    const idCategoria = document.getElementById("edit-categoria").value;
+    const idMetodo = document.getElementById("edit-metodo").value;
+
+    // Validação e formatação do valor
+    const valor = parseFloat(
+      valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
+    );
+    if (isNaN(valor) || valor <= 0) {
+      return alert("O valor inserido é inválido.");
+    }
+    // Adicione outras validações que achar necessárias...
+
+    // 2. Monta um objeto SOMENTE com os dados que podem ser atualizados
+    const dadosAtualizados = {
+      data: data,
+      valor: valor,
+      gastoFixo: gastoFixo,
+      descricao: descricao,
+      idCategoria: idCategoria,
+      idMetodo: idMetodo,
+      // Note que não incluímos 'tipo', pois geralmente não se muda o tipo de uma transação (de entrada para saída)
+    };
+
+    try {
+      // 3. Chama o método da classe Transacao para fazer a atualização
+      await Transacao.atualizar(transacaoId, dadosAtualizados);
+
+      alert("Alterações salvas com sucesso!");
+
+      // 4. Fecha o modal e atualiza a tabela na tela principal
+      document.getElementById("edit-modal-container").classList.add("hidden");
+      await carregarTransacoes(); // Recarrega a tabela para mostrar os dados atualizados
+    } catch (error) {
+      console.error("Erro ao salvar alterações:", error);
+      alert("Não foi possível salvar as alterações.");
+    }
+  });
+}
 // --- FUNÇÕES DE INTERFACE (População de Dropdowns e Tabela) ---
 // Função para popular o dropdown de CATEGORIAS
 async function carregarCategorias(selectElementId, tipoFiltro = null) {
@@ -450,57 +503,4 @@ async function abrirModalDeEdicao(transacaoId) {
     console.error("Erro ao buscar ou preencher dados da transação:", error);
     alert("Ocorreu um erro ao abrir a edição.");
   }
-}
-
-if (formEdicao) {
-  formEdicao.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Impede o recarregamento da página
-
-    // 1. Coleta os dados dos campos do modal de edição
-    const transacaoId = document.getElementById("edit-transacao-id").value;
-    if (!transacaoId) {
-      return alert("Erro: ID da transação não encontrado.");
-    }
-
-    const data = document.getElementById("edit-data").value;
-    const valorBruto = document.getElementById("edit-valor").value;
-    const gastoFixo = document.getElementById("edit-gastoFixo").checked;
-    const descricao = document.getElementById("edit-descricao").value;
-    const idCategoria = document.getElementById("edit-categoria").value;
-    const idMetodo = document.getElementById("edit-metodo").value;
-
-    // Validação e formatação do valor
-    const valor = parseFloat(
-      valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
-    );
-    if (isNaN(valor) || valor <= 0) {
-      return alert("O valor inserido é inválido.");
-    }
-    // Adicione outras validações que achar necessárias...
-
-    // 2. Monta um objeto SOMENTE com os dados que podem ser atualizados
-    const dadosAtualizados = {
-      data: data,
-      valor: valor,
-      gastoFixo: gastoFixo,
-      descricao: descricao,
-      idCategoria: idCategoria,
-      idMetodo: idMetodo,
-      // Note que não incluímos 'tipo', pois geralmente não se muda o tipo de uma transação (de entrada para saída)
-    };
-
-    try {
-      // 3. Chama o método da classe Transacao para fazer a atualização
-      await Transacao.atualizar(transacaoId, dadosAtualizados);
-
-      alert("Alterações salvas com sucesso!");
-
-      // 4. Fecha o modal e atualiza a tabela na tela principal
-      document.getElementById("edit-modal-container").classList.add("hidden");
-      await carregarTransacoes(); // Recarrega a tabela para mostrar os dados atualizados
-    } catch (error) {
-      console.error("Erro ao salvar alterações:", error);
-      alert("Não foi possível salvar as alterações.");
-    }
-  });
 }
