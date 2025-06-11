@@ -1,8 +1,6 @@
 # Ignorar dependências do Node.js
 node_modules
-
 # Ignorar arquivos de configuração da Vercel
 .vercel/
-
 # Ignorar Chave de Serviço do Firebase
 json/serviceAccountKey.json
