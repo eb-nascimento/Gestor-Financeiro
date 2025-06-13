@@ -203,6 +203,7 @@ h1 {
   text-align: center;
   color: #334666;
   text-shadow: #fff 0px 0px 10px;
+  margin-inline: 10px;
 }
 
 #novaMovimentacao h1 {
@@ -318,6 +319,7 @@ tr:last-child td:last-child {
 #tabelaMovimentacoes tr:hover td {
   background-color: #dbdbdb; /* Um cinza bem claro para o destaque, ajuste a cor se preferir */
   cursor: pointer; /* Muda o cursor para a "mãozinha", indicando que é clicável */
+  transition: background-color 0.2s ease-in-out;
 }
 
 /* Opcional, mas recomendado: Adiciona uma transição suave para a mudança de cor.
