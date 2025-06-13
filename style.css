@@ -293,6 +293,20 @@ tr:last-child td:last-child {
   border-bottom-right-radius: 10px;
 }
 
+#tabelaMovimentacoes tr:hover td {
+  background-color: #dbdbdb; /* Um cinza bem claro para o destaque, ajuste a cor se preferir */
+  cursor: pointer; /* Muda o cursor para a "mãozinha", indicando que é clicável */
+}
+
+/* Opcional, mas recomendado: Adiciona uma transição suave para a mudança de cor.
+   Para isso, adicione a propriedade 'transition' à sua regra 'td' existente. */
+td {
+  padding: 10px;
+  background-color: #fff;
+  /* Adicione a linha abaixo à sua regra 'td' já existente */
+  transition: background-color 0.2s ease-in-out;
+}
+
 #sectionTabela {
   margin: 25px;
   display: flex;
