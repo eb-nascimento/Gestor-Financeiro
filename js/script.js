@@ -267,6 +267,8 @@ async function carregarTransacoes() {
       `;
       corpoTabela.appendChild(novaLinha);
     });
+
+    calcularEExibirTotais(documentosDeTransacoes);
   } catch (error) {
     console.error("Erro ao carregar e exibir transações:", error);
     alert("Não foi possível carregar o histórico de transações.");
@@ -322,6 +324,68 @@ function formatarCampoComoMoeda(event) {
     // Verifica se o método existe
     input.setSelectionRange(len, len);
   }
+}
+/**Calcula os totais de entrada, saída e carteira e atualiza o DOM.
+ * @param {Array} transacoesDocs - Um array de documentos de transação do Firestore.
+ */
+function calcularEExibirTotais(transacoesDocs) {
+  // Pega os elementos do HTML onde os totais serão exibidos
+  const elementoSaida = document.querySelector("#valorSaida h2:last-child");
+  const elementoEntrada = document.querySelector("#valorEntrada h2:last-child");
+  const elementoCarteira = document.querySelector(
+    "#valorCarteira h2:last-child"
+  );
+
+  if (!elementoSaida || !elementoEntrada || !elementoCarteira) {
+    console.error(
+      "Elementos para exibir os totais não foram encontrados no HTML!"
+    );
+    return;
+  }
+
+  // 1. Inicia os contadores
+  let totalEntradas = 0;
+  let totalSaidas = 0;
+
+  // 2. Itera sobre cada transação para somar os valores
+  transacoesDocs.forEach((doc) => {
+    const transacao = doc.data();
+    if (transacao.tipo === "Entrada") {
+      totalEntradas += transacao.valor;
+    } else if (transacao.tipo === "Saída") {
+      totalSaidas += transacao.valor;
+    }
+  });
+
+  // 3. Calcula o saldo da carteira
+  const saldoCarteira = totalEntradas - totalSaidas;
+
+  // 4. Formata os valores como moeda e atualiza o HTML
+  elementoEntrada.textContent = totalEntradas.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  elementoSaida.textContent = totalSaidas.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+  elementoCarteira.textContent = saldoCarteira.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  // Opcional: Mudar a cor do saldo da carteira se for negativo
+  if (elementoCarteira) {
+    elementoCarteira.style.color = saldoCarteira < 0 ? "#e74c3c" : "#2ecc71";
+  }
+
+  console.log(
+    `Totais calculados: Entradas R$${totalEntradas.toFixed(
+      2
+    )}, Saídas R$${totalSaidas.toFixed(2)}, Carteira R$${saldoCarteira.toFixed(
+      2
+    )}`
+  );
 }
 
 btSaida.addEventListener("click", () => {
@@ -421,6 +485,28 @@ window.addEventListener("DOMContentLoaded", () => {
   // Carrega o histórico de transações na tabela
   carregarTransacoes();
 });
+
+async function inicializarApp() {
+  // ...
+  try {
+    // Busca todos os dados necessários
+    const [categoriasDocs, metodosDocs, transacoesDocs] = await Promise.all([
+      /*...*/
+    ]);
+
+    // ... (cria os mapas, popula os dropdowns) ...
+
+    // Renderiza a tabela de transações
+    renderizarTabela(transacoesDocs);
+
+    // CHAMA A NOVA FUNÇÃO AQUI, passando os dados das transações
+    calcularEExibirTotais(transacoesDocs);
+
+    // ... (configura a interface inicial) ...
+  } catch (error) {
+    /*...*/
+  }
+}
 
 corpoTabela.addEventListener("click", (event) => {
   // A partir do alvo do clique (ex: uma <td>),
