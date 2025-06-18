@@ -30,118 +30,118 @@ const formEdicao = document.getElementById("edit-campos");
 const btExcluir = document.getElementById("btExcluir");
 let tipoMovimentacao = "Saída"; // Define o tipo padrão
 
-if (closeModalBtn) {
-  closeModalBtn.addEventListener("click", () => {
-    modalContainer.classList.add("hidden");
-  });
-}
-// Opcional: Adiciona evento para fechar o modal ao clicar fora da área de conteúdo
-if (modalContainer) {
-  modalContainer.addEventListener("click", (event) => {
-    // Se o alvo do clique for o próprio container de fundo (e não o formulário dentro dele)
-    if (event.target === modalContainer) {
+function configurarEventListeners() {
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", () => {
       modalContainer.classList.add("hidden");
-    }
-  });
-}
-
-if (valorInput) {
-  valorInput.addEventListener("input", formatarCampoComoMoeda);
-}
-
-if (editValorInput) {
-  editValorInput.addEventListener("input", formatarCampoComoMoeda);
-}
-
-if (btExcluir) {
-  // Usamos 'click' pois o botão não é type="submit"
-  btExcluir.addEventListener("click", async () => {
-    const transacaoId = document.getElementById("edit-transacao-id").value;
-    if (!transacaoId) {
-      return alert("Erro: ID da transação não encontrado para exclusão.");
-    }
-
-    // Pede confirmação ao usuário antes de uma ação destrutiva
-    const confirmouExclusao = confirm(
-      "Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
-    );
-
-    if (confirmouExclusao) {
-      console.log(
-        `Usuário confirmou a exclusão da transação ID: ${transacaoId}`
-      );
-      try {
-        // 1. Chama o método da classe Transacao para fazer a exclusão
-        await Transacao.excluir(transacaoId);
-
-        alert("Transação excluída com sucesso!");
-
-        // 2. Fecha o modal e atualiza a tabela na tela principal
-        document.getElementById("edit-modal-container").classList.add("hidden");
-        await carregarTransacoes(); // Recarrega a tabela para mostrar a lista atualizada
-      } catch (error) {
-        console.error("Erro ao excluir transação:", error);
-        alert("Não foi possível excluir a transação.");
+    });
+  }
+  // Opcional: Adiciona evento para fechar o modal ao clicar fora da área de conteúdo
+  if (modalContainer) {
+    modalContainer.addEventListener("click", (event) => {
+      // Se o alvo do clique for o próprio container de fundo (e não o formulário dentro dele)
+      if (event.target === modalContainer) {
+        modalContainer.classList.add("hidden");
       }
-    } else {
-      console.log("Exclusão cancelada pelo usuário.");
-    }
-  });
+    });
+  }
+
+  if (editValorInput) {
+    editValorInput.addEventListener("input", formatarCampoComoMoeda);
+  }
+
+  if (btExcluir) {
+    // Usamos 'click' pois o botão não é type="submit"
+    btExcluir.addEventListener("click", async () => {
+      const transacaoId = document.getElementById("edit-transacao-id").value;
+      if (!transacaoId) {
+        return alert("Erro: ID da transação não encontrado para exclusão.");
+      }
+
+      // Pede confirmação ao usuário antes de uma ação destrutiva
+      const confirmouExclusao = confirm(
+        "Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
+      );
+
+      if (confirmouExclusao) {
+        console.log(
+          `Usuário confirmou a exclusão da transação ID: ${transacaoId}`
+        );
+        try {
+          // 1. Chama o método da classe Transacao para fazer a exclusão
+          await Transacao.excluir(transacaoId);
+
+          alert("Transação excluída com sucesso!");
+
+          // 2. Fecha o modal e atualiza a tabela na tela principal
+          document
+            .getElementById("edit-modal-container")
+            .classList.add("hidden");
+          await carregarTransacoes(); // Recarrega a tabela para mostrar a lista atualizada
+        } catch (error) {
+          console.error("Erro ao excluir transação:", error);
+          alert("Não foi possível excluir a transação.");
+        }
+      } else {
+        console.log("Exclusão cancelada pelo usuário.");
+      }
+    });
+  }
+
+  if (formEdicao) {
+    formEdicao.addEventListener("submit", async (event) => {
+      event.preventDefault(); // Impede o recarregamento da página
+
+      // 1. Coleta os dados dos campos do modal de edição
+      const transacaoId = document.getElementById("edit-transacao-id").value;
+      if (!transacaoId) {
+        return alert("Erro: ID da transação não encontrado.");
+      }
+
+      const data = document.getElementById("edit-data").value;
+      const valorBruto = document.getElementById("edit-valor").value;
+      const gastoFixo = document.getElementById("edit-gastoFixo").checked;
+      const descricao = document.getElementById("edit-descricao").value;
+      const idCategoria = document.getElementById("edit-categoria").value;
+      const idMetodo = document.getElementById("edit-metodo").value;
+
+      // Validação e formatação do valor
+      const valor = parseFloat(
+        valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
+      );
+      if (isNaN(valor) || valor <= 0) {
+        return alert("O valor inserido é inválido.");
+      }
+      // Adicione outras validações que achar necessárias...
+
+      // 2. Monta um objeto SOMENTE com os dados que podem ser atualizados
+      const dadosAtualizados = {
+        data: data,
+        valor: valor,
+        gastoFixo: gastoFixo,
+        descricao: descricao,
+        idCategoria: idCategoria,
+        idMetodo: idMetodo,
+        // Note que não incluímos 'tipo', pois geralmente não se muda o tipo de uma transação (de entrada para saída)
+      };
+
+      try {
+        // 3. Chama o método da classe Transacao para fazer a atualização
+        await Transacao.atualizar(transacaoId, dadosAtualizados);
+
+        alert("Alterações salvas com sucesso!");
+
+        // 4. Fecha o modal e atualiza a tabela na tela principal
+        document.getElementById("edit-modal-container").classList.add("hidden");
+        await carregarTransacoes(); // Recarrega a tabela para mostrar os dados atualizados
+      } catch (error) {
+        console.error("Erro ao salvar alterações:", error);
+        alert("Não foi possível salvar as alterações.");
+      }
+    });
+  }
 }
 
-if (formEdicao) {
-  formEdicao.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Impede o recarregamento da página
-
-    // 1. Coleta os dados dos campos do modal de edição
-    const transacaoId = document.getElementById("edit-transacao-id").value;
-    if (!transacaoId) {
-      return alert("Erro: ID da transação não encontrado.");
-    }
-
-    const data = document.getElementById("edit-data").value;
-    const valorBruto = document.getElementById("edit-valor").value;
-    const gastoFixo = document.getElementById("edit-gastoFixo").checked;
-    const descricao = document.getElementById("edit-descricao").value;
-    const idCategoria = document.getElementById("edit-categoria").value;
-    const idMetodo = document.getElementById("edit-metodo").value;
-
-    // Validação e formatação do valor
-    const valor = parseFloat(
-      valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
-    );
-    if (isNaN(valor) || valor <= 0) {
-      return alert("O valor inserido é inválido.");
-    }
-    // Adicione outras validações que achar necessárias...
-
-    // 2. Monta um objeto SOMENTE com os dados que podem ser atualizados
-    const dadosAtualizados = {
-      data: data,
-      valor: valor,
-      gastoFixo: gastoFixo,
-      descricao: descricao,
-      idCategoria: idCategoria,
-      idMetodo: idMetodo,
-      // Note que não incluímos 'tipo', pois geralmente não se muda o tipo de uma transação (de entrada para saída)
-    };
-
-    try {
-      // 3. Chama o método da classe Transacao para fazer a atualização
-      await Transacao.atualizar(transacaoId, dadosAtualizados);
-
-      alert("Alterações salvas com sucesso!");
-
-      // 4. Fecha o modal e atualiza a tabela na tela principal
-      document.getElementById("edit-modal-container").classList.add("hidden");
-      await carregarTransacoes(); // Recarrega a tabela para mostrar os dados atualizados
-    } catch (error) {
-      console.error("Erro ao salvar alterações:", error);
-      alert("Não foi possível salvar as alterações.");
-    }
-  });
-}
-// --- FUNÇÕES DE INTERFACE (População de Dropdowns e Tabela) ---
 // Função para popular o dropdown de CATEGORIAS
 async function carregarCategorias(selectElementId, tipoFiltro = null) {
   const categoriaSelect = document.getElementById(selectElementId);
@@ -171,7 +171,6 @@ async function carregarCategorias(selectElementId, tipoFiltro = null) {
   }
 }
 // Função para popular o dropdown de MÉTODOS
-// A função agora recebe o ID do elemento select
 async function carregarMetodos(selectElementId) {
   const metodoSelect = document.getElementById(selectElementId);
   if (!metodoSelect) {
@@ -197,7 +196,6 @@ async function carregarMetodos(selectElementId) {
     );
   }
 }
-
 // Função para popular a TABELA de TRANSAÇÕES
 async function carregarTransacoes() {
   const corpoTabela = document.getElementById("tabelaMovimentacoes");
@@ -466,47 +464,29 @@ form.addEventListener("submit", async function (event) {
 window.addEventListener("DOMContentLoaded", () => {
   console.log("Página carregada. Iniciando aplicação...");
 
-  // Define a data inicial
+  // 1. Define a data inicial no formulário
   document.getElementById("data").value = new Date()
     .toISOString()
     .split("T")[0];
 
-  // Carrega dados dos dropdowns
-  carregarCategorias("categoria", "saida"); // Filtro inicial para 'saida'
+  // 2. Configura o estado visual inicial para "Saída"
+  btSaida.classList.add("active");
+  btEntrada.classList.remove("active");
+  document.getElementById("metodo").classList.remove("hidden");
+  document.getElementById("descricao").classList.remove("hidden");
+  document.getElementById("gastoFixoLabel").classList.remove("hidden");
+
+  // 3. Carrega os dados para TODOS os dropdowns
+  carregarCategorias("categoria", "saida"); // Dropdown principal com filtro inicial
+  carregarCategorias("edit-categoria", null); // Dropdown do modal com todas as categorias
   carregarMetodos("metodo");
-
-  ajustarInterfacePorTipoMovimentacao();
-
-  // Carrega os dados para os dropdowns DO MODAL DE EDIÇÃO
-  // No modal, queremos TODAS as categorias e métodos disponíveis para o usuário poder trocar.
-  carregarCategorias("edit-categoria", null); // 'null' para não filtrar por tipo
   carregarMetodos("edit-metodo");
+  configurarEventListeners();
 
-  // Carrega o histórico de transações na tabela
+  // 4. Carrega e exibe o histórico de transações na tabela
+  //    (Lembre-se que esta função agora também chama calcularEExibirTotais por dentro)
   carregarTransacoes();
 });
-
-async function inicializarApp() {
-  // ...
-  try {
-    // Busca todos os dados necessários
-    const [categoriasDocs, metodosDocs, transacoesDocs] = await Promise.all([
-      /*...*/
-    ]);
-
-    // ... (cria os mapas, popula os dropdowns) ...
-
-    // Renderiza a tabela de transações
-    renderizarTabela(transacoesDocs);
-
-    // CHAMA A NOVA FUNÇÃO AQUI, passando os dados das transações
-    calcularEExibirTotais(transacoesDocs);
-
-    // ... (configura a interface inicial) ...
-  } catch (error) {
-    /*...*/
-  }
-}
 
 corpoTabela.addEventListener("click", (event) => {
   // A partir do alvo do clique (ex: uma <td>),

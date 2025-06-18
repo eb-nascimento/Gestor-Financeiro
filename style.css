@@ -731,6 +731,14 @@ select {
   margin-inline: 10px;
 }
 
+#edit-descricao {
+  margin-bottom: 0px; /* Espaçamento entre os campos */
+}
+
+#edit-categoria {
+  margin-top: 20px;
+}
+
 #btSalvarEdicao {
   background-color: #4caf50; /* Verde */
   color: white;
