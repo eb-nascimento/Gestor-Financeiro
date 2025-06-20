@@ -99,7 +99,7 @@ select {
   font-family: "Inter", sans-serif;
   font-size: 16px;
   box-sizing: border-box;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   padding: 10px;
   width: 60%;
   height: 54px;
@@ -108,6 +108,10 @@ select {
   background-color: #f1f1f1;
   box-shadow: #c1cbd7 0px 0px 10px 0px;
   color: #334666;
+}
+
+#categoria {
+  margin-top: 20px;
 }
 
 label {
@@ -142,6 +146,10 @@ option {
   background-color: #f1f1f1;
   color: #334666;
   font-size: 16px;
+}
+
+#gastoFixoLabel {
+  margin-bottom: 0px;
 }
 
 #data::-webkit-calendar-picker-indicator {
