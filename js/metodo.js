@@ -1,4 +1,3 @@
-// js/metodo.js
 import { db } from "./firebase.js";
 import {
   collection,
@@ -14,9 +13,7 @@ export class Metodo {
     this.tipo = tipo;
   }
 
-  // --- NOVO MÉTODO ESTÁTICO ---
   static async buscarTodos() {
-    // Nome no plural para consistência
     try {
       const consulta = query(collection(db, "metodo"), orderBy("nome"));
       const querySnapshot = await getDocs(consulta);

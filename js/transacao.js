@@ -1,6 +1,3 @@
-// Conteúdo completo para o arquivo: js/transacao.js
-
-// 1. ADICIONE AS IMPORTAÇÕES DO FIREBASE AQUI
 import { db } from "./firebase.js";
 import {
   collection,
@@ -16,9 +13,7 @@ import {
   setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 2. SUA CLASSE TRANSACAO COM OS MÉTODOS ESTÁTICOS
 export class Transacao {
-  // Seu construtor atual (continua o mesmo)
   constructor(
     valor,
     gastoFixo,
@@ -41,7 +36,7 @@ export class Transacao {
     this.idMetodo = idMetodo;
   }
 
-  // MÉTODO ESTÁTICO PARA SALVAR (que discutimos antes)
+  // MÉTODO ESTÁTICO PARA SALVAR)
   static async salvar(dadosDaTransacao) {
     try {
       const novaInstancia = new Transacao(

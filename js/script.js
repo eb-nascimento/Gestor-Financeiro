@@ -1,6 +1,3 @@
-// =================================================================
-// IMPORTS - Apenas o que o script.js precisa
-// =================================================================
 import { db } from "./firebase.js";
 import {
   collection,

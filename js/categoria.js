@@ -1,6 +1,3 @@
-// Conteúdo completo para o arquivo: js/categoria.js
-
-// Importe as dependências do Firebase aqui, pois a classe agora acessa o banco
 import { db } from "./firebase.js";
 import {
   collection,
@@ -16,9 +13,7 @@ export class Categoria {
     this.tipo = tipo; // 'entrada' ou 'saída'
   }
 
-  // --- MÉTODO ESTÁTICO ADICIONADO ---
   // Este método pertence à classe Categoria e é responsável por buscar os dados no Firestore.
-  // A palavra 'static' é crucial aqui.
   static async buscarTodas(tipoFiltro = null) {
     console.log(
       `(Classe Categoria) Buscando categorias no Firestore com filtro: ${tipoFiltro}`
@@ -26,7 +21,6 @@ export class Categoria {
     try {
       const baseCollection = collection(db, "categoria");
       let consultaFB;
-
       if (tipoFiltro) {
         // Cria a consulta com filtro de tipo e ordenação por nome
         consultaFB = query(
