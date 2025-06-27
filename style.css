@@ -110,8 +110,12 @@ select {
   color: #334666;
 }
 
-#categoria {
+#metodo {
   margin-top: 20px;
+}
+
+#categoria {
+  margin-bottom: 0px;
 }
 
 label {
@@ -149,7 +153,7 @@ option {
 }
 
 #gastoFixoLabel {
-  margin-bottom: 0px;
+  margin-bottom: 20px;
 }
 
 #data::-webkit-calendar-picker-indicator {

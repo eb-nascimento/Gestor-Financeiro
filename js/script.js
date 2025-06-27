@@ -184,7 +184,7 @@ btSaida.addEventListener("click", () => {
   tipoMovimentacao = "Saída";
   btSaida.classList.add("active");
   btEntrada.classList.remove("active");
-  document.getElementById("metodo").classList.remove("hidden");
+  document.getElementById("categoria").classList.remove("hidden");
   document.getElementById("descricao").classList.remove("hidden");
   document.getElementById("gastoFixoLabel").classList.remove("hidden");
 });
@@ -194,7 +194,7 @@ btEntrada.addEventListener("click", () => {
   tipoMovimentacao = "Entrada";
   btEntrada.classList.add("active");
   btSaida.classList.remove("active");
-  document.getElementById("metodo").classList.add("hidden");
+  document.getElementById("categoria").classList.add("hidden");
   document.getElementById("descricao").classList.add("hidden");
   document.getElementById("gastoFixoLabel").classList.add("hidden");
 });
