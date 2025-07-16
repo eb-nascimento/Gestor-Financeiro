@@ -86,24 +86,29 @@ function calcularEExibirTotais(transacoes) {
   elementoCarteira.style.color = saldoCarteira < 0 ? "#e74c3c" : "#2ecc71";
 }
 
-// **NOVA FUNÇÃO** para atualizar o dropdown de categorias
-function atualizarDropdownCategorias(tipo) {
-  categoriaSelect.innerHTML =
-    '<option value="">Selecione uma categoria</option>';
-  // Normaliza o texto: converte para minúsculas e remove acentos.
-  // Ex: "Saída" -> "saida"
+// **FUNÇÃO REATORADA** para atualizar qualquer dropdown de categorias
+function atualizarDropdownCategorias(
+  selectElement,
+  tipo,
+  categoriaSelecionadaId = null
+) {
+  selectElement.innerHTML = '<option value="">Selecione uma categoria</option>';
   const tipoFiltro = tipo
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 
   mapaCategorias.forEach((data, id) => {
-    // Garante que a comparação funcione mesmo se 'data.tipo' for nulo ou indefinido
     if (data.tipo && data.tipo.toLowerCase() === tipoFiltro) {
       const option = new Option(data.nome, id);
-      categoriaSelect.appendChild(option);
+      selectElement.appendChild(option);
     }
   });
+
+  // Se uma categoria específica deve ser selecionada (para o modal de edição)
+  if (categoriaSelecionadaId) {
+    selectElement.value = categoriaSelecionadaId;
+  }
 }
 
 async function carregarDados() {
@@ -115,7 +120,6 @@ async function carregarDados() {
         getDocs(query(collection(db, "transacao"), orderBy("data", "desc"))),
       ]);
 
-    // Limpa e preenche os mapas
     mapaCategorias.clear();
     mapaMetodos.clear();
     categoriasSnapshot.docs.forEach((doc) =>
@@ -128,25 +132,16 @@ async function carregarDados() {
       ...doc.data(),
     }));
 
-    // Popula dropdowns de método (principal e modal)
     metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-    editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`; // Corrigido para carregar todas as categorias no modal
-
+    editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
     mapaMetodos.forEach((data, id) => {
       const option = new Option(data.nome, id);
       metodoSelect.appendChild(option.cloneNode(true));
       editMetodoSelect.appendChild(option.cloneNode(true));
     });
 
-    // Popula o dropdown de categoria do modal de edição com todas as categorias
-    editCategoriaSelect.innerHTML = `<option value="">Selecione uma categoria</option>`;
-    mapaCategorias.forEach((data, id) => {
-      const option = new Option(data.nome, id);
-      editCategoriaSelect.appendChild(option);
-    });
-
-    // Atualiza o dropdown de categorias do formulário principal para o estado inicial
-    atualizarDropdownCategorias(tipoMovimentacao);
+    // Atualiza o dropdown principal com base no estado inicial
+    atualizarDropdownCategorias(categoriaSelect, tipoMovimentacao);
 
     corpoTabela.innerHTML = "";
     if (transacoes.length === 0) {
@@ -202,13 +197,12 @@ btSaida.addEventListener("click", () => {
   btSaida.classList.add("active");
   btEntrada.classList.remove("active");
 
-  // Mostra campos relevantes para Saída
   document.getElementById("categoria").classList.remove("hidden");
   document.getElementById("metodo").classList.remove("hidden");
   document.getElementById("descricao").classList.remove("hidden");
   document.getElementById("gastoFixoLabel").classList.remove("hidden");
 
-  atualizarDropdownCategorias("Saída");
+  atualizarDropdownCategorias(categoriaSelect, "Saída");
 });
 
 btEntrada.addEventListener("click", () => {
@@ -217,13 +211,12 @@ btEntrada.addEventListener("click", () => {
   btEntrada.classList.add("active");
   btSaida.classList.remove("active");
 
-  // Mostra e esconde campos conforme a lógica de Entrada
-  document.getElementById("categoria").classList.remove("hidden"); // Garante que categoria seja visível
-  document.getElementById("metodo").classList.add("hidden"); // Esconde método para entrada
-  document.getElementById("descricao").classList.add("hidden"); // Esconde descrição para entrada
+  document.getElementById("categoria").classList.remove("hidden");
+  document.getElementById("metodo").classList.add("hidden");
+  document.getElementById("descricao").classList.add("hidden");
   document.getElementById("gastoFixoLabel").classList.add("hidden");
 
-  atualizarDropdownCategorias("Entrada");
+  atualizarDropdownCategorias(categoriaSelect, "Entrada");
 });
 
 if (valorInput) valorInput.addEventListener("input", formatarCampoComoMoeda);
@@ -240,6 +233,15 @@ if (corpoTabela) {
         const docSnap = await getDoc(transacaoRef);
         if (docSnap.exists()) {
           const transacao = docSnap.data();
+
+          // **NOVA LÓGICA AQUI**
+          // Atualiza o dropdown de categoria do modal ANTES de preencher os outros campos
+          atualizarDropdownCategorias(
+            editCategoriaSelect,
+            transacao.tipo,
+            transacao.idCategoria
+          );
+
           document.getElementById("edit-transacao-id").value = transacaoId;
           document.getElementById("edit-data").value = transacao.data;
           document.getElementById("edit-valor").value =
@@ -248,13 +250,10 @@ if (corpoTabela) {
               currency: "BRL",
             });
           document.getElementById("edit-descricao").value = transacao.descricao;
-          document.getElementById("edit-categoria").value =
-            transacao.idCategoria;
           document.getElementById("edit-metodo").value = transacao.idMetodo;
           document.getElementById("edit-gastoFixo").checked =
             transacao.gastoFixo;
 
-          // Controla visibilidade no modal de edição
           const isEntrada = transacao.tipo === "Entrada";
           document
             .getElementById("edit-gastoFixoLabel")
