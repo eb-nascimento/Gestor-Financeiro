@@ -11,11 +11,10 @@ import {
   updateDoc,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-// As classes são importadas, mas usadas apenas como "plantas" para o 'new Transacao'
 import { Transacao } from "./transacao.js";
 
 // =================================================================
-// CONSTANTES GLOBAIS
+// CONSTANTES GLOBAIS E VARIÁVEIS DE ESTADO
 // =================================================================
 const formPrincipal = document.getElementById("campos");
 const formEdicao = document.getElementById("edit-campos");
@@ -25,7 +24,14 @@ const btSaida = document.getElementById("btSaida");
 const btEntrada = document.getElementById("btEntrada");
 const valorInput = document.getElementById("valor");
 const editValorInput = document.getElementById("edit-valor");
-let tipoMovimentacao = "Saída";
+const categoriaSelect = document.getElementById("categoria");
+const metodoSelect = document.getElementById("metodo");
+const editCategoriaSelect = document.getElementById("edit-categoria");
+const editMetodoSelect = document.getElementById("edit-metodo");
+
+let tipoMovimentacao = "Saída"; // Estado inicial
+let mapaCategorias = new Map(); // Mapa para armazenar categorias
+let mapaMetodos = new Map(); // Mapa para armazenar métodos
 
 // =================================================================
 // FUNÇÕES DE MANIPULAÇÃO DA INTERFACE (DOM)
@@ -80,9 +86,28 @@ function calcularEExibirTotais(transacoes) {
   elementoCarteira.style.color = saldoCarteira < 0 ? "#e74c3c" : "#2ecc71";
 }
 
+// **NOVA FUNÇÃO** para atualizar o dropdown de categorias
+function atualizarDropdownCategorias(tipo) {
+  categoriaSelect.innerHTML =
+    '<option value="">Selecione uma categoria</option>';
+  // Normaliza o texto: converte para minúsculas e remove acentos.
+  // Ex: "Saída" -> "saida"
+  const tipoFiltro = tipo
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  mapaCategorias.forEach((data, id) => {
+    // Garante que a comparação funcione mesmo se 'data.tipo' for nulo ou indefinido
+    if (data.tipo && data.tipo.toLowerCase() === tipoFiltro) {
+      const option = new Option(data.nome, id);
+      categoriaSelect.appendChild(option);
+    }
+  });
+}
+
 async function carregarDados() {
   try {
-    // Busca todos os dados necessários em paralelo
     const [categoriasSnapshot, metodosSnapshot, transacoesSnapshot] =
       await Promise.all([
         getDocs(query(collection(db, "categoria"), orderBy("nome"))),
@@ -90,38 +115,22 @@ async function carregarDados() {
         getDocs(query(collection(db, "transacao"), orderBy("data", "desc"))),
       ]);
 
-    // Cria os mapas de consulta
-    const mapaCategorias = new Map(
-      categoriasSnapshot.docs.map((doc) => [doc.id, doc.data()])
+    // Limpa e preenche os mapas
+    mapaCategorias.clear();
+    mapaMetodos.clear();
+    categoriasSnapshot.docs.forEach((doc) =>
+      mapaCategorias.set(doc.id, doc.data())
     );
-    const mapaMetodos = new Map(
-      metodosSnapshot.docs.map((doc) => [doc.id, doc.data()])
-    );
+    metodosSnapshot.docs.forEach((doc) => mapaMetodos.set(doc.id, doc.data()));
 
-    // Extrai os dados das transações
     const transacoes = transacoesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    // Popula os dropdowns (principal e do modal)
-    const categoriaSelect = document.getElementById("categoria");
-    const metodoSelect = document.getElementById("metodo");
-    const editCategoriaSelect = document.getElementById("edit-categoria");
-    const editMetodoSelect = document.getElementById("edit-metodo");
-
-    categoriaSelect.innerHTML = `<option value="">Selecione uma categoria</option>`;
+    // Popula dropdowns de método (principal e modal)
     metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-    editCategoriaSelect.innerHTML = `<option value="">Selecione uma categoria</option>`;
-    editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-
-    mapaCategorias.forEach((data, id) => {
-      const option = new Option(data.nome, id);
-      if (data.tipo === "saida") {
-        categoriaSelect.appendChild(option.cloneNode(true));
-      }
-      editCategoriaSelect.appendChild(option.cloneNode(true));
-    });
+    editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`; // Corrigido para carregar todas as categorias no modal
 
     mapaMetodos.forEach((data, id) => {
       const option = new Option(data.nome, id);
@@ -129,7 +138,16 @@ async function carregarDados() {
       editMetodoSelect.appendChild(option.cloneNode(true));
     });
 
-    // Renderiza a tabela
+    // Popula o dropdown de categoria do modal de edição com todas as categorias
+    editCategoriaSelect.innerHTML = `<option value="">Selecione uma categoria</option>`;
+    mapaCategorias.forEach((data, id) => {
+      const option = new Option(data.nome, id);
+      editCategoriaSelect.appendChild(option);
+    });
+
+    // Atualiza o dropdown de categorias do formulário principal para o estado inicial
+    atualizarDropdownCategorias(tipoMovimentacao);
+
     corpoTabela.innerHTML = "";
     if (transacoes.length === 0) {
       corpoTabela.innerHTML = `<tr><td colspan="5">Nenhuma movimentação registrada.</td></tr>`;
@@ -158,7 +176,6 @@ async function carregarDados() {
       });
     }
 
-    // Calcula e exibe os totais
     calcularEExibirTotais(transacoes);
   } catch (error) {
     console.error("Erro ao carregar dados iniciais:", error);
@@ -184,9 +201,14 @@ btSaida.addEventListener("click", () => {
   tipoMovimentacao = "Saída";
   btSaida.classList.add("active");
   btEntrada.classList.remove("active");
+
+  // Mostra campos relevantes para Saída
+  document.getElementById("categoria").classList.remove("hidden");
   document.getElementById("metodo").classList.remove("hidden");
   document.getElementById("descricao").classList.remove("hidden");
   document.getElementById("gastoFixoLabel").classList.remove("hidden");
+
+  atualizarDropdownCategorias("Saída");
 });
 
 btEntrada.addEventListener("click", () => {
@@ -194,9 +216,14 @@ btEntrada.addEventListener("click", () => {
   tipoMovimentacao = "Entrada";
   btEntrada.classList.add("active");
   btSaida.classList.remove("active");
-  document.getElementById("metodo").classList.add("hidden");
-  document.getElementById("descricao").classList.add("hidden");
+
+  // Mostra e esconde campos conforme a lógica de Entrada
+  document.getElementById("categoria").classList.remove("hidden"); // Garante que categoria seja visível
+  document.getElementById("metodo").classList.add("hidden"); // Esconde método para entrada
+  document.getElementById("descricao").classList.add("hidden"); // Esconde descrição para entrada
   document.getElementById("gastoFixoLabel").classList.add("hidden");
+
+  atualizarDropdownCategorias("Entrada");
 });
 
 if (valorInput) valorInput.addEventListener("input", formatarCampoComoMoeda);
@@ -226,21 +253,25 @@ if (corpoTabela) {
           document.getElementById("edit-metodo").value = transacao.idMetodo;
           document.getElementById("edit-gastoFixo").checked =
             transacao.gastoFixo;
-          const isSaida = transacao.tipo === "Saída";
+
+          // Controla visibilidade no modal de edição
+          const isEntrada = transacao.tipo === "Entrada";
           document
             .getElementById("edit-gastoFixoLabel")
-            .classList.toggle("hidden", !isSaida);
+            .classList.toggle("hidden", isEntrada);
           document
             .getElementById("edit-descricao")
-            .classList.toggle("hidden", !isSaida);
+            .classList.toggle("hidden", isEntrada);
           document
             .getElementById("edit-metodo")
-            .classList.toggle("hidden", !isSaida);
+            .classList.toggle("hidden", isEntrada);
+
           modalContainer.classList.remove("hidden");
         } else {
           alert("Transação não encontrada.");
         }
       } catch (error) {
+        console.error("Erro ao abrir edição: ", error);
         alert("Não foi possível carregar os dados para edição.");
       }
     }
@@ -254,36 +285,54 @@ if (formPrincipal) {
     const valor = parseFloat(
       valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
     );
-    const gastoFixo = document.getElementById("gastoFixo").checked;
-    const descricao = document.getElementById("descricao").value;
     const data = document.getElementById("data").value;
     const categoriaId = document.getElementById("categoria").value;
-    const metodoId = document.getElementById("metodo").value;
+
     if (isNaN(valor) || valor <= 0) return alert("Valor inválido!");
     if (!data || !categoriaId) return alert("Preencha Data e Categoria!");
-    if (tipoMovimentacao === "Saída" && (!metodoId || !descricao))
-      return alert("Preencha Método e Descrição!");
 
-    const novaTransacao = new Transacao(
-      valor,
-      tipoMovimentacao === "Saída" ? gastoFixo : false,
-      tipoMovimentacao === "Saída" ? descricao : "-",
-      data,
-      undefined,
-      undefined,
-      tipoMovimentacao,
-      categoriaId,
-      tipoMovimentacao === "Saída" ? metodoId : null
-    );
+    let novaTransacao;
+
+    if (tipoMovimentacao === "Saída") {
+      const metodoId = document.getElementById("metodo").value;
+      const descricao = document.getElementById("descricao").value;
+      const gastoFixo = document.getElementById("gastoFixo").checked;
+
+      if (!metodoId || !descricao) {
+        return alert("Para saídas, preencha Método e Descrição!");
+      }
+      novaTransacao = {
+        valor,
+        gastoFixo,
+        descricao,
+        data,
+        tipo: "Saída",
+        idCategoria: categoriaId,
+        idMetodo: metodoId,
+      };
+    } else {
+      // Entrada
+      novaTransacao = {
+        valor,
+        gastoFixo: false,
+        descricao: "-",
+        data,
+        tipo: "Entrada",
+        idCategoria: categoriaId,
+        idMetodo: null,
+      };
+    }
+
     try {
-      await addDoc(collection(db, "transacao"), { ...novaTransacao });
+      await addDoc(collection(db, "transacao"), novaTransacao);
       alert("Transação salva!");
       formPrincipal.reset();
       document.getElementById("data").value = new Date()
         .toISOString()
         .split("T")[0];
-      await carregarDados(); // Recarrega todos os dados e a interface
+      await carregarDados();
     } catch (e) {
+      console.error("Erro ao salvar: ", e);
       alert("Erro ao salvar a transação.");
     }
   });
@@ -293,26 +342,43 @@ if (formEdicao) {
   formEdicao.addEventListener("submit", async (event) => {
     event.preventDefault();
     const transacaoId = document.getElementById("edit-transacao-id").value;
-    const dadosAtualizados = {
+    const valor = parseFloat(
+      document
+        .getElementById("edit-valor")
+        .value.replace(/[^\d,]/g, "")
+        .replace(",", ".")
+    );
+    const idCategoria = document.getElementById("edit-categoria").value;
+
+    if (isNaN(valor) || valor <= 0 || !idCategoria) {
+      return alert("Preencha todos os campos corretamente.");
+    }
+
+    const docRef = doc(db, "transacao", transacaoId);
+    const docSnap = await getDoc(docRef);
+    const tipoTransacao = docSnap.data().tipo;
+
+    let dadosAtualizados = {
       data: document.getElementById("edit-data").value,
-      valor: parseFloat(
-        document
-          .getElementById("edit-valor")
-          .value.replace(/[^\d,]/g, "")
-          .replace(",", ".")
-      ),
-      gastoFixo: document.getElementById("edit-gastoFixo").checked,
-      descricao: document.getElementById("edit-descricao").value,
-      idCategoria: document.getElementById("edit-categoria").value,
-      idMetodo: document.getElementById("edit-metodo").value,
+      valor: valor,
+      idCategoria: idCategoria,
     };
+
+    if (tipoTransacao === "Saída") {
+      dadosAtualizados.gastoFixo =
+        document.getElementById("edit-gastoFixo").checked;
+      dadosAtualizados.descricao =
+        document.getElementById("edit-descricao").value;
+      dadosAtualizados.idMetodo = document.getElementById("edit-metodo").value;
+    }
+
     try {
-      const transacaoRef = doc(db, "transacao", transacaoId);
-      await updateDoc(transacaoRef, dadosAtualizados);
+      await updateDoc(docRef, dadosAtualizados);
       alert("Alterações salvas!");
       modalContainer.classList.add("hidden");
-      await carregarDados(); // Recarrega todos os dados
+      await carregarDados();
     } catch (e) {
+      console.error("Erro ao atualizar: ", e);
       alert("Erro ao atualizar.");
     }
   });
@@ -327,7 +393,7 @@ if (btExcluir) {
         await deleteDoc(doc(db, "transacao", transacaoId));
         alert("Transação excluída!");
         modalContainer.classList.add("hidden");
-        await carregarDados(); // Recarrega todos os dados
+        await carregarDados();
       } catch (e) {
         alert("Erro ao excluir.");
       }
