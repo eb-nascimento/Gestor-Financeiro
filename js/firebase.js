@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js"; // Adicione esta linha
 
 const firebaseConfig = {
   apiKey: "AIzaSyCdiTGDvCyYTLdP5UTFqml2p-QJLrfakFs",
@@ -15,3 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // Exporta o Firestore
 export const db = getFirestore(app);
+
+// Inicializa Analytics (você pode exportar se precisar acessá-lo em outros arquivos)
+const analytics = getAnalytics(app); // Adicione esta linha
