@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Vesttor</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="js/auth.js"></script>
+  </head>
+  <body id="login-body">
+    <div id="login-container">
+      <form class="login-form" id="loginForm">
+        <h2>Login</h2>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit" id="loginBtn">Entrar</button>
+
+        <button type="button" id="googleLoginBtn">
+          <img
+            src="img/google-color-svgrepo-com.svg"
+            alt="Google logo"
+            style="height: 20px; vertical-align: middle; margin-right: 8px"
+          />
+          Entrar com Google
+        </button>
+        <p class="register-link">
+          Não tem uma conta? <a href="register.html">Registre-se</a>
+        </p>
+      </form>
+    </div>
+    <div id="bem-vindo">
+      <h1>Bem vindo a Vesttor!</h1>
+      <p id="bem-vindo-text">
+        <b>Seu futuro financeiro em suas mãos.</b> <br />
+        Organize suas finanças de forma simples e intuitiva. Cadastre-se e
+        comece a controlar suas receitas e despesas hoje mesmo. É o primeiro
+        passo para uma vida mais equilibrada e sem preocupações.
+      </p>
+      <div id="o-que">
+        <b>Com o Vesttor, você pode:</b>
+        <ul>
+          <li>Registrar receitas e despesas</li>
+          <li>Visualizar gráficos de desempenho financeiro</li>
+          <li>Planejar seu orçamento mensal</li>
+        </ul>
+        <b>Tudo isso em uma plataforma segura e fácil de usar.</b>
+      </div>
+    </div>
+  </body>
+</html>

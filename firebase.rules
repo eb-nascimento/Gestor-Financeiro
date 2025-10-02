@@ -16,12 +16,7 @@ service cloud.firestore {
 
     // Novas regras para a coleção de transações
     match /transacao/{transactionId} {
-      // ATENÇÃO: Esta é uma regra para DESENVOLVIMENTO.
-      // Ela permite que qualquer um leia e escreva transações.
-      // Para um ambiente de produção, esta regra PRECISA ser alterada
-      // para garantir a segurança dos dados, por exemplo, usando autenticação:
-      // allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow read, write: if true; 
+    allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
     }
   }
 }

@@ -10,16 +10,12 @@
   "firestore": {
     "database": "(default)",
     "location": "southamerica-east1",
-    "rules": "firebase.js",
+    "rules": "firebase.rules",
     "indexes": "firestore.js"
   },
   "hosting": {
     "public": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",

@@ -9,9 +9,11 @@ import {
   updateDoc,
   deleteDoc,
   where,
-  getDoc,
-  setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// Inicializa a autenticação
+const auth = getAuth();
 
 export class Transacao {
   constructor(
@@ -23,7 +25,8 @@ export class Transacao {
     parcelaAtual,
     tipo,
     idCategoria,
-    idMetodo
+    idMetodo,
+    userId // Adicionado o userId
   ) {
     this.valor = valor;
     this.gastoFixo = gastoFixo;
@@ -34,11 +37,15 @@ export class Transacao {
     this.tipo = tipo;
     this.idCategoria = idCategoria;
     this.idMetodo = idMetodo;
+    this.userId = userId; // Atribui o userId
   }
 
-  // MÉTODO ESTÁTICO PARA SALVAR)
+  // MÉTODO ESTÁTICO PARA SALVAR
   static async salvar(dadosDaTransacao) {
     try {
+      if (!dadosDaTransacao.userId) {
+        throw new Error("O ID do usuário é obrigatório.");
+      }
       const novaInstancia = new Transacao(
         dadosDaTransacao.valor,
         dadosDaTransacao.gastoFixo,
@@ -48,7 +55,8 @@ export class Transacao {
         dadosDaTransacao.parcelaAtual,
         dadosDaTransacao.tipo,
         dadosDaTransacao.idCategoria,
-        dadosDaTransacao.idMetodo
+        dadosDaTransacao.idMetodo,
+        dadosDaTransacao.userId
       );
       const transacaoParaSalvar = { ...novaInstancia };
       const docRef = await addDoc(
@@ -67,14 +75,15 @@ export class Transacao {
     console.log("(Classe Transacao) Buscando todas as transações...");
     try {
       // Cria a consulta para buscar na coleção 'transacao', ordenando pela data mais recente
-      const consulta = query(
+      const consultaTransacoes = query(
         collection(db, "transacao"),
+        where("userId", "==", auth.currentUser.uid), // Filtra por ID do usuário
         orderBy("data", "desc")
       );
-      const querySnapshot = await getDocs(consulta);
+      const transacoesSnapshot = await getDocs(consultaTransacoes);
 
       // Retorna o array de documentos para o script.js usar
-      return querySnapshot.docs;
+      return transacoesSnapshot.docs;
     } catch (error) {
       console.error(
         "Erro na classe Transacao ao buscar todas as transações:",

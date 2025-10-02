@@ -12,6 +12,11 @@ import {
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { Transacao } from "./transacao.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // =================================================================
 // CONSTANTES GLOBAIS E VARIÁVEIS DE ESTADO
@@ -28,6 +33,11 @@ const categoriaSelect = document.getElementById("categoria");
 const metodoSelect = document.getElementById("metodo");
 const editCategoriaSelect = document.getElementById("edit-categoria");
 const editMetodoSelect = document.getElementById("edit-metodo");
+
+// Elementos do menu e logout
+const btSignOut = document.getElementById("btSignOut");
+const btMenu = document.getElementById("btMenu");
+const menuLateral = document.getElementById("menuLateral");
 
 let tipoMovimentacao = "Saída"; // Estado inicial
 let mapaCategorias = new Map(); // Mapa para armazenar categorias
@@ -111,37 +121,29 @@ function atualizarDropdownCategorias(
   }
 }
 
-async function carregarDados() {
+// NOVO: Função para carregar dados específicos do usuário
+async function carregarTransacoesDoUsuario() {
   try {
-    const [categoriasSnapshot, metodosSnapshot, transacoesSnapshot] =
-      await Promise.all([
-        getDocs(query(collection(db, "categoria"), orderBy("nome"))),
-        getDocs(query(collection(db, "metodo"), orderBy("nome"))),
-        getDocs(query(collection(db, "transacao"), orderBy("data", "desc"))),
-      ]);
+    const auth = getAuth();
+    if (!auth.currentUser) {
+      console.log(
+        "Nenhum usuário logado. Não é possível carregar as transações."
+      );
+      corpoTabela.innerHTML = `<tr><td colspan="5">Nenhum usuário autenticado.</td></tr>`;
+      return;
+    }
 
-    mapaCategorias.clear();
-    mapaMetodos.clear();
-    categoriasSnapshot.docs.forEach((doc) =>
-      mapaCategorias.set(doc.id, doc.data())
+    const consultaTransacoes = query(
+      collection(db, "transacao"),
+      where("userId", "==", auth.currentUser.uid),
+      orderBy("data", "desc")
     );
-    metodosSnapshot.docs.forEach((doc) => mapaMetodos.set(doc.id, doc.data()));
+    const transacoesSnapshot = await getDocs(consultaTransacoes);
 
     const transacoes = transacoesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-
-    metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-    editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-    mapaMetodos.forEach((data, id) => {
-      const option = new Option(data.nome, id);
-      metodoSelect.appendChild(option.cloneNode(true));
-      editMetodoSelect.appendChild(option.cloneNode(true));
-    });
-
-    // Atualiza o dropdown principal com base no estado inicial
-    atualizarDropdownCategorias(categoriaSelect, tipoMovimentacao);
 
     corpoTabela.innerHTML = "";
     if (transacoes.length === 0) {
@@ -173,7 +175,37 @@ async function carregarDados() {
 
     calcularEExibirTotais(transacoes);
   } catch (error) {
-    console.error("Erro ao carregar dados iniciais:", error);
+    console.error("Erro ao carregar transações do usuário:", error);
+    alert("Não foi possível carregar as transações.");
+  }
+}
+
+async function carregarDadosGlobais() {
+  try {
+    const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
+      getDocs(query(collection(db, "categoria"), orderBy("nome"))),
+      getDocs(query(collection(db, "metodo"), orderBy("nome"))),
+    ]);
+
+    mapaCategorias.clear();
+    mapaMetodos.clear();
+    categoriasSnapshot.docs.forEach((doc) =>
+      mapaCategorias.set(doc.id, doc.data())
+    );
+    metodosSnapshot.docs.forEach((doc) => mapaMetodos.set(doc.id, doc.data()));
+
+    metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
+    editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
+    mapaMetodos.forEach((data, id) => {
+      const option = new Option(data.nome, id);
+      metodoSelect.appendChild(option.cloneNode(true));
+      editMetodoSelect.appendChild(option.cloneNode(true));
+    });
+
+    // Atualiza o dropdown principal com base no estado inicial
+    atualizarDropdownCategorias(categoriaSelect, tipoMovimentacao);
+  } catch (error) {
+    console.error("Erro ao carregar dados globais:", error);
     alert("Não foi possível carregar os dados da aplicação.");
   }
 }
@@ -182,13 +214,57 @@ async function carregarDados() {
 // EVENT LISTENERS
 // =================================================================
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   console.log("Página carregada. Iniciando aplicação...");
   document.getElementById("data").value = new Date()
     .toISOString()
     .split("T")[0];
   btSaida.classList.add("active");
-  carregarDados();
+
+  await carregarDadosGlobais();
+
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Usuário autenticado. Carregando dados...");
+      carregarTransacoesDoUsuario();
+    } else {
+      console.log("Nenhum usuário autenticado. Redirecionando para login.");
+      window.location.href = "login.html";
+    }
+  });
+});
+
+// Event listener para o botão de sair
+if (btSignOut) {
+  btSignOut.addEventListener("click", async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      window.location.href = "login.html";
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      alert("Erro ao sair. Tente novamente.");
+    }
+  });
+}
+
+// Event listener para o botão que abre o menu lateral
+if (btMenu) {
+  btMenu.addEventListener("click", () => {
+    if (menuLateral) menuLateral.classList.toggle("show");
+  });
+}
+// Event listener para fechar o menu lateral
+document.addEventListener("click", (event) => {
+  if (
+    menuLateral &&
+    btMenu &&
+    !menuLateral.contains(event.target) &&
+    !btMenu.contains(event.target)
+  ) {
+    menuLateral.classList.remove("show");
+  }
 });
 
 btSaida.addEventListener("click", () => {
@@ -234,8 +310,6 @@ if (corpoTabela) {
         if (docSnap.exists()) {
           const transacao = docSnap.data();
 
-          // **NOVA LÓGICA AQUI**
-          // Atualiza o dropdown de categoria do modal ANTES de preencher os outros campos
           atualizarDropdownCategorias(
             editCategoriaSelect,
             transacao.tipo,
@@ -280,6 +354,14 @@ if (corpoTabela) {
 if (formPrincipal) {
   formPrincipal.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const auth = getAuth();
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+
+    if (!userId) {
+      alert("Usuário não autenticado. Por favor, faça login novamente.");
+      return;
+    }
+
     const valorBruto = document.getElementById("valor").value;
     const valor = parseFloat(
       valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
@@ -308,6 +390,7 @@ if (formPrincipal) {
         tipo: "Saída",
         idCategoria: categoriaId,
         idMetodo: metodoId,
+        userId: userId,
       };
     } else {
       // Entrada
@@ -319,6 +402,7 @@ if (formPrincipal) {
         tipo: "Entrada",
         idCategoria: categoriaId,
         idMetodo: null,
+        userId: userId,
       };
     }
 
@@ -329,7 +413,7 @@ if (formPrincipal) {
       document.getElementById("data").value = new Date()
         .toISOString()
         .split("T")[0];
-      await carregarDados();
+      await carregarTransacoesDoUsuario();
     } catch (e) {
       console.error("Erro ao salvar: ", e);
       alert("Erro ao salvar a transação.");
@@ -375,7 +459,7 @@ if (formEdicao) {
       await updateDoc(docRef, dadosAtualizados);
       alert("Alterações salvas!");
       modalContainer.classList.add("hidden");
-      await carregarDados();
+      await carregarTransacoesDoUsuario();
     } catch (e) {
       console.error("Erro ao atualizar: ", e);
       alert("Erro ao atualizar.");
@@ -392,7 +476,7 @@ if (btExcluir) {
         await deleteDoc(doc(db, "transacao", transacaoId));
         alert("Transação excluída!");
         modalContainer.classList.add("hidden");
-        await carregarDados();
+        await carregarTransacoesDoUsuario();
       } catch (e) {
         alert("Erro ao excluir.");
       }
