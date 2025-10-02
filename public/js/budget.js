@@ -163,9 +163,10 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
         ? orcamentoItem.id
         : `new-${categoria.id}`; // ID temporário para novos itens
 
+      // Adicionada a classe "td-input" na célula do input
       linha.innerHTML = `
         <td>${categoria.nome}</td>
-        <td><input type="text" class="input-orcamento" data-id="${orcamentoId}" data-categoria-id="${
+        <td class="td-input"><input type="text" class="input-orcamento" data-id="${orcamentoId}" data-categoria-id="${
         categoria.id
       }" value="${formatarMoeda(valorPrevisto)}"></td>
         <td>${formatarMoeda(totalRealizado)}</td>
@@ -299,5 +300,13 @@ function formatarMoeda(valor) {
 function formatarMes(mesAno) {
   const [ano, mes] = mesAno.split("-");
   const data = new Date(ano, mes - 1);
-  return data.toLocaleString("pt-BR", { month: "long", year: "numeric" });
+
+  const nomeMes = data.toLocaleString("pt-BR", { month: "short" }); // ex: "set."
+  const anoCurto = data.getFullYear().toString().slice(-2); // ex: "25"
+
+  // Remove o ponto e capitaliza a primeira letra
+  const mesFormatado =
+    nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1).replace(".", "");
+
+  return `${mesFormatado}/${anoCurto}`;
 }

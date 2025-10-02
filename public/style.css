@@ -1068,14 +1068,10 @@ hr {
 /* ------------------------------------ */
 /* Estilos para inputs dentro das tabelas de orçamento */
 .section-orçamento table input {
-  width: 90%;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: right;
-  font-family: "Inter", sans-serif;
-  font-size: 1em;
+  all: inherit;
+  margin: 0;
+  border: none;
+  width: 100%;
 }
 
 .section-orçamento table input:focus {
@@ -1105,4 +1101,22 @@ hr {
   padding: 10px;
   background-color: #f1f1f1;
   border: none;
+}
+
+/* .input-orcamento {
+  all: inherit;
+
+  width: 50%;
+  margin: 0;
+}
+*/
+.td-input {
+  padding: 0;
+}
+#section-orçamento tr td:first-child {
+  width: 40%;
+  padding-inline: 15px;
+}
+#section-orçamento td {
+  width: 30%;
 }
