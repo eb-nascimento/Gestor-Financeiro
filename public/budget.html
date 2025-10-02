@@ -3,127 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Orçamento</title>
+    <title>Relatório Mensal</title>
     <link rel="stylesheet" href="style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/budget.js"></script>
+    <script type="module" src="js/menu.js"></script>
   </head>
   <body>
     <section id="section-orçamento">
       <section class="section-orçamento" id="orçamento-left">
         <div id="titulo-orçamento">
-          <h1>Orçamento Mensal</h1>
-          <span class="span-titulo">Setembro/25</span>
-          <button class="troca-mes">
-            <img src="img/ArrowDown.svg" alt="mês anterior" />
+          <h1>Relatório Mensal</h1>
+          <button class="troca-mes" data-direction="-1">
+            <img
+              src="img/ArrowDown.svg"
+              alt="mês anterior"
+              style="transform: rotate(90deg)"
+            />
+          </button>
+          <span class="span-titulo">Carregando...</span>
+          <button class="troca-mes" data-direction="1">
+            <img
+              src="img/ArrowDown.svg"
+              alt="mês seguinte"
+              style="transform: rotate(-90deg)"
+            />
           </button>
         </div>
         <table class="despesas">
           <thead>
             <tr>
-              <th>
-                <div id="th-despesas">
-                  Despesas
-                  <button class="troca-tipo">
-                    Fixas
-                    <img
-                      src="img/ArrowDownBranco.svg"
-                      alt="Troca Tipo de Despesa"
-                    />
-                  </button>
-                </div>
-              </th>
+              <th>Despesa</th>
               <th>Orçamento</th>
               <th>Saída</th>
             </tr>
           </thead>
-          <tbody id="corpoTabelaMetodos">
-            <!-- Linhas da tabela serão inseridas aqui dinamicamente -->
+          <tbody id="corpoTabelaDespesas"></tbody>
+          <tfoot>
             <tr>
-              <td>Aluguel</td>
-              <td>R$ 1.200,00</td>
-              <td>R$ 1.200,00</td>
+              <td colspan="3">
+                <button class="adicionar-btn" data-tipo="despesa">
+                  + Adicionar Despesa
+                </button>
+              </td>
             </tr>
-            <tr>
-              <td>Internet</td>
-              <td>R$ 100,00</td>
-              <td>R$ 100,00</td>
-            </tr>
-            <tr>
-              <td>Transporte</td>
-              <td>R$ 300,00</td>
-              <td>R$ 250,00</td>
-            </tr>
-            <tr>
-              <td>Supermercado</td>
-              <td>R$ 600,00</td>
-              <td>R$ 550,00</td>
-            </tr>
-            <tr>
-              <td>Academia</td>
-              <td>R$ 150,00</td>
-              <td>R$ 150,00</td>
-            </tr>
-            <tr>
-              <td>Plano de Saúde</td>
-              <td>R$ 400,00</td>
-              <td>R$ 400,00</td>
-            </tr>
-            <tr>
-              <td>Outros</td>
-              <td>R$ 200,00</td>
-              <td>R$ 180,00</td>
-            </tr>
-            <tr>
-              <td>Aluguel</td>
-              <td>R$ 1.200,00</td>
-              <td>R$ 1.200,00</td>
-            </tr>
-            <tr>
-              <td>Internet</td>
-              <td>R$ 100,00</td>
-              <td>R$ 100,00</td>
-            </tr>
-            <tr>
-              <td>Transporte</td>
-              <td>R$ 300,00</td>
-              <td>R$ 250,00</td>
-            </tr>
-            <tr>
-              <td>Supermercado</td>
-              <td>R$ 600,00</td>
-              <td>R$ 550,00</td>
-            </tr>
-            <tr>
-              <td>Academia</td>
-              <td>R$ 150,00</td>
-              <td>R$ 150,00</td>
-            </tr>
-            <tr>
-              <td>Plano de Saúde</td>
-              <td>R$ 400,00</td>
-              <td>R$ 400,00</td>
-            </tr>
-            <tr>
-              <td>Outros</td>
-              <td>R$ 200,00</td>
-              <td>R$ 180,00</td>
-            </tr>
-          </tbody>
+          </tfoot>
         </table>
       </section>
       <section class="section-orçamento" id="orçamento-right">
         <section id="sectionValores">
           <div id="valorSaida" class="valor">
-            <h2>Saída Atual</h2>
-            <h2>R$ 2.700,00</h2>
+            <h2>Total Saídas</h2>
+            <h2>R$ 0,00</h2>
           </div>
           <div id="valorOrçado" class="valor">
-            <h2>Orçamento</h2>
-            <h2>R$ 4.450,00</h2>
+            <h2>Total Orçado</h2>
+            <h2>R$ 0,00</h2>
           </div>
         </section>
         <div class="grafico">
@@ -133,28 +71,21 @@
         <table>
           <thead>
             <tr>
-              <th>Economias</th>
+              <th>Economia</th>
               <th>Previsto</th>
-              <th>Entrada</th>
+              <th>Guardado</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="corpoTabelaEconomias"></tbody>
+          <tfoot>
             <tr>
-              <td>Investimentos</td>
-              <td>R$ 1.500,00</td>
-              <td>R$ 600,00</td>
+              <td colspan="3">
+                <button class="adicionar-btn" data-tipo="economia">
+                  + Adicionar Economia
+                </button>
+              </td>
             </tr>
-            <tr>
-              <td>Reserva de Emergência</td>
-              <td>R$ 1.500,00</td>
-              <td>R$ 470,00</td>
-            </tr>
-            <tr>
-              <td>Outros</td>
-              <td>R$ 500,00</td>
-              <td>R$ 200,00</td>
-            </tr>
-          </tbody>
+          </tfoot>
         </table>
       </section>
       <section class="section-orçamento" id="orçamento-center">
@@ -166,77 +97,31 @@
               <th>Saldo</th>
             </tr>
           </thead>
-          <tbody id="corpoTabelaCategorias">
-            <!-- Linhas da tabela serão inseridas aqui dinamicamente -->
-            <tr>
-              <td>Cartão de Crédito</td>
-              <td>R$ 2.000,00</td>
-              <td>R$ 500,00</td>
-            </tr>
-            <tr>
-              <td>Conta Corrente</td>
-              <td>R$ 3.000,00</td>
-              <td>R$ 1.200,00</td>
-            </tr>
-            <tr>
-              <td>Dinheiro</td>
-              <td>R$ 800,00</td>
-              <td>R$ 300,00</td>
-            </tr>
-            <tr>
-              <td>Pix</td>
-              <td>R$ 1.500,00</td>
-              <td>R$ 700,00</td>
-            </tr>
-            <tr>
-              <td>Investimentos</td>
-              <td>R$ 2.500,00</td>
-              <td>R$ 1.000,00</td>
-            </tr>
-            <tr>
-              <td>Outros</td>
-              <td>R$ 400,00</td>
-              <td>R$ 150,00</td>
-            </tr>
-          </tbody>
+          <tbody id="corpoTabelaMetodos"></tbody>
         </table>
-        <h3>Aviso sobre a conta</h3>
-        <p>
-          Seu saldo está baixo. Considere revisar seu orçamento ou adicionar
-          fundos.
-        </p>
-        <p>
-          Você está gastando 80% do seu orçamento mensal. Tente economizar mais
-          para evitar dívidas.
-        </p>
+
         <table>
           <thead>
             <tr>
-              <th>Receitas</th>
+              <th>Receita</th>
               <th>Previsto</th>
               <th>Recebido</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="corpoTabelaReceitas"></tbody>
+          <tfoot>
             <tr>
-              <td>Salário</td>
-              <td>R$ 4.000,00</td>
-              <td>R$ 4.000,00</td>
+              <td colspan="3">
+                <button class="adicionar-btn" data-tipo="receita">
+                  + Adicionar Receita
+                </button>
+              </td>
             </tr>
-            <tr>
-              <td>Freelance</td>
-              <td>R$ 1.000,00</td>
-              <td>R$ 800,00</td>
-            </tr>
-            <tr>
-              <td>Outros</td>
-              <td>R$ 500,00</td>
-              <td>R$ 300,00</td>
-            </tr>
-          </tbody>
+          </tfoot>
         </table>
       </section>
     </section>
+
     <section id="menu">
       <button id="btMenu">
         <img class="menu-item" src="img/CirclesFour.svg" alt="menu" />
@@ -253,7 +138,7 @@
     <aside id="menuLateral">
       <h2>Menu</h2>
       <ul>
-        <li><a href="budget.html">Planejamento</a></li>
+        <li><a href="budget.html">Relatório</a></li>
         <hr />
         <li><a href="index.html">Financeiro</a></li>
         <hr />
@@ -262,8 +147,6 @@
         <li><a href="#">Meus Métodos</a></li>
         <hr />
         <li><a href="index.html">Movimentações</a></li>
-        <hr />
-        <li><a href="#">Média de Gastos</a></li>
         <hr />
         <li><a href="#">Perfil</a></li>
         <hr />

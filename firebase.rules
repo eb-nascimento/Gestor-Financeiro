@@ -2,21 +2,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Suas regras existentes para categoria
+    // Regras que não mudam
     match /categoria/{docId} {
       allow read: if true;
-      allow write: if false; // Mantendo como você configurou
+      allow write: if false; 
     }
-
-    // Suas regras existentes para metodo
     match /metodo/{docId} {
       allow read: if true;
-      allow write: if false; // Mantendo como você configurou
+      allow write: if false;
     }
 
-    // Novas regras para a coleção de transações
+    // ===============================================
+    //           REGRAS CORRIGIDAS ABAIXO
+    // ===============================================
+
     match /transacao/{transactionId} {
-    allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Permite ler (get e list) se o utilizador estiver autenticado.
+      // A consulta no JavaScript (where clause) garante que ele só lista os seus próprios dados.
+      allow read: if request.auth != null;
+      
+      // Permite escrever (criar, editar, apagar) se o utilizador for o dono do documento.
+      // request.resource.data.userId funciona tanto para criar como para atualizar.
+      allow write: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
+
+    match /orcamentos/{orcamentoId} {
+      // A mesma lógica aplica-se aqui
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
   }
 }

@@ -1064,3 +1064,45 @@ hr {
 #valorOrçado {
   background-color: chocolate;
 }
+
+/* ------------------------------------ */
+/* Estilos para inputs dentro das tabelas de orçamento */
+.section-orçamento table input {
+  width: 90%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+  font-family: "Inter", sans-serif;
+  font-size: 1em;
+}
+
+.section-orçamento table input:focus {
+  outline: none;
+  border-color: #334666;
+  box-shadow: 0 0 5px rgba(51, 70, 102, 0.5);
+}
+
+/* Estilos para os botões de "Adicionar" */
+.adicionar-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #dbe1e9;
+  color: #334666;
+  border: 1px dashed #334666;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.adicionar-btn:hover {
+  background-color: #c1cbd7;
+}
+
+.section-orçamento tfoot td {
+  padding: 10px;
+  background-color: #f1f1f1;
+  border: none;
+}
