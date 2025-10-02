@@ -34,6 +34,18 @@
           <select id="metodo" name="metodo">
             <option value="">Selecione o método</option>
           </select>
+
+          <div id="parcelas-container" class="hidden">
+            <label for="parcelas">Número de Parcelas</label>
+            <input
+              type="number"
+              id="parcelas"
+              name="parcelas"
+              min="1"
+              value="1"
+            />
+          </div>
+
           <input
             type="text"
             id="descricao"
@@ -78,9 +90,12 @@
               <tbody id="tabelaMovimentacoes"></tbody>
             </table>
           </div>
-          <button id="btMostrarMais">
-            Mostrar Mais <img src="img/FirstAid.svg" alt="+" />
-          </button>
+          <a href="budget.html">
+            <button id="btMostrarMais">
+              Mostrar Mais
+              <img src="img/FirstAid.svg" alt="Mostrar mais" />
+            </button>
+          </a>
         </section>
       </section>
 

@@ -1103,13 +1103,6 @@ hr {
   border: none;
 }
 
-/* .input-orcamento {
-  all: inherit;
-
-  width: 50%;
-  margin: 0;
-}
-*/
 .td-input {
   padding: 0;
 }
@@ -1119,4 +1112,23 @@ hr {
 }
 #section-orçamento td {
   width: 30%;
+}
+
+#parcelas-container,
+#edit-parcelas-container {
+  width: 60%;
+  margin: 0;
+  padding: 0;
+}
+
+#parcelas-container label,
+#edit-parcelas-container label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  justify-content: flex-start;
+}
+
+#parcelas,
+#edit-parcelas {
+  width: 100%;
 }
