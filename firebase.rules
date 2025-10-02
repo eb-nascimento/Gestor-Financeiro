@@ -17,19 +17,20 @@ service cloud.firestore {
     // ===============================================
 
     match /transacao/{transactionId} {
-      // Permite ler (get e list) se o utilizador estiver autenticado.
-      // A consulta no JavaScript (where clause) garante que ele só lista os seus próprios dados.
       allow read: if request.auth != null;
       
-      // Permite escrever (criar, editar, apagar) se o utilizador for o dono do documento.
-      // request.resource.data.userId funciona tanto para criar como para atualizar.
-      allow write: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Permite CRIAR e ATUALIZAR se o utilizador for o dono dos novos dados
+      allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      
+      // Permite APAGAR se o utilizador for o dono do documento existente
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
     match /orcamentos/{orcamentoId} {
       // A mesma lógica aplica-se aqui
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
     
   }
