@@ -130,7 +130,28 @@ select {
 }
 
 #parcelas {
+  display: flex;
   margin-bottom: 0;
+  width: 15%;
+  text-align: center;
+  align-items: start;
+  justify-content: start;
+  padding: 0;
+}
+
+#parcelas-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  width: 60%;
+  align-items: center;
+  text-align: center;
+}
+
+#parcelas-container label {
+  width: fit-content;
+  margin: 0;
+  margin-right: 10px;
 }
 
 label {
@@ -1120,23 +1141,4 @@ hr {
 }
 #section-orçamento td {
   width: 30%;
-}
-
-#parcelas-container,
-#edit-parcelas-container {
-  width: 60%;
-  margin: 0;
-  padding: 0;
-}
-
-#parcelas-container label,
-#edit-parcelas-container label {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  justify-content: flex-start;
-}
-
-#parcelas,
-#edit-parcelas {
-  width: 100%;
 }
