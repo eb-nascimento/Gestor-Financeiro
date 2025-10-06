@@ -242,13 +242,18 @@ if (document.getElementById("novaMovimentacao")) {
     if (!metodo || metodo.forma !== "credito") parcelasInput.value = 1;
   });
 
+  // CÓDIGO NOVO E CORRIGIDO
   editMetodoSelect.addEventListener("change", (e) => {
     const metodo = mapaMetodos.get(e.target.value);
-    editParcelasContainer.classList.toggle(
-      "hidden",
-      !metodo || metodo.forma !== "credito"
-    );
-    if (!metodo || metodo.forma !== "credito") editParcelasInput.value = 1;
+    const isCredito =
+      metodo && metodo.forma && metodo.forma.trim().toLowerCase() === "credito";
+
+    if (isCredito) {
+      editParcelasContainer.classList.remove("hidden");
+    } else {
+      editParcelasContainer.classList.add("hidden");
+      editParcelasInput.value = 1; // Garante que o valor volta para 1
+    }
   });
 
   corpoTabela.addEventListener("click", async (event) => {
