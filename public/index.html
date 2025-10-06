@@ -118,18 +118,26 @@
               <input type="checkbox" id="edit-gastoFixo" name="gastoFixo" />
               Gasto fixo?
             </label>
+            <select name="categoria" id="edit-categoria"></select>
+            <select name="metodo" id="edit-metodo"></select>
 
+            <input type="hidden" id="edit-transacao-id" />
+            <div id="edit-parcelas-container" class="hidden">
+              <label for="edit-parcelas">Número de Parcelas</label>
+              <input
+                type="number"
+                id="edit-parcelas"
+                name="parcelas"
+                min="1"
+                value="1"
+              />
+            </div>
             <input
               type="text"
               id="edit-descricao"
               name="descricao"
               placeholder="Descrição"
             />
-
-            <select name="categoria" id="edit-categoria"></select>
-            <select name="metodo" id="edit-metodo"></select>
-
-            <input type="hidden" id="edit-transacao-id" />
 
             <div class="modal-actions">
               <button type="button" id="btExcluir">Excluir</button

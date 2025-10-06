@@ -23,6 +23,14 @@
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "mes", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "transacao",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "idParcelamento", "order": "ASCENDING" }
+      ]
     }
   ]
 }

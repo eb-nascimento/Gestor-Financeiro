@@ -122,7 +122,15 @@ select {
 }
 
 #metodo {
-  margin-bottom: 20px;
+  margin-bottom: 0px;
+}
+
+#descricao {
+  margin-top: 20px;
+}
+
+#parcelas {
+  margin-bottom: 0;
 }
 
 label {
@@ -531,7 +539,7 @@ select {
 }
 
 #edit-categoria {
-  margin-top: 20px;
+  /* margin-top: 20px; */
 }
 
 #btSalvarEdicao {
