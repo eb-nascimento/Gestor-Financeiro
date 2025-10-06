@@ -10,6 +10,7 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth,
@@ -19,7 +20,7 @@ import {
 // Executa o código apenas se encontrar o elemento principal da página de transações
 if (document.getElementById("novaMovimentacao")) {
   // =================================================================
-  // CONSTANTES GLOBAIS E VARIÁVEIS DE ESTADO
+  // CONSTANTES GLOBAIS
   // =================================================================
   const formPrincipal = document.getElementById("campos");
   const formEdicao = document.getElementById("edit-campos");
@@ -33,15 +34,22 @@ if (document.getElementById("novaMovimentacao")) {
   const metodoSelect = document.getElementById("metodo");
   const editCategoriaSelect = document.getElementById("edit-categoria");
   const editMetodoSelect = document.getElementById("edit-metodo");
+  const parcelasContainer = document.getElementById("parcelas-container");
+  const parcelasInput = document.getElementById("parcelas");
+  const editParcelasContainer = document.getElementById(
+    "edit-parcelas-container"
+  );
+  const editParcelasInput = document.getElementById("edit-parcelas");
+  const btExcluir = document.getElementById("btExcluir");
+  const closeModalBtn = document.getElementById("close-modal-btn");
 
-  let tipoMovimentacao = "Saída"; // Estado inicial
-  let mapaCategorias = new Map(); // Mapa para armazenar categorias
-  let mapaMetodos = new Map(); // Mapa para armazenar métodos
+  let tipoMovimentacao = "Saída";
+  let mapaCategorias = new Map();
+  let mapaMetodos = new Map();
 
   // =================================================================
-  // FUNÇÕES DE MANIPULAÇÃO DA INTERFACE (DOM)
+  // FUNÇÕES DE UI E FORMATAÇÃO
   // =================================================================
-
   function formatarCampoComoMoeda(event) {
     const input = event.target;
     let valor = input.value.replace(/\D/g, "");
@@ -49,11 +57,10 @@ if (document.getElementById("novaMovimentacao")) {
       input.value = "";
       return;
     }
-    valor = (parseFloat(valor) / 100).toLocaleString("pt-BR", {
+    input.value = (parseFloat(valor) / 100).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
-    input.value = valor;
   }
 
   function calcularEExibirTotais(transacoes) {
@@ -65,18 +72,12 @@ if (document.getElementById("novaMovimentacao")) {
       "#valorCarteira h2:last-child"
     );
     if (!elementoSaida || !elementoEntrada || !elementoCarteira) return;
-
-    let totalEntradas = 0;
-    let totalSaidas = 0;
-
+    let totalEntradas = 0,
+      totalSaidas = 0;
     transacoes.forEach((transacao) => {
-      if (transacao.tipo === "Entrada") {
-        totalEntradas += transacao.valor;
-      } else if (transacao.tipo === "Saída") {
-        totalSaidas += transacao.valor;
-      }
+      if (transacao.tipo === "Entrada") totalEntradas += transacao.valor;
+      else if (transacao.tipo === "Saída") totalSaidas += transacao.valor;
     });
-
     const saldoCarteira = totalEntradas - totalSaidas;
     elementoEntrada.textContent = totalEntradas.toLocaleString("pt-BR", {
       style: "currency",
@@ -104,16 +105,45 @@ if (document.getElementById("novaMovimentacao")) {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
-
     mapaCategorias.forEach((data, id) => {
       if (data.tipo && data.tipo.toLowerCase() === tipoFiltro) {
-        const option = new Option(data.nome, id);
-        selectElement.appendChild(option);
+        selectElement.appendChild(new Option(data.nome, id));
       }
     });
+    if (categoriaSelecionadaId) selectElement.value = categoriaSelecionadaId;
+  }
 
-    if (categoriaSelecionadaId) {
-      selectElement.value = categoriaSelecionadaId;
+  // =================================================================
+  // FUNÇÕES DE CARREGAMENTO DE DADOS
+  // =================================================================
+  async function carregarDadosIniciais(userId) {
+    try {
+      const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
+        getDocs(query(collection(db, "categoria"), orderBy("nome"))),
+        getDocs(query(collection(db, "metodo"), orderBy("nome"))),
+      ]);
+      mapaCategorias.clear();
+      mapaMetodos.clear();
+      categoriasSnapshot.docs.forEach((doc) =>
+        mapaCategorias.set(doc.id, doc.data())
+      );
+      metodosSnapshot.docs.forEach((doc) =>
+        mapaMetodos.set(doc.id, { id: doc.id, ...doc.data() })
+      );
+
+      metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
+      editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
+      mapaMetodos.forEach((data) => {
+        if (data.tipo === "saida") {
+          const option = new Option(data.nome, data.id);
+          metodoSelect.appendChild(option.cloneNode(true));
+          editMetodoSelect.appendChild(option.cloneNode(true));
+        }
+      });
+      atualizarDropdownCategorias(categoriaSelect, tipoMovimentacao);
+      await carregarTransacoesDoUsuario(userId);
+    } catch (error) {
+      console.error("Erro ao carregar dados globais:", error);
     }
   }
 
@@ -125,7 +155,6 @@ if (document.getElementById("novaMovimentacao")) {
         orderBy("data", "desc")
       );
       const transacoesSnapshot = await getDocs(consultaTransacoes);
-
       const transacoes = transacoesSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -139,6 +168,10 @@ if (document.getElementById("novaMovimentacao")) {
           const nomeCategoria =
             mapaCategorias.get(transacao.idCategoria)?.nome || "Não encontrada";
           const nomeMetodo = mapaMetodos.get(transacao.idMetodo)?.nome || "-";
+          let descricao = transacao.descricao;
+          if (transacao.parcelas && transacao.parcelas > 1) {
+            descricao += ` (${transacao.parcelaAtual}/${transacao.parcelas})`;
+          }
           const novaLinha = document.createElement("tr");
           novaLinha.dataset.id = transacao.id;
           const classeValor =
@@ -152,49 +185,13 @@ if (document.getElementById("novaMovimentacao")) {
           ).toLocaleDateString("pt-BR");
           novaLinha.innerHTML = `<td>${dataFormatada}</td><td class="${classeValor}">${valorFormatado}${
             transacao.gastoFixo && transacao.tipo === "Saída" ? "*" : ""
-          }</td><td>${nomeMetodo}</td><td>${nomeCategoria}</td><td>${
-            transacao.descricao
-          }</td>`;
+          }</td><td>${nomeMetodo}</td><td>${nomeCategoria}</td><td>${descricao}</td>`;
           corpoTabela.appendChild(novaLinha);
         });
       }
-
       calcularEExibirTotais(transacoes);
     } catch (error) {
       console.error("Erro ao carregar transações do usuário:", error);
-      alert("Não foi possível carregar as transações.");
-    }
-  }
-
-  async function carregarDadosIniciais(userId) {
-    try {
-      const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
-        getDocs(query(collection(db, "categoria"), orderBy("nome"))),
-        getDocs(query(collection(db, "metodo"), orderBy("nome"))),
-      ]);
-
-      mapaCategorias.clear();
-      mapaMetodos.clear();
-      categoriasSnapshot.docs.forEach((doc) =>
-        mapaCategorias.set(doc.id, doc.data())
-      );
-      metodosSnapshot.docs.forEach((doc) =>
-        mapaMetodos.set(doc.id, doc.data())
-      );
-
-      metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-      editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
-      mapaMetodos.forEach((data, id) => {
-        const option = new Option(data.nome, id);
-        metodoSelect.appendChild(option.cloneNode(true));
-        editMetodoSelect.appendChild(option.cloneNode(true));
-      });
-
-      atualizarDropdownCategorias(categoriaSelect, tipoMovimentacao);
-      await carregarTransacoesDoUsuario(userId);
-    } catch (error) {
-      console.error("Erro ao carregar dados globais:", error);
-      alert("Não foi possível carregar os dados da aplicação.");
     }
   }
 
@@ -205,14 +202,10 @@ if (document.getElementById("novaMovimentacao")) {
     const dataInput = document.getElementById("data");
     if (dataInput) dataInput.value = new Date().toISOString().split("T")[0];
     if (btSaida) btSaida.classList.add("active");
-
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        carregarDadosIniciais(user.uid);
-      } else {
-        window.location.href = "login.html";
-      }
+      if (user) carregarDadosIniciais(user.uid);
+      else window.location.href = "login.html";
     });
   });
 
@@ -221,12 +214,8 @@ if (document.getElementById("novaMovimentacao")) {
     tipoMovimentacao = "Saída";
     btSaida.classList.add("active");
     btEntrada.classList.remove("active");
-
-    document.getElementById("categoria").classList.remove("hidden");
     document.getElementById("metodo").classList.remove("hidden");
-    document.getElementById("descricao").classList.remove("hidden");
     document.getElementById("gastoFixoLabel").classList.remove("hidden");
-
     atualizarDropdownCategorias(categoriaSelect, "Saída");
   });
 
@@ -235,17 +224,32 @@ if (document.getElementById("novaMovimentacao")) {
     tipoMovimentacao = "Entrada";
     btEntrada.classList.add("active");
     btSaida.classList.remove("active");
-
-    document.getElementById("categoria").classList.remove("hidden");
     document.getElementById("metodo").classList.add("hidden");
-    document.getElementById("descricao").classList.add("hidden");
     document.getElementById("gastoFixoLabel").classList.add("hidden");
-
+    parcelasContainer.classList.add("hidden");
     atualizarDropdownCategorias(categoriaSelect, "Entrada");
   });
 
   valorInput.addEventListener("input", formatarCampoComoMoeda);
   editValorInput.addEventListener("input", formatarCampoComoMoeda);
+
+  metodoSelect.addEventListener("change", (e) => {
+    const metodo = mapaMetodos.get(e.target.value);
+    parcelasContainer.classList.toggle(
+      "hidden",
+      !metodo || metodo.forma !== "credito"
+    );
+    if (!metodo || metodo.forma !== "credito") parcelasInput.value = 1;
+  });
+
+  editMetodoSelect.addEventListener("change", (e) => {
+    const metodo = mapaMetodos.get(e.target.value);
+    editParcelasContainer.classList.toggle(
+      "hidden",
+      !metodo || metodo.forma !== "credito"
+    );
+    if (!metodo || metodo.forma !== "credito") editParcelasInput.value = 1;
+  });
 
   corpoTabela.addEventListener("click", async (event) => {
     const linhaClicada = event.target.closest("tr[data-id]");
@@ -256,13 +260,11 @@ if (document.getElementById("novaMovimentacao")) {
         const docSnap = await getDoc(transacaoRef);
         if (docSnap.exists()) {
           const transacao = docSnap.data();
-
           atualizarDropdownCategorias(
             editCategoriaSelect,
             transacao.tipo,
             transacao.idCategoria
           );
-
           document.getElementById("edit-transacao-id").value = transacaoId;
           document.getElementById("edit-data").value = transacao.data;
           document.getElementById("edit-valor").value =
@@ -276,15 +278,23 @@ if (document.getElementById("novaMovimentacao")) {
             transacao.gastoFixo;
 
           const isEntrada = transacao.tipo === "Entrada";
-          document
-            .getElementById("edit-gastoFixoLabel")
-            .classList.toggle("hidden", isEntrada);
-          document
-            .getElementById("edit-descricao")
-            .classList.toggle("hidden", isEntrada);
+          const editGastoFixoLabel = document.getElementById(
+            "edit-gastoFixoLabel"
+          ); // Definição correta
+
+          editGastoFixoLabel.classList.toggle("hidden", isEntrada);
           document
             .getElementById("edit-metodo")
             .classList.toggle("hidden", isEntrada);
+
+          if (!isEntrada) {
+            const metodo = mapaMetodos.get(transacao.idMetodo);
+            const isCredito = metodo && metodo.forma === "credito";
+            editParcelasContainer.classList.toggle("hidden", !isCredito);
+            if (isCredito) editParcelasInput.value = transacao.parcelas || 1;
+          } else {
+            editParcelasContainer.classList.add("hidden");
+          }
 
           modalContainer.classList.remove("hidden");
         } else {
@@ -301,66 +311,92 @@ if (document.getElementById("novaMovimentacao")) {
     event.preventDefault();
     const auth = getAuth();
     const userId = auth.currentUser ? auth.currentUser.uid : null;
-
     if (!userId) {
-      alert("Usuário não autenticado. Por favor, faça login novamente.");
+      alert("Utilizador não autenticado.");
       return;
     }
 
-    const valorBruto = valorInput.value;
-    const valor = parseFloat(
-      valorBruto.replace(/[^\d,]/g, "").replace(",", ".")
+    const valorTotal = parseFloat(
+      valorInput.value.replace(/[^\d,]/g, "").replace(",", ".")
     );
     const data = document.getElementById("data").value;
     const categoriaId = categoriaSelect.value;
-
-    if (isNaN(valor) || valor <= 0) return alert("Valor inválido!");
-    if (!data || !categoriaId) return alert("Preencha Data e Categoria!");
-
-    let novaTransacao;
-
-    if (tipoMovimentacao === "Saída") {
-      const metodoId = metodoSelect.value;
-      const descricao = document.getElementById("descricao").value;
-      const gastoFixo = document.getElementById("gastoFixo").checked;
-
-      if (!metodoId || !descricao) {
-        return alert("Para saídas, preencha Método e Descrição!");
-      }
-      novaTransacao = {
-        valor,
-        gastoFixo,
-        descricao,
-        data,
-        tipo: "Saída",
-        idCategoria: categoriaId,
-        idMetodo: metodoId,
-        userId: userId,
-      };
-    } else {
-      novaTransacao = {
-        valor,
-        gastoFixo: false,
-        descricao: "-",
-        data,
-        tipo: "Entrada",
-        idCategoria: categoriaId,
-        idMetodo: null,
-        userId: userId,
-      };
+    if (isNaN(valorTotal) || valorTotal <= 0 || !data || !categoriaId) {
+      alert("Preencha todos os campos obrigatórios (Data, Valor, Categoria).");
+      return;
     }
 
     try {
-      await addDoc(collection(db, "transacao"), novaTransacao);
+      if (tipoMovimentacao === "Saída") {
+        const metodoId = metodoSelect.value;
+        const metodo = mapaMetodos.get(metodoId);
+        const descricao = document.getElementById("descricao").value;
+        if (!metodoId || !descricao) {
+          return alert("Para saídas, preencha Método e Descrição!");
+        }
+
+        const idParcelamento =
+          Date.now().toString(36) + Math.random().toString(36).substr(2);
+        const numParcelas =
+          metodo?.forma === "credito"
+            ? parseInt(parcelasInput.value, 10) || 1
+            : 1;
+        const valorParcela = valorTotal / numParcelas;
+
+        const transacaoBase = {
+          valor: valorParcela,
+          gastoFixo: document.getElementById("gastoFixo").checked,
+          descricao,
+          data,
+          tipo: "Saída",
+          idCategoria,
+          idMetodo,
+          userId,
+          parcelas: numParcelas,
+          parcelaAtual: 1,
+          idParcelamento: numParcelas > 1 ? idParcelamento : null,
+        };
+
+        if (numParcelas > 1) {
+          const batch = writeBatch(db);
+          for (let i = 1; i <= numParcelas; i++) {
+            let dataParcela = new Date(data + "T00:00:00");
+            dataParcela.setMonth(dataParcela.getMonth() + (i - 1));
+            const transacaoDaParcela = {
+              ...transacaoBase,
+              parcelaAtual: i,
+              data: dataParcela.toISOString().split("T")[0],
+            };
+            batch.set(doc(collection(db, "transacao")), transacaoDaParcela);
+          }
+          await batch.commit();
+        } else {
+          await addDoc(collection(db, "transacao"), transacaoBase);
+        }
+      } else {
+        await addDoc(collection(db, "transacao"), {
+          valor: valorTotal,
+          gastoFixo: false,
+          descricao: "-",
+          data,
+          tipo: "Entrada",
+          idCategoria,
+          idMetodo: null,
+          userId,
+          parcelas: 1,
+          parcelaAtual: 1,
+          idParcelamento: null,
+        });
+      }
       alert("Transação salva!");
       formPrincipal.reset();
       document.getElementById("data").value = new Date()
         .toISOString()
         .split("T")[0];
+      parcelasContainer.classList.add("hidden");
       await carregarTransacoesDoUsuario(userId);
     } catch (e) {
       console.error("Erro ao salvar: ", e);
-      alert("Erro ao salvar a transação.");
     }
   });
 
@@ -371,13 +407,16 @@ if (document.getElementById("novaMovimentacao")) {
       editValorInput.value.replace(/[^\d,]/g, "").replace(",", ".")
     );
     const idCategoria = editCategoriaSelect.value;
-
     if (isNaN(valor) || valor <= 0 || !idCategoria) {
       return alert("Preencha todos os campos corretamente.");
     }
 
     const docRef = doc(db, "transacao", transacaoId);
     const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      return alert("Erro: Transação não encontrada.");
+    }
+
     const tipoTransacao = docSnap.data().tipo;
     const userId = docSnap.data().userId;
 
@@ -388,11 +427,19 @@ if (document.getElementById("novaMovimentacao")) {
     };
 
     if (tipoTransacao === "Saída") {
+      const metodoId = editMetodoSelect.value;
+      const metodo = mapaMetodos.get(metodoId);
       dadosAtualizados.gastoFixo =
         document.getElementById("edit-gastoFixo").checked;
       dadosAtualizados.descricao =
         document.getElementById("edit-descricao").value;
-      dadosAtualizados.idMetodo = document.getElementById("edit-metodo").value;
+      dadosAtualizados.idMetodo = metodoId;
+      if (metodo?.forma === "credito") {
+        dadosAtualizados.parcelas = parseInt(editParcelasInput.value, 10) || 1;
+      } else {
+        dadosAtualizados.parcelas = 1;
+        dadosAtualizados.parcelaAtual = 1;
+      }
     }
 
     try {
@@ -402,33 +449,53 @@ if (document.getElementById("novaMovimentacao")) {
       await carregarTransacoesDoUsuario(userId);
     } catch (e) {
       console.error("Erro ao atualizar: ", e);
-      alert("Erro ao atualizar.");
     }
   });
 
-  const btExcluir = document.getElementById("btExcluir");
   btExcluir.addEventListener("click", async () => {
     const transacaoId = document.getElementById("edit-transacao-id").value;
     const userId = getAuth().currentUser.uid;
-
-    if (confirm("Tem certeza que deseja excluir esta transação?")) {
+    if (
+      confirm(
+        "Isto irá remover TODAS as parcelas associadas, se existirem. Tem a certeza?"
+      )
+    ) {
       try {
-        await deleteDoc(doc(db, "transacao", transacaoId));
-        alert("Transação excluída!");
+        const docRef = doc(db, "transacao", transacaoId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+          alert("Erro: Transação não encontrada.");
+          return;
+        }
+        const { idParcelamento } = docSnap.data();
+
+        if (idParcelamento) {
+          const q = query(
+            collection(db, "transacao"),
+            where("idParcelamento", "==", idParcelamento),
+            where("userId", "==", userId)
+          );
+          const querySnapshot = await getDocs(q);
+          const batch = writeBatch(db);
+          querySnapshot.forEach((doc) => batch.delete(doc.ref));
+          await batch.commit();
+          alert("Todas as parcelas foram excluídas com sucesso!");
+        } else {
+          await deleteDoc(docRef);
+          alert("Transação excluída!");
+        }
         modalContainer.classList.add("hidden");
         await carregarTransacoesDoUsuario(userId);
       } catch (e) {
-        alert("Erro ao excluir.");
+        console.error("Erro ao excluir:", e);
       }
     }
   });
 
-  const closeModalBtn = document.getElementById("close-modal-btn");
   closeModalBtn.addEventListener("click", () =>
     modalContainer.classList.add("hidden")
   );
-
   modalContainer.addEventListener("click", (e) => {
     if (e.target === modalContainer) modalContainer.classList.add("hidden");
   });
-} // Fim do IF principal
+}
