@@ -17,10 +17,10 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// Executa o código apenas se encontrar o elemento principal da página de transações
+// Executa o código apenas se estiver na página principal
 if (document.getElementById("novaMovimentacao")) {
   // =================================================================
-  // CONSTANTES GLOBAIS
+  // CONSTANTES GLOBAIS DE ELEMENTOS DO DOM
   // =================================================================
   const formPrincipal = document.getElementById("campos");
   const formEdicao = document.getElementById("edit-campos");
@@ -43,13 +43,21 @@ if (document.getElementById("novaMovimentacao")) {
   const btExcluir = document.getElementById("btExcluir");
   const closeModalBtn = document.getElementById("close-modal-btn");
 
+  // =================================================================
+  // VARIÁVEIS DE ESTADO
+  // =================================================================
   let tipoMovimentacao = "Saída";
   let mapaCategorias = new Map();
   let mapaMetodos = new Map();
+  let currentUser = null;
 
   // =================================================================
-  // FUNÇÕES DE UI E FORMATAÇÃO
+  // FUNÇÕES DE UI E LÓGICA
   // =================================================================
+
+  /**
+   * Formata um campo de input como moeda brasileira (BRL).
+   */
   function formatarCampoComoMoeda(event) {
     const input = event.target;
     let valor = input.value.replace(/\D/g, "");
@@ -63,6 +71,35 @@ if (document.getElementById("novaMovimentacao")) {
     });
   }
 
+  /**
+   * Controla a visibilidade do container de parcelas com base no método selecionado.
+   * @param {HTMLSelectElement} selectElement - O <select> de métodos.
+   * @param {HTMLElement} containerParcelas - O div que contém o input de parcelas.
+   * @param {HTMLInputElement} inputParcelas - O <input> numérico das parcelas.
+   */
+  function gerenciarVisibilidadeParcelas(
+    selectElement,
+    containerParcelas,
+    inputParcelas
+  ) {
+    const metodoId = selectElement.value;
+    const metodo = mapaMetodos.get(metodoId);
+
+    // Verifica de forma segura se o método é de crédito
+    const isCredito =
+      metodo && metodo.forma && metodo.forma.trim().toLowerCase() === "credito";
+
+    if (isCredito) {
+      containerParcelas.classList.remove("hidden");
+    } else {
+      containerParcelas.classList.add("hidden");
+      inputParcelas.value = 1; // Reseta para 1 parcela se não for crédito
+    }
+  }
+
+  /**
+   * Calcula e exibe os totais de entrada, saída e saldo na carteira.
+   */
   function calcularEExibirTotais(transacoes) {
     const elementoSaida = document.querySelector("#valorSaida h2:last-child");
     const elementoEntrada = document.querySelector(
@@ -71,13 +108,16 @@ if (document.getElementById("novaMovimentacao")) {
     const elementoCarteira = document.querySelector(
       "#valorCarteira h2:last-child"
     );
+
     if (!elementoSaida || !elementoEntrada || !elementoCarteira) return;
+
     let totalEntradas = 0,
       totalSaidas = 0;
     transacoes.forEach((transacao) => {
       if (transacao.tipo === "Entrada") totalEntradas += transacao.valor;
       else if (transacao.tipo === "Saída") totalSaidas += transacao.valor;
     });
+
     const saldoCarteira = totalEntradas - totalSaidas;
     elementoEntrada.textContent = totalEntradas.toLocaleString("pt-BR", {
       style: "currency",
@@ -94,6 +134,9 @@ if (document.getElementById("novaMovimentacao")) {
     elementoCarteira.style.color = saldoCarteira < 0 ? "#e74c3c" : "#2ecc71";
   }
 
+  /**
+   * Atualiza os dropdowns de categoria com base no tipo de movimentação.
+   */
   function atualizarDropdownCategorias(
     selectElement,
     tipo,
@@ -105,32 +148,42 @@ if (document.getElementById("novaMovimentacao")) {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
+
     mapaCategorias.forEach((data, id) => {
       if (data.tipo && data.tipo.toLowerCase() === tipoFiltro) {
         selectElement.appendChild(new Option(data.nome, id));
       }
     });
+
     if (categoriaSelecionadaId) selectElement.value = categoriaSelecionadaId;
   }
 
   // =================================================================
-  // FUNÇÕES DE CARREGAMENTO DE DADOS
+  // CARREGAMENTO DE DADOS (FIREBASE)
   // =================================================================
-  async function carregarDadosIniciais(userId) {
+
+  /**
+   * Carrega categorias e métodos do Firestore e popula os mapas e selects.
+   */
+  async function carregarDadosIniciais() {
+    if (!currentUser) return;
     try {
       const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
         getDocs(query(collection(db, "categoria"), orderBy("nome"))),
         getDocs(query(collection(db, "metodo"), orderBy("nome"))),
       ]);
+
       mapaCategorias.clear();
-      mapaMetodos.clear();
       categoriasSnapshot.docs.forEach((doc) =>
         mapaCategorias.set(doc.id, doc.data())
       );
+
+      mapaMetodos.clear();
       metodosSnapshot.docs.forEach((doc) =>
         mapaMetodos.set(doc.id, { id: doc.id, ...doc.data() })
       );
 
+      // Popula os selects de método
       metodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
       editMetodoSelect.innerHTML = `<option value="">Selecione um método</option>`;
       mapaMetodos.forEach((data) => {
@@ -140,18 +193,23 @@ if (document.getElementById("novaMovimentacao")) {
           editMetodoSelect.appendChild(option.cloneNode(true));
         }
       });
+
       atualizarDropdownCategorias(categoriaSelect, tipoMovimentacao);
-      await carregarTransacoesDoUsuario(userId);
+      await carregarTransacoesDoUsuario();
     } catch (error) {
       console.error("Erro ao carregar dados globais:", error);
     }
   }
 
-  async function carregarTransacoesDoUsuario(userId) {
+  /**
+   * Busca e renderiza as transações do usuário logado na tabela.
+   */
+  async function carregarTransacoesDoUsuario() {
+    if (!currentUser) return;
     try {
       const consultaTransacoes = query(
         collection(db, "transacao"),
-        where("userId", "==", userId),
+        where("userId", "==", currentUser.uid),
         orderBy("data", "desc")
       );
       const transacoesSnapshot = await getDocs(consultaTransacoes);
@@ -183,6 +241,7 @@ if (document.getElementById("novaMovimentacao")) {
           const dataFormatada = new Date(
             transacao.data + "T00:00:00"
           ).toLocaleDateString("pt-BR");
+
           novaLinha.innerHTML = `<td>${dataFormatada}</td><td class="${classeValor}">${valorFormatado}${
             transacao.gastoFixo && transacao.tipo === "Saída" ? "*" : ""
           }</td><td>${nomeMetodo}</td><td>${nomeCategoria}</td><td>${descricao}</td>`;
@@ -191,21 +250,32 @@ if (document.getElementById("novaMovimentacao")) {
       }
       calcularEExibirTotais(transacoes);
     } catch (error) {
-      console.error("Erro ao carregar transações do usuário:", error);
+      console.error("Erro ao carregar transações:", error);
     }
   }
 
   // =================================================================
   // EVENT LISTENERS
   // =================================================================
+
+  /**
+   * Inicializa a aplicação quando o DOM está pronto.
+   */
   document.addEventListener("DOMContentLoaded", () => {
-    const dataInput = document.getElementById("data");
-    if (dataInput) dataInput.value = new Date().toISOString().split("T")[0];
-    if (btSaida) btSaida.classList.add("active");
+    controlarVisibilidadeParcelas(parcelasContainer, false);
+    document.getElementById("data").value = new Date()
+      .toISOString()
+      .split("T")[0];
+    btSaida.classList.add("active");
+
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
-      if (user) carregarDadosIniciais(user.uid);
-      else window.location.href = "login.html";
+      if (user) {
+        currentUser = user;
+        carregarDadosIniciais();
+      } else {
+        window.location.href = "login.html";
+      }
     });
   });
 
@@ -226,36 +296,33 @@ if (document.getElementById("novaMovimentacao")) {
     btSaida.classList.remove("active");
     document.getElementById("metodo").classList.add("hidden");
     document.getElementById("gastoFixoLabel").classList.add("hidden");
-    parcelasContainer.classList.add("hidden");
+    controlarVisibilidadeParcelas(parcelasContainer, false);
     atualizarDropdownCategorias(categoriaSelect, "Entrada");
   });
 
+  // Aplica a formatação de moeda aos campos de valor
   valorInput.addEventListener("input", formatarCampoComoMoeda);
   editValorInput.addEventListener("input", formatarCampoComoMoeda);
 
-  metodoSelect.addEventListener("change", (e) => {
-    const metodo = mapaMetodos.get(e.target.value);
-    parcelasContainer.classList.toggle(
-      "hidden",
-      !metodo || metodo.forma !== "credito"
-    );
-    if (!metodo || metodo.forma !== "credito") parcelasInput.value = 1;
-  });
+  // ** LÓGICA CORRIGIDA E CENTRALIZADA PARA PARCELAS **
+  metodoSelect.addEventListener("change", () =>
+    gerenciarVisibilidadeParcelas(
+      metodoSelect,
+      parcelasContainer,
+      parcelasInput
+    )
+  );
+  editMetodoSelect.addEventListener("change", () =>
+    gerenciarVisibilidadeParcelas(
+      editMetodoSelect,
+      editParcelasContainer,
+      editParcelasInput
+    )
+  );
 
-  // CÓDIGO NOVO E CORRIGIDO
-  editMetodoSelect.addEventListener("change", (e) => {
-    const metodo = mapaMetodos.get(e.target.value);
-    const isCredito =
-      metodo && metodo.forma && metodo.forma.trim().toLowerCase() === "credito";
-
-    if (isCredito) {
-      editParcelasContainer.classList.remove("hidden");
-    } else {
-      editParcelasContainer.classList.add("hidden");
-      editParcelasInput.value = 1; // Garante que o valor volta para 1
-    }
-  });
-
+  /**
+   * Lida com o clique em uma linha da tabela para abrir o modal de edição.
+   */
   corpoTabela.addEventListener("click", async (event) => {
     const linhaClicada = event.target.closest("tr[data-id]");
     if (linhaClicada) {
@@ -265,48 +332,43 @@ if (document.getElementById("novaMovimentacao")) {
         const docSnap = await getDoc(transacaoRef);
         if (docSnap.exists()) {
           const transacao = docSnap.data();
+
+          document.getElementById("edit-transacao-id").value = transacaoId;
+          document.getElementById("edit-data").value = transacao.data;
+          editValorInput.value = transacao.valor.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+          document.getElementById("edit-descricao").value = transacao.descricao;
+          document.getElementById("edit-gastoFixo").checked =
+            transacao.gastoFixo;
+
+          // Atualiza os selects
           atualizarDropdownCategorias(
             editCategoriaSelect,
             transacao.tipo,
             transacao.idCategoria
           );
-          document.getElementById("edit-transacao-id").value = transacaoId;
-          document.getElementById("edit-data").value = transacao.data;
-          document.getElementById("edit-valor").value =
-            transacao.valor.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            });
-          document.getElementById("edit-descricao").value = transacao.descricao;
-          document.getElementById("edit-metodo").value = transacao.idMetodo;
-          document.getElementById("edit-gastoFixo").checked =
-            transacao.gastoFixo;
+          editMetodoSelect.value = transacao.idMetodo;
 
+          // Controla visibilidade dos campos específicos de Saída/Entrada
           const isEntrada = transacao.tipo === "Entrada";
-          const editGastoFixoLabel = document.getElementById(
-            "edit-gastoFixoLabel"
-          ); // Definição correta
-
-          editGastoFixoLabel.classList.toggle("hidden", isEntrada);
           document
-            .getElementById("edit-metodo")
+            .getElementById("edit-gastoFixoLabel")
             .classList.toggle("hidden", isEntrada);
+          editMetodoSelect.classList.toggle("hidden", isEntrada);
 
-          if (transacao.tipo === "Entrada") {
-            editParcelasContainer.classList.add("hidden");
-          } else {
-            const metodo = mapaMetodos.get(transacao.idMetodo);
-            const isCredito =
-              metodo &&
-              metodo.forma &&
-              metodo.forma.trim().toLowerCase() === "credito";
-
-            if (isCredito) {
-              editParcelasContainer.classList.remove("hidden");
-              editParcelasInput.value = transacao.parcelas || 1;
-            } else {
-              editParcelasContainer.classList.add("hidden");
-            }
+          // Lógica para exibir parcelas no modal
+          // Lógica para exibir parcelas no modal
+          const metodoId = editMetodoSelect.value;
+          const metodo = mapaMetodos.get(metodoId);
+          const isCredito =
+            metodo &&
+            metodo.forma &&
+            metodo.forma.trim().toLowerCase() === "credito";
+          controlarVisibilidadeParcelas(editParcelasContainer, isCredito);
+          if (isCredito) {
+            editParcelasInput.value = transacao.parcelas || 1;
           }
 
           modalContainer.classList.remove("hidden");
@@ -320,14 +382,12 @@ if (document.getElementById("novaMovimentacao")) {
     }
   });
 
+  /**
+   * Lida com o envio do formulário de nova transação.
+   */
   formPrincipal.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const auth = getAuth();
-    const userId = auth.currentUser ? auth.currentUser.uid : null;
-    if (!userId) {
-      alert("Utilizador não autenticado.");
-      return;
-    }
+    if (!currentUser) return alert("Utilizador não autenticado.");
 
     const valorTotal = parseFloat(
       valorInput.value.replace(/[^\d,]/g, "").replace(",", ".")
@@ -335,18 +395,16 @@ if (document.getElementById("novaMovimentacao")) {
     const data = document.getElementById("data").value;
     const categoriaId = categoriaSelect.value;
     if (isNaN(valorTotal) || valorTotal <= 0 || !data || !categoriaId) {
-      alert("Preencha todos os campos obrigatórios (Data, Valor, Categoria).");
-      return;
+      return alert(
+        "Preencha todos os campos obrigatórios (Data, Valor, Categoria)."
+      );
     }
 
     try {
       if (tipoMovimentacao === "Saída") {
         const metodoId = metodoSelect.value;
         const metodo = mapaMetodos.get(metodoId);
-        const descricao = document.getElementById("descricao").value;
-        if (!metodoId || !descricao) {
-          return alert("Para saídas, preencha Método e Descrição!");
-        }
+        if (!metodoId) return alert("Para saídas, selecione um Método!");
 
         const idParcelamento =
           Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -359,12 +417,12 @@ if (document.getElementById("novaMovimentacao")) {
         const transacaoBase = {
           valor: valorParcela,
           gastoFixo: document.getElementById("gastoFixo").checked,
-          descricao,
+          descricao: document.getElementById("descricao").value,
           data,
           tipo: "Saída",
           idCategoria: categoriaId,
           idMetodo: metodoId,
-          userId,
+          userId: currentUser.uid,
           parcelas: numParcelas,
           parcelaAtual: 1,
           idParcelamento: numParcelas > 1 ? idParcelamento : null,
@@ -387,15 +445,16 @@ if (document.getElementById("novaMovimentacao")) {
           await addDoc(collection(db, "transacao"), transacaoBase);
         }
       } else {
+        // Entrada
         await addDoc(collection(db, "transacao"), {
           valor: valorTotal,
           gastoFixo: false,
-          descricao: "-",
+          descricao: document.getElementById("descricao").value || "-",
           data,
           tipo: "Entrada",
           idCategoria: categoriaId,
           idMetodo: null,
-          userId,
+          userId: currentUser.uid,
           parcelas: 1,
           parcelaAtual: 1,
           idParcelamento: null,
@@ -406,13 +465,17 @@ if (document.getElementById("novaMovimentacao")) {
       document.getElementById("data").value = new Date()
         .toISOString()
         .split("T")[0];
-      parcelasContainer.classList.add("hidden");
-      await carregarTransacoesDoUsuario(userId);
+      controlarVisibilidadeParcelas(parcelasContainer, false);
+
+      await carregarTransacoesDoUsuario();
     } catch (e) {
       console.error("Erro ao salvar: ", e);
     }
   });
 
+  /**
+   * Lida com o envio do formulário de edição de transação.
+   */
   formEdicao.addEventListener("submit", async (event) => {
     event.preventDefault();
     const transacaoId = document.getElementById("edit-transacao-id").value;
@@ -425,68 +488,56 @@ if (document.getElementById("novaMovimentacao")) {
     }
 
     const docRef = doc(db, "transacao", transacaoId);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      return alert("Erro: Transação não encontrada.");
-    }
-
-    const tipoTransacao = docSnap.data().tipo;
-    const userId = docSnap.data().userId;
-
-    let dadosAtualizados = {
-      data: document.getElementById("edit-data").value,
-      valor: valor,
-      idCategoria: idCategoria,
-    };
-
-    if (tipoTransacao === "Saída") {
-      const metodoId = editMetodoSelect.value;
-      const metodo = mapaMetodos.get(metodoId);
-      dadosAtualizados.gastoFixo =
-        document.getElementById("edit-gastoFixo").checked;
-      dadosAtualizados.descricao =
-        document.getElementById("edit-descricao").value;
-      dadosAtualizados.idMetodo = metodoId;
-      if (metodo?.forma === "credito") {
-        dadosAtualizados.parcelas = parseInt(editParcelasInput.value, 10) || 1;
-      } else {
-        dadosAtualizados.parcelas = 1;
-        dadosAtualizados.parcelaAtual = 1;
-      }
-    }
-
     try {
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) return alert("Erro: Transação não encontrada.");
+
+      const tipoTransacao = docSnap.data().tipo;
+
+      let dadosAtualizados = {
+        data: document.getElementById("edit-data").value,
+        valor: valor,
+        idCategoria: idCategoria,
+        descricao: document.getElementById("edit-descricao").value,
+      };
+
+      if (tipoTransacao === "Saída") {
+        dadosAtualizados.gastoFixo =
+          document.getElementById("edit-gastoFixo").checked;
+        dadosAtualizados.idMetodo = editMetodoSelect.value;
+      }
+
       await updateDoc(docRef, dadosAtualizados);
       alert("Alterações salvas!");
       modalContainer.classList.add("hidden");
-      await carregarTransacoesDoUsuario(userId);
+      await carregarTransacoesDoUsuario();
     } catch (e) {
       console.error("Erro ao atualizar: ", e);
     }
   });
 
+  /**
+   * Lida com a exclusão de uma transação (e suas parcelas, se houver).
+   */
   btExcluir.addEventListener("click", async () => {
     const transacaoId = document.getElementById("edit-transacao-id").value;
-    const userId = getAuth().currentUser.uid;
     if (
       confirm(
-        "Isto irá remover TODAS as parcelas associadas, se existirem. Tem a certeza?"
+        "Isto irá remover TODAS as parcelas associadas, se existirem. Tem certeza?"
       )
     ) {
       try {
         const docRef = doc(db, "transacao", transacaoId);
         const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-          alert("Erro: Transação não encontrada.");
-          return;
-        }
+        if (!docSnap.exists()) return alert("Erro: Transação não encontrada.");
+
         const { idParcelamento } = docSnap.data();
 
         if (idParcelamento) {
           const q = query(
             collection(db, "transacao"),
             where("idParcelamento", "==", idParcelamento),
-            where("userId", "==", userId)
+            where("userId", "==", currentUser.uid)
           );
           const querySnapshot = await getDocs(q);
           const batch = writeBatch(db);
@@ -497,14 +548,18 @@ if (document.getElementById("novaMovimentacao")) {
           await deleteDoc(docRef);
           alert("Transação excluída!");
         }
+
         modalContainer.classList.add("hidden");
-        await carregarTransacoesDoUsuario(userId);
+        await carregarTransacoesDoUsuario();
       } catch (e) {
         console.error("Erro ao excluir:", e);
       }
     }
   });
 
+  /**
+   * Fecha o modal.
+   */
   closeModalBtn.addEventListener("click", () =>
     modalContainer.classList.add("hidden")
   );
@@ -512,3 +567,37 @@ if (document.getElementById("novaMovimentacao")) {
     if (e.target === modalContainer) modalContainer.classList.add("hidden");
   });
 }
+
+/**
+ * Mostra ou oculta um elemento manipulando diretamente o seu estilo de display.
+ * @param {HTMLElement} container - O elemento a ser mostrado/ocultado (ex: parcelasContainer).
+ * @param {boolean} mostrar - 'true' para mostrar (display: flex), 'false' para ocultar (display: none).
+ */
+function controlarVisibilidadeParcelas(container, mostrar) {
+  if (!container) return; // Segurança caso o elemento não exista
+
+  // Define o estilo de display diretamente para garantir que a regra seja aplicada
+  container.style.display = mostrar ? "flex" : "none";
+}
+
+// Listener para o dropdown do formulário principal
+metodoSelect.addEventListener("change", () => {
+  const metodoId = metodoSelect.value;
+  const metodo = mapaMetodos.get(metodoId);
+  const isCredito =
+    metodo && metodo.forma && metodo.forma.trim().toLowerCase() === "credito";
+
+  // Chama a nova função para mostrar ou ocultar o container de parcelas
+  controlarVisibilidadeParcelas(parcelasContainer, isCredito);
+});
+
+// Listener para o dropdown do modal de edição
+editMetodoSelect.addEventListener("change", () => {
+  const metodoId = editMetodoSelect.value;
+  const metodo = mapaMetodos.get(metodoId);
+  const isCredito =
+    metodo && metodo.forma && metodo.forma.trim().toLowerCase() === "credito";
+
+  // Chama a nova função para o container de parcelas da edição
+  controlarVisibilidadeParcelas(editParcelasContainer, isCredito);
+});
