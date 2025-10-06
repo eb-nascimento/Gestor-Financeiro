@@ -129,17 +129,20 @@ select {
   margin-top: 20px;
 }
 
-#parcelas {
+#parcelas,
+#edit-parcelas {
   display: flex;
   margin-bottom: 0;
+  height: fit-content;
   width: 15%;
   text-align: center;
   align-items: start;
   justify-content: start;
-  padding: 0;
+  padding: 5px;
 }
 
-#parcelas-container {
+#parcelas-container,
+#edit-parcelas-container {
   display: flex;
   flex-direction: row;
   margin-top: 20px;
@@ -148,10 +151,15 @@ select {
   text-align: center;
 }
 
-#parcelas-container label {
+#parcelas-container label,
+#edit-parcelas-container label {
   width: fit-content;
   margin: 0;
   margin-right: 10px;
+}
+
+#edit-descricao {
+  margin-top: 20px;
 }
 
 label {
