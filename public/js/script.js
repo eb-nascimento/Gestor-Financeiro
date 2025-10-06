@@ -292,21 +292,20 @@ if (document.getElementById("novaMovimentacao")) {
             .getElementById("edit-metodo")
             .classList.toggle("hidden", isEntrada);
 
-          if (isEntrada) {
+          if (transacao.tipo === "Entrada") {
             editParcelasContainer.classList.add("hidden");
           } else {
             const metodo = mapaMetodos.get(transacao.idMetodo);
-            // Usamos uma verificação robusta para evitar problemas de maiúsculas/minúsculas ou espaços
             const isCredito =
               metodo &&
               metodo.forma &&
               metodo.forma.trim().toLowerCase() === "credito";
 
             if (isCredito) {
-              editParcelasContainer.classList.remove("hidden"); // Garante que o campo apareça
+              editParcelasContainer.classList.remove("hidden");
               editParcelasInput.value = transacao.parcelas || 1;
             } else {
-              editParcelasContainer.classList.add("hidden"); // Garante que o campo desapareça
+              editParcelasContainer.classList.add("hidden");
             }
           }
 
