@@ -2,6 +2,7 @@
  * Calcula os totais de entrada, saída e carteira e atualiza os elementos no HTML.
  * @param {Array} transacoesDocs - Um array de documentos de transação do Firestore.
  */
+
 export function calcularEExibirTotais(transacoesDocs) {
   // Pega os elementos do HTML onde os totais serão exibidos
   const elementoSaida = document.querySelector("#valorSaida h2:last-child");
