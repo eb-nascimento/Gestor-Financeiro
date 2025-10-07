@@ -106,7 +106,7 @@ select {
   font-family: "Inter", sans-serif;
   font-size: 16px;
   box-sizing: border-box;
-  margin-bottom: 20px;
+  margin: 10px;
   padding: 10px;
   width: 60%;
   height: 54px;
@@ -117,22 +117,14 @@ select {
   color: #334666;
 }
 
-#categoria {
-  margin-top: 20px;
-}
-
-#metodo {
-  margin-bottom: 0px;
-}
-
-#descricao {
-  margin-top: 20px;
+input {
+  margin: 10px;
 }
 
 #parcelas,
 #edit-parcelas {
   display: flex;
-  margin-bottom: 0;
+  margin: 0;
   height: fit-content;
   width: 15%;
   text-align: center;
@@ -145,7 +137,7 @@ select {
 #edit-parcelas-container {
   display: flex;
   flex-direction: row;
-  margin-top: 20px;
+  /* margin-top: 20px; */
   width: 60%;
   align-items: center;
   text-align: center;
@@ -156,10 +148,6 @@ select {
   width: fit-content;
   margin: 0;
   margin-right: 10px;
-}
-
-#edit-descricao {
-  margin-top: 20px;
 }
 
 label {
@@ -178,10 +166,6 @@ option {
   background-color: #f1f1f1;
 }
 
-#valor {
-  margin-bottom: 0px;
-}
-
 #gastoFixo {
   margin: 0px;
   margin-inline: 10px;
@@ -197,7 +181,7 @@ option {
 }
 
 #gastoFixoLabel {
-  margin-bottom: 0px;
+  margin-bottom: 10px;
 }
 
 #data::-webkit-calendar-picker-indicator {
@@ -477,7 +461,6 @@ td {
 
 .modal-content input {
   width: 80%; /* Ajusta a largura dos inputs */
-  margin-bottom: 15px; /* Espaçamento entre os inputs */
 }
 
 .modal-content input,
@@ -485,7 +468,6 @@ select {
   font-family: "Inter", sans-serif;
   font-size: 16px;
   box-sizing: border-box;
-  margin-bottom: 20px;
   padding: 10px;
   width: 60%;
   height: 54px;
@@ -502,25 +484,6 @@ select {
   align-items: center;
   justify-content: center;
   width: 100%;
-}
-
-#edit-valor,
-#edit-metodo {
-  margin-bottom: 0px;
-}
-
-#edit-gastoFixo {
-  margin: 0px;
-  margin-inline: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 18px;
-  height: 100%;
-  border: none;
-  background-color: #f1f1f1;
-  color: #334666;
-  font-size: 16px;
 }
 
 /* Estilo do botão de fechar (o 'X') */
@@ -561,14 +524,6 @@ select {
   box-shadow: #c1cbd7 0px 0px 10px 0px;
   width: 50%; /* Ajusta a largura dos botões */
   margin-inline: 10px;
-}
-
-#edit-descricao {
-  margin-bottom: 0px; /* Espaçamento entre os campos */
-}
-
-#edit-categoria {
-  /* margin-top: 20px; */
 }
 
 #btSalvarEdicao {
