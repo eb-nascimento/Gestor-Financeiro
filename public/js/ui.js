@@ -37,6 +37,8 @@ export function formatarCampoComoMoeda(event) {
 }
 
 /** Controla a visibilidade do container de parcelas */
+// VERSÃO NOVA E CORRIGIDA em ui.js
+// VERSÃO FINAL E CORRIGIDA em ui.js
 export function gerenciarVisibilidadeParcelas(
   selectElement,
   container,
@@ -45,9 +47,17 @@ export function gerenciarVisibilidadeParcelas(
 ) {
   const metodoId = selectElement.value;
   const metodo = mapaMetodos.get(metodoId);
+
   const isCredito = metodo?.forma?.trim().toLowerCase() === "credito";
-  container.classList.toggle("hidden", !isCredito);
-  if (!isCredito) input.value = 1;
+
+  if (isCredito) {
+    // Se for crédito, forçamos a exibição como 'flex'
+    container.style.display = "flex";
+  } else {
+    // Se NÃO for crédito (débito, etc.), forçamos a NÃO exibição
+    container.style.display = "none";
+    input.value = 1;
+  }
 }
 
 /** Atualiza os totais na tela */

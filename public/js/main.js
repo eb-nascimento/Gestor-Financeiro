@@ -257,6 +257,12 @@ onAuthStateChanged(auth, (user) => {
         .split("T")[0];
       ui.DOMElements.btSaida.classList.add("active");
       inicializar();
+      ui.gerenciarVisibilidadeParcelas(
+        ui.DOMElements.metodoSelect,
+        ui.DOMElements.parcelasContainer,
+        ui.DOMElements.parcelasInput,
+        mapaMetodos
+      );
     }
   } else {
     window.location.href = "login.html";
