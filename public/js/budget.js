@@ -20,7 +20,7 @@ import {
 let currentUser;
 let categoriasCache = [];
 let metodosCache = [];
-let dataAtual = new Date();
+let dataAtual = new Date(); // Começa com a data de hoje
 
 // =================================================================
 // INICIALIZAÇÃO
@@ -40,22 +40,29 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function carregarDadosIniciais() {
-  const categoriasQuery = query(collection(db, "categoria"), orderBy("nome"));
-  const metodosQuery = query(collection(db, "metodo"), orderBy("nome"));
+  try {
+    const categoriasQuery = query(collection(db, "categoria"), orderBy("nome"));
+    const metodosQuery = query(collection(db, "metodo"), orderBy("nome"));
 
-  const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
-    getDocs(categoriasQuery),
-    getDocs(metodosQuery),
-  ]);
+    const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
+      getDocs(categoriasQuery),
+      getDocs(metodosQuery),
+    ]);
 
-  categoriasCache = categoriasSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-  metodosCache = metodosSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+    categoriasCache = categoriasSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    metodosCache = metodosSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error(
+      "Erro ao carregar dados iniciais (categorias/métodos):",
+      error
+    );
+  }
 }
 
 // =================================================================
@@ -64,13 +71,17 @@ async function carregarDadosIniciais() {
 async function carregarDadosDoOrcamento() {
   if (!currentUser) return;
 
-  const mesAno = dataAtual.toISOString().slice(0, 7);
-  document.querySelector(".span-titulo").textContent = formatarMes(mesAno);
+  const ano = dataAtual.getFullYear();
+  const mes = dataAtual.getMonth(); // 0-11
+  const mesAnoString = `${ano}-${(mes + 1).toString().padStart(2, "0")}`;
+
+  document.querySelector(".span-titulo").textContent =
+    formatarMes(mesAnoString);
 
   try {
     const [transacoes, orcamentos] = await Promise.all([
-      buscarTransacoesDoMes(mesAno),
-      buscarOrcamentosDoMes(mesAno),
+      buscarTransacoesDoMes(ano, mes), // Função corrigida
+      buscarOrcamentosDoMes(mesAnoString),
     ]);
 
     const totalSaidas = transacoes
@@ -98,12 +109,24 @@ async function carregarDadosDoOrcamento() {
   }
 }
 
-async function buscarTransacoesDoMes(mesAno) {
+// =================================================================
+// FUNÇÃO CORRIGIDA
+// =================================================================
+async function buscarTransacoesDoMes(ano, mes) {
+  // Cria o primeiro dia do mês selecionado
+  const dataInicio = new Date(ano, mes, 1);
+  // Cria o primeiro dia do mês SEGUINTE
+  const dataFim = new Date(ano, mes + 1, 1);
+
+  // Formata para o padrão YYYY-MM-DD que o Firestore entende
+  const inicioString = dataInicio.toISOString().slice(0, 10);
+  const fimString = dataFim.toISOString().slice(0, 10);
+
   const q = query(
     collection(db, "transacao"),
     where("userId", "==", currentUser.uid),
-    where("data", ">=", `${mesAno}-01`),
-    where("data", "<=", `${mesAno}-31`)
+    where("data", ">=", inicioString), // Maior ou igual ao primeiro dia do mês
+    where("data", "<", fimString) // Menor que o primeiro dia do mês seguinte
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => doc.data());
@@ -120,7 +143,7 @@ async function buscarOrcamentosDoMes(mesAno) {
 }
 
 // =================================================================
-// FUNÇÕES DE RENDERIZAÇÃO E UI
+// FUNÇÕES DE RENDERIZAÇÃO E UI (O RESTO DO CÓDIGO PERMANECE IGUAL)
 // =================================================================
 function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
   const seletorTabela = {
@@ -132,14 +155,12 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
   if (!corpoTabela) return;
   corpoTabela.innerHTML = "";
 
-  // Cria um mapa de transações por categoria para acesso rápido
   const transacoesPorCategoria = transacoes.reduce((acc, t) => {
     if (!acc[t.idCategoria]) acc[t.idCategoria] = 0;
     acc[t.idCategoria] += t.valor;
     return acc;
   }, {});
 
-  // Filtra as categorias que devem aparecer na tabela (mesmo que não tenham orçamento)
   const categoriasDoTipo = categoriasCache.filter((c) => {
     const ehEconomia =
       c.nome === "Investimentos" || c.nome === "Reserva de Emergência";
@@ -155,15 +176,13 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
     );
     const totalRealizado = transacoesPorCategoria[categoria.id] || 0;
 
-    // Só exibe a linha se houver um orçamento para ela OU se houver transações nela
     if (orcamentoItem || totalRealizado > 0) {
       const linha = document.createElement("tr");
       const valorPrevisto = orcamentoItem ? orcamentoItem.valorPrevisto : 0;
       const orcamentoId = orcamentoItem
         ? orcamentoItem.id
-        : `new-${categoria.id}`; // ID temporário para novos itens
+        : `new-${categoria.id}`;
 
-      // Adicionada a classe "td-input" na célula do input
       linha.innerHTML = `
         <td>${categoria.nome}</td>
         <td class="td-input"><input type="text" class="input-orcamento" data-id="${orcamentoId}" data-categoria-id="${
@@ -185,6 +204,14 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
       "keypress",
       (e) => e.key === "Enter" && input.blur()
     );
+    input.addEventListener("input", (e) => {
+      let valor = e.target.value.replace(/\D/g, "");
+      valor = (parseFloat(valor) / 100).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      e.target.value = valor;
+    });
   });
 }
 
@@ -251,7 +278,6 @@ async function salvarValorOrcamento(event) {
   const mesAno = dataAtual.toISOString().slice(0, 7);
 
   try {
-    // Se o item de orçamento ainda não existe, cria um novo
     if (orcamentoId.startsWith("new-")) {
       const novoDocRef = await addDoc(collection(db, "orcamentos"), {
         userId: currentUser.uid,
@@ -261,9 +287,8 @@ async function salvarValorOrcamento(event) {
         tipo: categoria.tipo,
       });
       orcamentoId = novoDocRef.id;
-      input.dataset.id = orcamentoId; // Atualiza o ID no input
+      input.dataset.id = orcamentoId;
     } else {
-      // Se já existe, apenas atualiza
       await setDoc(
         doc(db, "orcamentos", orcamentoId),
         { valorPrevisto: novoValor },
@@ -273,9 +298,9 @@ async function salvarValorOrcamento(event) {
 
     input.style.borderColor = "green";
     setTimeout(() => {
-      input.style.borderColor = "#ccc";
+      input.style.borderColor = "";
     }, 2000);
-    await carregarDadosDoOrcamento(); // Recarrega tudo para atualizar os totais
+    await carregarDadosDoOrcamento();
   } catch (error) {
     console.error("Erro ao salvar:", error);
     input.style.borderColor = "red";
@@ -300,13 +325,9 @@ function formatarMoeda(valor) {
 function formatarMes(mesAno) {
   const [ano, mes] = mesAno.split("-");
   const data = new Date(ano, mes - 1);
-
-  const nomeMes = data.toLocaleString("pt-BR", { month: "short" }); // ex: "set."
-  const anoCurto = data.getFullYear().toString().slice(-2); // ex: "25"
-
-  // Remove o ponto e capitaliza a primeira letra
+  const nomeMes = data.toLocaleString("pt-BR", { month: "short" });
+  const anoCurto = data.getFullYear().toString().slice(-2);
   const mesFormatado =
     nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1).replace(".", "");
-
   return `${mesFormatado}/${anoCurto}`;
 }
