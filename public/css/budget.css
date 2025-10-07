@@ -7,6 +7,12 @@
 body {
   justify-content: start;
 }
+
+#div-mes {
+  display: flex;
+  align-items: center;
+}
+
 #section-orçamento {
   display: flex;
   flex-direction: row; /* Layout original em linha */
@@ -16,10 +22,6 @@ body {
   justify-content: center;
   padding: 15px;
   box-sizing: border-box;
-}
-
-h1 {
-  margin-inline: 0;
 }
 
 h2 {
@@ -41,10 +43,11 @@ h2 {
   flex-direction: row;
 }
 
-#titulo-orçamento h1 {
+h1 {
   margin-top: 40px;
   margin-bottom: 50px;
   font-size: 38px;
+  margin-inline: 0;
 }
 
 .span-titulo {
@@ -69,7 +72,7 @@ h2 {
   height: 20px;
 }
 
-.section-orçamento table {
+table {
   box-shadow: #334666 0px 0px 10px 0px;
   margin-bottom: 50px;
   margin-top: 50px;
@@ -78,8 +81,8 @@ h2 {
   border-spacing: 0;
 }
 
-.section-orçamento th,
-.section-orçamento td {
+th,
+td {
   padding: 10px;
   text-align: center;
   border: 1px solid #334666;
@@ -96,7 +99,7 @@ h2 {
 
 #sectionValores {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 20px;
@@ -116,6 +119,10 @@ h2 {
 
 #valorOrçado {
   background-color: chocolate;
+}
+
+.valor {
+  margin: 0;
 }
 
 .adicionar-btn {
@@ -152,9 +159,30 @@ h2 {
   width: 30%;
 }
 
+#mostrador-valor {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+}
+
 /* ============================================= */
 /* === REGRAS DE RESPONSIVIDADE ===              */
+
+@media (max-width: 1580px) {
+  #titulo-orçamento {
+    flex-direction: column;
+  }
+  h1 {
+    margin-bottom: 0;
+  }
+}
+
 @media (max-width: 1566px) {
+  #titulo-orçamento {
+    flex-direction: column;
+  }
+
   #section-orçamento tr td:first-child {
     width: 33%;
   }
@@ -199,20 +227,84 @@ h2 {
   }
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 1166px) {
   #section-orçamento {
-    flex-direction: column; /* As 3 secções ficam em uma única coluna */
-    align-items: center; /* Centraliza as secções */
+    flex-wrap: wrap;
+    /* justify-content: space-around; */
+    gap: 5%;
   }
 
   .section-orçamento {
-    width: 90%; /* Cada secção ocupa quase a largura toda */
-    max-width: 600px; /* Limita a largura máxima para não ficar muito largo em tablets */
+    width: 45%;
+  }
+
+  #orçamento-right {
+    display: flex;
+    order: 2;
+    flex-direction: row-reverse;
+    width: 100%;
+    gap: 5%;
+    padding: 15px;
   }
 
   #sectionValores {
-    flex-direction: column; /* Os cartões de valor ficam em coluna */
+    width: 45%;
+  }
+
+  .section-orçamento table {
+    min-width: 50%;
+  }
+}
+
+@media (max-width: 1080px) {
+  h1 {
+    margin-bottom: 0px;
+  }
+}
+
+@media (max-width: 820px) {
+  .section-orçamento {
+    width: 80%;
+    justify-content: center;
+  }
+  #orçamento-right {
+    width: 80%;
+    flex-wrap: wrap-reverse;
+  }
+
+  #sectionValores {
+    width: 100%;
+    justify-content: start;
+    align-items: center;
+    margin-bottom: 0;
+  }
+
+  #mostrador-valor {
+    justify-content: center;
+  }
+
+  table:last-child {
+    margin: 0;
     margin-top: 20px;
-    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 490px) {
+  table {
+    font-size: 12px;
+  }
+  button {
+    font-size: 12px;
+  }
+  td {
+    padding: 5px;
+  }
+
+  .section-orçamento {
+    width: 95%;
+  }
+
+  #orçamento-right {
+    width: 95%;
   }
 }

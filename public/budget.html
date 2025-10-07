@@ -18,21 +18,23 @@
       <section class="section-orçamento" id="orçamento-left">
         <div id="titulo-orçamento">
           <h1>Relatório Mensal</h1>
-          <button class="troca-mes" data-direction="-1">
-            <img
-              src="img/ArrowDown.svg"
-              alt="mês anterior"
-              style="transform: rotate(90deg)"
-            />
-          </button>
-          <span class="span-titulo">Carregando...</span>
-          <button class="troca-mes" data-direction="1">
-            <img
-              src="img/ArrowDown.svg"
-              alt="mês seguinte"
-              style="transform: rotate(-90deg)"
-            />
-          </button>
+          <div id="div-mes">
+            <button class="troca-mes" data-direction="-1">
+              <img
+                src="img/ArrowDown.svg"
+                alt="mês anterior"
+                style="transform: rotate(90deg)"
+              />
+            </button>
+            <span class="span-titulo">Carregando...</span>
+            <button class="troca-mes" data-direction="1">
+              <img
+                src="img/ArrowDown.svg"
+                alt="mês seguinte"
+                style="transform: rotate(-90deg)"
+              />
+            </button>
+          </div>
         </div>
         <table class="despesas">
           <thead>
@@ -56,19 +58,20 @@
       </section>
       <section class="section-orçamento" id="orçamento-right">
         <section id="sectionValores">
-          <div id="valorSaida" class="valor">
-            <h2>Total Saídas</h2>
-            <h2>R$ 0,00</h2>
+          <div id="mostrador-valor">
+            <div id="valorSaida" class="valor">
+              <h2>Total Saídas</h2>
+              <h2>R$ 0,00</h2>
+            </div>
+            <div id="valorOrçado" class="valor">
+              <h2>Total Orçado</h2>
+              <h2>R$ 0,00</h2>
+            </div>
           </div>
-          <div id="valorOrçado" class="valor">
-            <h2>Total Orçado</h2>
-            <h2>R$ 0,00</h2>
+          <div class="grafico">
+            <img src="img/grafico.png" alt="Gráfico de despesas" />
           </div>
         </section>
-        <div class="grafico">
-          <img src="img/grafico.png" alt="Gráfico de despesas" />
-        </div>
-
         <table>
           <thead>
             <tr>
