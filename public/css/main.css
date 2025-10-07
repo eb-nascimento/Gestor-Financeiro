@@ -1,0 +1,603 @@
+/* === BODY === */
+#container {
+  flex: 1;
+  width: auto;
+  margin: 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+/* === NOVA MOVIMENTAÇÃO (LADO ESQUERDO) === */
+#novaMovimentacao {
+  display: flex;
+  flex-direction: column;
+  width: 35%;
+  background-color: #f1f1f1;
+  box-shadow: #334666 0px 0px 10px 0px;
+  min-height: 100vh;
+}
+
+#btInOut {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#btInOut button {
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+#btInOut button.active {
+  opacity: 1;
+}
+
+#btEntrada {
+  background-color: #2ecc71;
+  color: #f1f1f1;
+  padding: 10px 20px;
+  border: 1px solid white;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 30%;
+}
+
+#btSaida {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: 1px solid white;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 30%;
+}
+
+#campos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#salvarTransacao {
+  padding-inline: 50px;
+}
+
+/* === INPUTS E BOTÕES === */
+
+#parcelas,
+#edit-parcelas {
+  display: flex;
+  margin: 0;
+  height: fit-content;
+  width: 15%;
+  text-align: center;
+  align-items: start;
+  justify-content: start;
+  padding: 5px;
+}
+
+#parcelas-container,
+#edit-parcelas-container {
+  display: flex;
+  flex-direction: row;
+  /* margin-top: 20px; */
+  width: 60%;
+  align-items: center;
+  text-align: center;
+}
+
+#parcelas-container label,
+#edit-parcelas-container label {
+  width: fit-content;
+  margin: 0;
+  margin-right: 10px;
+}
+
+#gastoFixo {
+  margin: 0px;
+  margin-inline: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 100%;
+  border: none;
+  background-color: #f1f1f1;
+  color: #334666;
+  font-size: 16px;
+}
+
+#gastoFixoLabel {
+  margin-bottom: 10px;
+}
+
+#data::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+#novaMovimentacao button {
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+}
+#movimentacoes button {
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+/* === TÍTULOS === */
+
+#novaMovimentacao h1 {
+  text-shadow: #c1cbd7 0px 0px 10px;
+}
+
+/* === MOVIMENTAÇÕES (CENTRO) === */
+#movimentacoes {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+}
+
+#valores {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60px;
+}
+
+.valor {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #f1f1f1;
+  border-radius: 15px;
+  width: 200px;
+  padding: 10px;
+  margin-inline: 10px;
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+.valorEntrada {
+  color: green;
+  font-weight: bold;
+}
+
+.valorSaida {
+  color: red;
+  font-weight: bold;
+}
+
+#valorEntrada {
+  background-color: #2ecc71;
+}
+#valorSaida {
+  background-color: #e74c3c;
+}
+#valorCarteira {
+  background-color: #f1f1f1;
+  border: #334666 2px solid;
+}
+
+#valorCarteira h2 {
+  color: #334666;
+}
+
+/* === TABELA === */
+#tabelaMovimentacoes tr:hover td {
+  background-color: #dbdbdb;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#sectionTabela {
+  margin: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+#btFiltro {
+  display: flex;
+  padding: 3px;
+  padding-inline: 20px;
+  width: fit-content;
+  background-color: #fff;
+  border: #334666 1px solid;
+  color: #334666;
+  justify-content: center;
+  align-items: center;
+}
+
+#btFiltro img {
+  margin-bottom: 0px;
+}
+
+#btMostrarMais {
+  display: flex;
+  padding: 3px;
+  padding-inline: 20px;
+  margin-left: auto;
+  width: fit-content;
+}
+
+#sectionTabela img {
+  padding-left: 10px;
+  width: 25px;
+  height: 25px;
+}
+/* === MENU (LADO DIREITO) === */
+#menu {
+  display: flex;
+  flex-direction: column;
+  width: 70px;
+  background: #334666;
+  align-items: center;
+}
+#menu button {
+  padding: 0px;
+  border: none;
+}
+
+#menu img {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  width: 90%;
+  max-width: 100%;
+}
+
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* === MODAL DE EDIÇÃO === */
+/* --- ESTILOS DO MODAL DE EDIÇÃO --- */
+
+.modal-container {
+  position: fixed; /* Fica fixo na tela */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Garante que fique sobre todo o conteúdo */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Classe para esconder o modal */
+.modal-container.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.modal-content {
+  background-color: #f1f1f1;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  height: 95%;
+  width: 500px; /* Largura do modal, ajuste conforme necessário */
+  max-width: 100%;
+  position: relative; /* Necessário para posicionar o botão de fechar */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content h1 {
+  margin: 20px;
+}
+
+.modal-content input {
+  width: 80%; /* Ajusta a largura dos inputs */
+}
+
+.modal-content input,
+select {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  box-sizing: border-box;
+  padding: 10px;
+  width: 60%;
+  height: 54px;
+  border-radius: 15px;
+  border: 2px solid #c1cbd7;
+  background-color: #f1f1f1;
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+  color: #334666;
+}
+
+#edit-campos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Estilo do botão de fechar (o 'X') */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Estilos para os campos do formulário de edição */
+#edit-movimentacao form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container para os botões de ação do modal */
+.modal-actions {
+  display: flex;
+  justify-content: space-between; /* Coloca um botão em cada ponta */
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+  width: 50%; /* Ajusta a largura dos botões */
+  margin-inline: 10px;
+}
+
+#btSalvarEdicao {
+  background-color: #4caf50; /* Verde */
+  color: white;
+}
+
+#btExcluir {
+  background-color: #f44336; /* Vermelho */
+  color: white;
+}
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+@media (max-width: 1366px) {
+  /* === BODY === */
+  body {
+    height: auto;
+    flex-direction: column-reverse;
+  }
+
+  h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-size: 36px;
+  }
+
+  #sectionTabela {
+    margin: 15px;
+  }
+
+  #container {
+    width: 100%;
+  }
+  /* === NOVA MOVIMENTAÇÃO (LADO ESQUERDO) === */
+  #novaMovimentacao {
+    width: 35vw;
+    height: auto;
+    padding-bottom: 35px;
+  }
+
+  #movimentacoes {
+    height: auto;
+  }
+  /* === MENU (LADO DIREITO) === */
+  #menu {
+    flex-direction: row;
+    width: 100%;
+    max-width: 100%;
+    height: 60px;
+  }
+
+  #menu img {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-inline: 15px;
+    margin-right: 0px;
+    width: 50px;
+    height: 50px;
+  }
+
+  #menuLateral {
+    left: -600px;
+    transition: left 0.3s ease;
+  }
+  #menuLateral.show {
+    left: 0;
+  }
+  #menuLateral {
+    width: 400px;
+  }
+}
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+@media (max-width: 1024px) {
+  /* === BODY === */
+  body {
+    flex-direction: column-reverse;
+    height: auto;
+  }
+
+  #container {
+    flex-direction: column;
+  }
+
+  #novaMovimentacao {
+    width: 100%;
+    padding-bottom: 20px;
+    height: fit-content;
+  }
+
+  #movimentacoes {
+    width: 100%;
+    height: 100%;
+  }
+
+  #menu {
+    height: auto;
+    padding-bottom: 10px;
+  }
+}
+
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+@media (max-width: 768px) {
+  h2 {
+    font-size: 20px;
+    margin-left: 5%;
+  }
+}
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+@media (max-width: 588px) {
+  table {
+    font-size: 12px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+@media (max-width: 424px) {
+  h1 {
+    font-size: 24px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 12px;
+    margin-left: 5%;
+  }
+  table {
+    font-size: 10px;
+  }
+  button {
+    padding: 0px;
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+  #salvarTransacao {
+    padding: 5px;
+    padding-inline: 50px;
+    font-size: 16px;
+  }
+  button img {
+    width: 5px;
+    height: 5px;
+  }
+  #sectionTabela img {
+    padding-left: 5px;
+    width: 20px;
+    height: 20px;
+  }
+
+  #btFiltro {
+    padding: 0px;
+    padding-inline: 5px;
+  }
+
+  #btMostrarMais {
+    display: flex;
+    padding: 0px;
+    padding-inline: 5px;
+    margin-left: auto;
+    width: fit-content;
+  }
+  #valores {
+    margin-bottom: 30px;
+  }
+  #menuLateral {
+    width: 424px;
+  }
+}
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ==================================================================================== */
+/* ====ALTURA================================================================================*/
+@media (max-height: 800px) {
+  /* === BODY === */
+  body {
+    height: auto;
+    padding: 0px;
+    margin: 0px;
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-size: 40px;
+  }
+
+  #sectionTabela {
+    margin: 15px;
+  }
+
+  #container {
+    width: 100%;
+  }
+  /* === NOVA MOVIMENTAÇÃO (LADO ESQUERDO) === */
+  #novaMovimentacao {
+    height: auto;
+    padding-bottom: 35px;
+  }
+
+  #movimentacoes {
+    flex: 1;
+    height: auto;
+  }
+  /* === MENU (LADO DIREITO) === */
+  #menu {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 100%;
+    height: 60px;
+    background-color: #334666;
+    justify-content: space-between;
+  }
+
+  #menu img {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-inline: 15px;
+    margin-right: 0px;
+    width: 50px;
+    height: 50px;
+  }
+}
+/* ========================================================= */
+/* ========================================================= */
+/* ========================================================= */

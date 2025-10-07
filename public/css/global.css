@@ -1,0 +1,273 @@
+/* === BODY === */
+body {
+  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 100vw;
+  height: 100%;
+  justify-content: center;
+  align-items: stretch;
+  background: #c1cbd7;
+  padding: 0px;
+  margin: 0px;
+  min-height: 100vh;
+  text-align: justify;
+}
+
+li {
+  display: flex;
+  align-items: center;
+}
+
+/* === INPUTS E BOTÕES === */
+
+.hidden {
+  display: none;
+}
+
+.margem {
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+input,
+select {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin: 10px;
+  padding: 10px;
+  width: 60%;
+  height: 54px;
+  border-radius: 15px;
+  border: 2px solid #c1cbd7;
+  background-color: #f1f1f1;
+  box-shadow: #c1cbd7 0px 0px 10px 0px;
+  color: #334666;
+}
+
+input {
+  margin: 10px;
+}
+
+label {
+  align-items: center;
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  font-size: 16px;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  color: #334666;
+}
+
+option {
+  color: #334666;
+  background-color: #f1f1f1;
+}
+
+input[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input[type="date"] {
+  font-size: 16px;
+  line-height: normal;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+button {
+  align-items: center;
+  justify-content: center;
+  background-color: #334666;
+  color: white;
+  padding: 10px 50px;
+  border: 1px solid white;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* === TÍTULOS === */
+h1 {
+  font-size: clamp(36px, 7vh, 54px);
+  margin-top: 90px;
+  margin-bottom: 60px;
+  text-align: center;
+  color: #334666;
+  text-shadow: #fff 0px 0px 10px;
+  margin-inline: 10px;
+}
+
+h2 {
+  font-size: 20px;
+  padding: 3px;
+  margin: 0px;
+  margin-left: 10%;
+  color: #fff;
+}
+
+.valor {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #f1f1f1;
+  border-radius: 15px;
+  width: 200px;
+  padding: 10px;
+  margin-inline: 10px;
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+.valorEntrada {
+  color: green;
+  font-weight: bold;
+}
+
+.valorSaida {
+  color: red;
+  font-weight: bold;
+}
+
+#valorEntrada {
+  background-color: #2ecc71;
+}
+#valorSaida {
+  background-color: #e74c3c;
+}
+
+/* === TABELA === */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: #334666 0px 0px 10px 0px;
+}
+
+th,
+td {
+  text-align: center;
+  border: 1px solid #334666;
+}
+
+th {
+  border: 1px solid #fff;
+  border-bottom: #334666 1px solid;
+  padding-top: 5px;
+  padding-bottom: 10px;
+  background-color: #334666;
+  color: white;
+}
+th:first-child {
+  border-top-left-radius: 10px;
+}
+th:last-child {
+  border-top-right-radius: 10px;
+}
+
+td {
+  padding: 10px;
+  background-color: #fff;
+}
+
+tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+td {
+  padding: 10px;
+  background-color: #fff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* === MENU (LADO DIREITO) === */
+#menu {
+  display: flex;
+  flex-direction: column;
+  width: 70px;
+  background: #334666;
+  align-items: center;
+}
+#menu button {
+  padding: 0px;
+  border: none;
+}
+
+#menu img {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  width: 90%;
+  max-width: 100%;
+}
+
+/* Estilos do menu lateral */
+#menuLateral {
+  position: fixed;
+  top: 0;
+  right: -600px;
+  width: 200px;
+  height: 100%;
+  background-color: #334666;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+}
+#menuLateral.show {
+  right: 0;
+  left: auto;
+}
+
+#menuLateral h2 {
+  color: #f1f1f1;
+  text-align: center;
+  margin-inline: 0px;
+  margin-bottom: 50px;
+  font-size: 24px;
+}
+
+#menuLateral ul {
+  list-style: none;
+  padding: 0;
+}
+
+#menuLateral ul li {
+  margin: 15px 0;
+}
+
+#menuLateral ul li a {
+  text-decoration: none;
+  color: #f1f1f1;
+  font-size: 18px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 20px 0;
+}
+
+#sair-menu-lateral {
+  height: 20px;
+  width: auto;
+  margin-right: 5px;
+}
