@@ -2,12 +2,16 @@
 /* ARQUIVO: public/css/auth.css                  */
 /* Estilos para login.html e register.html       */
 /* ============================================= */
-
 #login-body,
+#register-body {
+  /* flex-direction: column; */
+  justify-content: center;
+  align-items: center;
+}
+
 #register-body {
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 #login-container {
@@ -22,15 +26,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  width: 90%;
-  max-width: 500px;
+  height: 100%;
+  width: 100%;
+  max-width: 700px;
   background-color: #f1f1f1;
+  box-shadow: #334666 0px 0px 10px 0px;
 }
 
 #bem-vindo {
-  display: none; /* Escondido em telas pequenas por padrão */
-  padding: 40px;
+  display: none;
+  padding-inline: 20px;
+  flex: 1;
 }
 
 #bem-vindo-text {
@@ -59,15 +65,20 @@
   display: list-item;
 }
 
+#registe-body {
+  display: flex;
+  height: 90%;
+}
+
 #registerForm {
-  width: 90%;
-  max-width: 500px;
-  height: auto;
+  padding: 0;
+  height: 100vh;
+  width: 30%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   background-color: #f1f1f1;
-  border-radius: 50px;
   padding: 40px;
   box-shadow: #334666 0px 0px 10px 0px;
 }
@@ -83,23 +94,36 @@
 }
 
 .form-group {
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
   margin-bottom: 20px;
   width: 80%;
 }
 
-.login-form label,
-#registerForm label {
+label {
+  width: fit-content;
   font-size: 20px;
   margin-bottom: 10px;
+  margin-right: 20px;
+}
+
+input {
+  width: 100%;
 }
 
 .login-form input,
 #registerForm .form-group input {
-  width: 100%;
+  /* width: 70%; */
+  margin: 0;
 }
 
-.login-form button,
-#registerForm button {
+button {
+  padding-inline: 10px;
+}
+
+button {
   width: 40%;
   margin-top: 15px;
 }
@@ -110,12 +134,13 @@
 }
 
 /* --- Media Queries para Telas Maiores --- */
+
 @media (min-width: 768px) {
   #login-body {
     flex-direction: row;
   }
   #login-container {
-    width: 50vw;
+    width: 56vw;
     height: 100vh;
   }
   .login-form {
@@ -124,8 +149,44 @@
   #bem-vindo {
     display: block;
     flex: 1;
-    padding: 40px;
     color: #334666;
     text-align: center;
+  }
+}
+
+@media (max-width: 1490px) {
+  #registerForm {
+    width: 100%;
+  }
+  .form-group {
+    width: 40%;
+  }
+}
+
+@media (max-width: 988px) {
+  .form-group {
+    width: 55%;
+  }
+}
+
+@media (max-width: 588px) {
+  .form-group {
+    width: 65%;
+  }
+}
+
+@media (max-width: 502px) {
+  label {
+    font-size: 16px;
+  }
+  button {
+    font-size: 14px;
+    width: 55%;
+  }
+}
+
+@media (max-width: 424px) {
+  .form-group {
+    width: 80%;
   }
 }

@@ -496,7 +496,7 @@ select {
     margin-bottom: 20px;
   }
   h2 {
-    font-size: 12px;
+    font-size: 11px;
     margin-left: 5%;
   }
   table {
@@ -507,6 +507,11 @@ select {
     padding-inline: 10px;
     font-size: 12px;
   }
+
+  td {
+    padding: 5px;
+  }
+
   #salvarTransacao {
     padding: 5px;
     padding-inline: 50px;
