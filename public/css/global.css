@@ -271,3 +271,9 @@ hr {
   width: auto;
   margin-right: 5px;
 }
+
+@media (max-width: 830px) {
+  .right button {
+    display: none;
+  }
+}

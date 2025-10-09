@@ -12,6 +12,7 @@
     />
     <script type="module" src="js/budget.js"></script>
     <script type="module" src="js/menu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <section id="section-orçamento">
@@ -39,7 +40,24 @@
         <table class="despesas">
           <thead>
             <tr>
-              <th>Despesa</th>
+              <th class="th-despesa">
+                Variáveis
+                <button id="troca-despesa">
+                  <img
+                    src="img/return.svg"
+                    alt="Botão trocar tipo de despesa"
+                  />
+                </button>
+              </th>
+              <th style="display: none">
+                Fixas
+                <button id="troca-despesa">
+                  <img
+                    src="img/return.svg"
+                    alt="Botão trocar tipo de despesa"
+                  />
+                </button>
+              </th>
               <th>Orçamento</th>
               <th>Saída</th>
             </tr>
@@ -69,7 +87,7 @@
             </div>
           </div>
           <div class="grafico">
-            <img src="img/grafico.png" alt="Gráfico de despesas" />
+            <canvas id="graficoDespesas" />
           </div>
         </section>
         <table>

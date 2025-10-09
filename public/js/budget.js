@@ -21,6 +21,7 @@ let currentUser;
 let categoriasCache = [];
 let metodosCache = [];
 let dataAtual = new Date(); // Começa com a data de hoje
+let meuGrafico = null;
 
 // =================================================================
 // INICIALIZAÇÃO
@@ -104,14 +105,14 @@ async function carregarDadosDoOrcamento() {
     preencherTabelaOrcamento("economia", orcamentos, transacoes);
     preencherTabelaOrcamento("receita", orcamentos, transacoes);
     preencherTabelaMetodos(transacoes);
+
+    // --- CHAMADA PARA ATUALIZAR O GRÁFICO ADICIONADA AQUI ---
+    atualizarGraficoDespesas(transacoes);
   } catch (error) {
     console.error("Erro ao carregar dados do orçamento:", error);
   }
 }
 
-// =================================================================
-// FUNÇÃO CORRIGIDA
-// =================================================================
 async function buscarTransacoesDoMes(ano, mes) {
   // Cria o primeiro dia do mês selecionado
   const dataInicio = new Date(ano, mes, 1);
@@ -330,4 +331,79 @@ function formatarMes(mesAno) {
   const mesFormatado =
     nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1).replace(".", "");
   return `${mesFormatado}/${anoCurto}`;
+}
+// js/budget.js
+
+// =================================================================
+// FUNÇÃO PARA CRIAR E ATUALIZAR O GRÁFICO (VERSÃO PIZZA FINAL)
+// =================================================================
+function atualizarGraficoDespesas(transacoes) {
+  const ctx = document.getElementById("graficoDespesas");
+  if (!ctx) return;
+
+  // --- 1. CÁLCULO DOS DADOS ---
+  const totalDespesasFixas = transacoes
+    .filter((t) => t.tipo === "Saída" && t.gastoFixo === true)
+    .reduce((acc, t) => acc + t.valor, 0);
+
+  const idsCategoriasEconomia = categoriasCache
+    .filter(
+      (c) => c.nome === "Investimentos" || c.nome === "Reserva de Emergência"
+    )
+    .map((c) => c.id);
+
+  const totalEconomias = transacoes
+    .filter(
+      (t) => t.tipo === "Saída" && idsCategoriasEconomia.includes(t.idCategoria)
+    )
+    .reduce((acc, t) => acc + t.valor, 0);
+
+  const totalSaidas = transacoes
+    .filter((t) => t.tipo === "Saída")
+    .reduce((acc, t) => acc + t.valor, 0);
+
+  const totalDespesasVariaveis =
+    totalSaidas - totalDespesasFixas - totalEconomias;
+
+  // --- 2. DESENHO DO GRÁFICO ---
+  if (meuGrafico) {
+    meuGrafico.destroy();
+  }
+
+  meuGrafico = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Despesas Fixas", "Despesas Variáveis", "Economias"],
+      datasets: [
+        {
+          label: "Resumo de Saídas",
+          data: [totalDespesasFixas, totalDespesasVariaveis, totalEconomias],
+          backgroundColor: [
+            "#e74c3c", // Vermelho para Despesas Fixas
+            "#f39c12", // Laranja para Despesas Variáveis
+            "#3498db", // Azul para Economias
+          ],
+          borderWidth: 0,
+          hoverOffset: 4,
+        },
+      ],
+    },
+    // --- OPÇÕES AJUSTADAS ABAIXO ---
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        // GARANTE QUE A LEGENDA FIQUE VISÍVEL NO TOPO
+        legend: {
+          display: true, // Garante que a legenda apareça
+          position: "top", // Posição ideal para mobile e desktop
+        },
+        title: {
+          display: true,
+          text: "Distribuição das Saídas do Mês",
+        },
+      },
+      // A secção 'scales' foi completamente removida para tirar as linhas e números.
+    },
+  });
 }

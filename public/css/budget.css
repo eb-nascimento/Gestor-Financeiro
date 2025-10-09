@@ -72,6 +72,18 @@ h1 {
   height: 20px;
 }
 
+#troca-despesa {
+  display: flex;
+  all: inherit;
+  height: fit-content;
+  padding: 0;
+  margin-left: 15px;
+}
+
+#troca-despesa img {
+  height: 22px;
+}
+
 table {
   box-shadow: #334666 0px 0px 10px 0px;
   margin-bottom: 50px;
@@ -86,6 +98,12 @@ td {
   padding: 10px;
   text-align: center;
   border: 1px solid #334666;
+}
+
+.th-despesa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .section-orçamento th {
@@ -108,13 +126,15 @@ td {
 }
 
 .grafico {
+  position: relative; /* Essencial para o Chart.js calcular o tamanho */
   height: 250px;
+  width: 100%; /* Garante que o contentor ocupe a largura disponível */
+  max-width: 450px; /* Impede que o gráfico fique gigante em telas largas */
+  margin: 20px auto; /* Adiciona margem e centraliza o gráfico */
 }
 
-.grafico img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+#graficoDespesas {
+  width: fit-content;
 }
 
 #valorOrçado {
@@ -162,6 +182,7 @@ td {
 #mostrador-valor {
   display: flex;
   flex-direction: row;
+  justify-content: center;
   gap: 20px;
   width: 100%;
 }
@@ -230,12 +251,18 @@ td {
 @media (max-width: 1166px) {
   #section-orçamento {
     flex-wrap: wrap;
-    /* justify-content: space-around; */
     gap: 5%;
   }
 
   .section-orçamento {
     width: 45%;
+  }
+  #orçamento-center {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    justify-content: center;
+    align-items: center;
   }
 
   #orçamento-right {
@@ -279,10 +306,6 @@ td {
     margin-bottom: 0;
   }
 
-  #mostrador-valor {
-    justify-content: center;
-  }
-
   table:last-child {
     margin: 0;
     margin-top: 20px;
@@ -290,6 +313,14 @@ td {
 }
 
 @media (max-width: 490px) {
+  #troca-despesa {
+    margin-left: 10px;
+  }
+
+  #troca-despesa img {
+    height: 20px;
+  }
+
   table {
     font-size: 12px;
   }

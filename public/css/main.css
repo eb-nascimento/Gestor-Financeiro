@@ -100,7 +100,8 @@
   margin-right: 10px;
 }
 
-#gastoFixo {
+#gastoFixo,
+#edit-gastoFixo {
   margin: 0px;
   margin-inline: 10px;
   display: flex;
