@@ -6,11 +6,6 @@
   flex-direction: column;
 }
 
-#troca-tipo {
-  width: 15%;
-  background-color: #e74c3c;
-}
-
 table {
   width: 70%;
 }
