@@ -115,7 +115,7 @@ td {
   background-color: #fff;
 }
 
-#sectionValores {
+.sectionValores {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -179,12 +179,22 @@ td {
   width: 30%;
 }
 
-#mostrador-valor {
+.mostrador-valor {
+  margin-top: 20px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: row;
   justify-content: center;
   gap: 20px;
   width: 100%;
+}
+
+#mostrador-valor-top {
+  display: none;
+}
+
+.grafico {
+  margin-top: 50px;
 }
 
 /* ============================================= */
@@ -249,6 +259,14 @@ td {
 }
 
 @media (max-width: 1166px) {
+  #mostrador-valor-top {
+    display: flex;
+  }
+
+  #mostrador-valor-bottom {
+    display: none;
+  }
+
   #section-orçamento {
     flex-wrap: wrap;
     gap: 5%;
@@ -290,6 +308,9 @@ td {
 }
 
 @media (max-width: 830px) {
+  #sectionValores {
+    display: none;
+  }
   .section-orçamento {
     width: 80%;
     justify-content: center;
