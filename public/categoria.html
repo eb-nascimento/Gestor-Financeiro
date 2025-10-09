@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Categorias</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/categoria.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="js/categoria.js"></script>
+    <script type="module" src="js/menu.js"></script>
+  </head>
+  <body>
+    <section id="section-categoria">
+      <h1>Categorias</h1>
+      <button id="troca-tipo">Saída</button>
+      <table>
+        <thead>
+          <th>Categoria</th>
+          <th>Tipo</th>
+          <th>Classificação</th>
+          <th>Ocultar</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Supermercado</td>
+            <td>
+              <select>
+                <option value="">Tipo de Despesa</option>
+                <option value="saida">Saída</option>
+                <option value="entrada">Entrada</option>
+                <option value="Economia">Economia</option>
+              </select>
+            </td>
+            <td>
+              <select>
+                <option value="">Classificação da Despesa</option>
+                <option value="variavel">Variável</option>
+                <option value="fixa">Fixa</option>
+              </select>
+            </td>
+            <td class="td-ocultar">
+              <button class="ocultar-categoria">
+                <img src="img/eye-slash-blue-com.svg" alt="Ocultar Categoria" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><input type="text" placeholder="Nova Categoria" /></td>
+            <td>
+              <select>
+                <option value="">Tipo de Despesa</option>
+                <option value="saida">Saída</option>
+                <option value="entrada">Entrada</option>
+                <option value="Economia">Economia</option>
+              </select>
+            </td>
+            <td>
+              <select>
+                <option value="">Classificação da Despesa</option>
+                <option value="variavel">Variável</option>
+                <option value="fixa">Fixa</option>
+              </select>
+            </td>
+            <td class="td-ocultar">
+              <button class="ocultar-categoria">
+                <img src="img/eye-slash-blue-com.svg" alt="Ocultar Categoria" />
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4">
+              <!-- <button>Nova Categoria</button>  -->
+              <button>Ocultados</button>
+              <button>Salvar</button>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section id="menu">
+      <button id="btMenu">
+        <img class="menu-item" src="img/CirclesFour.svg" alt="menu" />
+      </button>
+      <div class="right">
+        <button>
+          <img class="menu-item" src="img/GearSix.svg" alt="menu" />
+        </button>
+        <button class="sair" id="btSignOut">
+          <img class="menu-item" src="img/SignOut.svg" alt="menu" />
+        </button>
+      </div>
+    </section>
+    <aside id="menuLateral">
+      <h2>Menu</h2>
+      <ul>
+        <li><a href="index.html">Nova Transação</a></li>
+        <hr />
+        <li><a href="budget.html">Planejamento</a></li>
+        <hr />
+        <li class="hidden"><a href="">Meus Métodos</a></li>
+        <hr />
+        <li class="hidden"><a href="#">Perfil</a></li>
+        <hr />
+        <li class="hidden"><a href="#">Configurações</a></li>
+        <hr />
+        <li><a href="#" class="btFechaMenu">Fechar Menu</a></li>
+        <hr />
+        <li>
+          <img src="img/SignOut.svg" alt="sair" id="sair-menu-lateral" />
+          <a href="#" class="btSignOut">Sair</a>
+        </li>
+      </ul>
+    </aside>
+  </body>
+</html>

@@ -196,6 +196,13 @@
   transition: background-color 0.2s ease-in-out;
 }
 
+tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
 #sectionTabela {
   margin: 25px;
   display: flex;

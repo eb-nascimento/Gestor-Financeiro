@@ -20,8 +20,9 @@ import {
 let currentUser;
 let categoriasCache = [];
 let metodosCache = [];
-let dataAtual = new Date(); // Começa com a data de hoje
+let dataAtual = new Date();
 let meuGrafico = null;
+let tipoDespesaVisivel = "variaveis"; // Novo: controla a visão da tabela
 
 // =================================================================
 // INICIALIZAÇÃO
@@ -41,29 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function carregarDadosIniciais() {
-  try {
-    const categoriasQuery = query(collection(db, "categoria"), orderBy("nome"));
-    const metodosQuery = query(collection(db, "metodo"), orderBy("nome"));
+  const categoriasQuery = query(collection(db, "categoria"), orderBy("nome"));
+  const metodosQuery = query(collection(db, "metodo"), orderBy("nome"));
 
-    const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
-      getDocs(categoriasQuery),
-      getDocs(metodosQuery),
-    ]);
+  const [categoriasSnapshot, metodosSnapshot] = await Promise.all([
+    getDocs(categoriasQuery),
+    getDocs(metodosQuery),
+  ]);
 
-    categoriasCache = categoriasSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    metodosCache = metodosSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error) {
-    console.error(
-      "Erro ao carregar dados iniciais (categorias/métodos):",
-      error
-    );
-  }
+  categoriasCache = categoriasSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  metodosCache = metodosSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 }
 
 // =================================================================
@@ -81,7 +75,7 @@ async function carregarDadosDoOrcamento() {
 
   try {
     const [transacoes, orcamentos] = await Promise.all([
-      buscarTransacoesDoMes(ano, mes), // Função corrigida
+      buscarTransacoesDoMes(ano, mes),
       buscarOrcamentosDoMes(mesAnoString),
     ]);
 
@@ -105,8 +99,6 @@ async function carregarDadosDoOrcamento() {
     preencherTabelaOrcamento("economia", orcamentos, transacoes);
     preencherTabelaOrcamento("receita", orcamentos, transacoes);
     preencherTabelaMetodos(transacoes);
-
-    // --- CHAMADA PARA ATUALIZAR O GRÁFICO ADICIONADA AQUI ---
     atualizarGraficoDespesas(transacoes);
   } catch (error) {
     console.error("Erro ao carregar dados do orçamento:", error);
@@ -114,20 +106,15 @@ async function carregarDadosDoOrcamento() {
 }
 
 async function buscarTransacoesDoMes(ano, mes) {
-  // Cria o primeiro dia do mês selecionado
   const dataInicio = new Date(ano, mes, 1);
-  // Cria o primeiro dia do mês SEGUINTE
   const dataFim = new Date(ano, mes + 1, 1);
-
-  // Formata para o padrão YYYY-MM-DD que o Firestore entende
   const inicioString = dataInicio.toISOString().slice(0, 10);
   const fimString = dataFim.toISOString().slice(0, 10);
-
   const q = query(
     collection(db, "transacao"),
     where("userId", "==", currentUser.uid),
-    where("data", ">=", inicioString), // Maior ou igual ao primeiro dia do mês
-    where("data", "<", fimString) // Menor que o primeiro dia do mês seguinte
+    where("data", ">=", inicioString),
+    where("data", "<", fimString)
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => doc.data());
@@ -144,8 +131,9 @@ async function buscarOrcamentosDoMes(mesAno) {
 }
 
 // =================================================================
-// FUNÇÕES DE RENDERIZAÇÃO E UI (O RESTO DO CÓDIGO PERMANECE IGUAL)
+// FUNÇÕES DE RENDERIZAÇÃO E UI
 // =================================================================
+
 function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
   const seletorTabela = {
     despesa: "#corpoTabelaDespesas",
@@ -156,6 +144,15 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
   if (!corpoTabela) return;
   corpoTabela.innerHTML = "";
 
+  if (tipoTabela === "despesa") {
+    const tituloEl = document.getElementById("titulo-despesa");
+    if (tituloEl) {
+      tituloEl.textContent =
+        tipoDespesaVisivel === "fixas" ? "Fixas" : "Variáveis";
+    }
+  }
+
+  // --- LÓGICA DE FILTRAGEM ALTERADA AQUI ---
   const transacoesPorCategoria = transacoes.reduce((acc, t) => {
     if (!acc[t.idCategoria]) acc[t.idCategoria] = 0;
     acc[t.idCategoria] += t.valor;
@@ -167,7 +164,16 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
       c.nome === "Investimentos" || c.nome === "Reserva de Emergência";
     if (tipoTabela === "receita") return c.tipo === "entrada";
     if (tipoTabela === "economia") return c.tipo === "saida" && ehEconomia;
-    if (tipoTabela === "despesa") return c.tipo === "saida" && !ehEconomia;
+    if (tipoTabela === "despesa") {
+      // Filtra as categorias para mostrar apenas fixas ou variáveis, conforme o estado
+      const tipoClassificacao =
+        tipoDespesaVisivel === "fixas" ? "fixa" : "variavel";
+      return (
+        c.tipo === "saida" &&
+        !ehEconomia &&
+        c.classificacao === tipoClassificacao
+      );
+    }
     return false;
   });
 
@@ -194,6 +200,7 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
       corpoTabela.appendChild(linha);
     }
   });
+  // --- FIM DA LÓGICA ALTERADA ---
 
   if (corpoTabela.innerHTML === "") {
     corpoTabela.innerHTML = `<tr><td colspan="3">Nenhum dado para este mês.</td></tr>`;
@@ -211,7 +218,7 @@ function preencherTabelaOrcamento(tipoTabela, orcamentos, transacoes) {
         style: "currency",
         currency: "BRL",
       });
-      e.target.value = valor;
+      e.target.value = valor === "NaN" ? "" : valor;
     });
   });
 }
@@ -220,7 +227,6 @@ function preencherTabelaMetodos(transacoes) {
   const corpoTabela = document.getElementById("corpoTabelaMetodos");
   if (!corpoTabela) return;
   corpoTabela.innerHTML = "";
-
   const gastosPorMetodo = transacoes
     .filter((t) => t.tipo === "Saída" && t.idMetodo)
     .reduce((acc, t) => {
@@ -228,12 +234,10 @@ function preencherTabelaMetodos(transacoes) {
       acc[t.idMetodo] += t.valor;
       return acc;
     }, {});
-
   if (Object.keys(gastosPorMetodo).length === 0) {
     corpoTabela.innerHTML = `<tr><td colspan="3">Nenhum gasto no mês.</td></tr>`;
     return;
   }
-
   for (const idMetodo in gastosPorMetodo) {
     const metodo = metodosCache.find((m) => m.id === idMetodo);
     corpoTabela.innerHTML += `<tr><td>${
@@ -252,13 +256,24 @@ function adicionarEventListenersGlobais() {
     );
   });
 
-  document.querySelectorAll(".adicionar-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      alert(
-        "Para adicionar um item ao relatório, basta registar uma transação nessa categoria. Para definir um orçamento, edite o campo na tabela."
-      );
+  // document.querySelectorAll(".adicionar-btn").forEach((button) => {
+  //   button.addEventListener("click", () => {
+  //     // alert(
+  //     //   "Para adicionar um item ao relatório, basta registar uma transação nessa categoria. Para definir um orçamento, edite o campo na tabela."
+  //     // );
+  //   });
+  // });
+
+  // NOVO: Adiciona o event listener para o botão de troca de tipo de despesa
+  const trocaTipoDespesaBtn = document.getElementById("troca-tipo-despesa");
+  if (trocaTipoDespesaBtn) {
+    trocaTipoDespesaBtn.addEventListener("click", () => {
+      tipoDespesaVisivel =
+        tipoDespesaVisivel === "variaveis" ? "fixas" : "variaveis";
+      // Apenas recarrega os dados e a UI. A função `preencherTabelaOrcamento` já vai usar o novo estado.
+      carregarDadosDoOrcamento();
     });
-  });
+  }
 }
 
 async function salvarValorOrcamento(event) {
@@ -296,7 +311,6 @@ async function salvarValorOrcamento(event) {
         { merge: true }
       );
     }
-
     input.style.borderColor = "green";
     setTimeout(() => {
       input.style.borderColor = "";
@@ -314,7 +328,7 @@ function mudarMes(direcao) {
 }
 
 // =================================================================
-// FUNÇÕES UTILITÁRIAS
+// FUNÇÕES UTILITÁRIAS E GRÁFICO
 // =================================================================
 function formatarMoeda(valor) {
   return (valor || 0).toLocaleString("pt-BR", {
@@ -332,40 +346,30 @@ function formatarMes(mesAno) {
     nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1).replace(".", "");
   return `${mesFormatado}/${anoCurto}`;
 }
-// js/budget.js
 
-// =================================================================
-// FUNÇÃO PARA CRIAR E ATUALIZAR O GRÁFICO (VERSÃO PIZZA FINAL)
-// =================================================================
 function atualizarGraficoDespesas(transacoes) {
   const ctx = document.getElementById("graficoDespesas");
   if (!ctx) return;
 
-  // --- 1. CÁLCULO DOS DADOS ---
   const totalDespesasFixas = transacoes
     .filter((t) => t.tipo === "Saída" && t.gastoFixo === true)
     .reduce((acc, t) => acc + t.valor, 0);
-
   const idsCategoriasEconomia = categoriasCache
     .filter(
       (c) => c.nome === "Investimentos" || c.nome === "Reserva de Emergência"
     )
     .map((c) => c.id);
-
   const totalEconomias = transacoes
     .filter(
       (t) => t.tipo === "Saída" && idsCategoriasEconomia.includes(t.idCategoria)
     )
     .reduce((acc, t) => acc + t.valor, 0);
-
   const totalSaidas = transacoes
     .filter((t) => t.tipo === "Saída")
     .reduce((acc, t) => acc + t.valor, 0);
-
   const totalDespesasVariaveis =
     totalSaidas - totalDespesasFixas - totalEconomias;
 
-  // --- 2. DESENHO DO GRÁFICO ---
   if (meuGrafico) {
     meuGrafico.destroy();
   }
@@ -378,32 +382,19 @@ function atualizarGraficoDespesas(transacoes) {
         {
           label: "Resumo de Saídas",
           data: [totalDespesasFixas, totalDespesasVariaveis, totalEconomias],
-          backgroundColor: [
-            "#e74c3c", // Vermelho para Despesas Fixas
-            "#f39c12", // Laranja para Despesas Variáveis
-            "#3498db", // Azul para Economias
-          ],
+          backgroundColor: ["#e74c3c", "#f39c12", "#3498db"],
           borderWidth: 0,
           hoverOffset: 4,
         },
       ],
     },
-    // --- OPÇÕES AJUSTADAS ABAIXO ---
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        // GARANTE QUE A LEGENDA FIQUE VISÍVEL NO TOPO
-        legend: {
-          display: true, // Garante que a legenda apareça
-          position: "top", // Posição ideal para mobile e desktop
-        },
-        title: {
-          display: true,
-          text: "Distribuição das Saídas do Mês",
-        },
+        legend: { display: true, position: "top" },
+        title: { display: true, text: "Distribuição das Saídas do Mês" },
       },
-      // A secção 'scales' foi completamente removida para tirar as linhas e números.
     },
   });
 }

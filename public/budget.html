@@ -52,22 +52,10 @@
         <table class="despesas">
           <thead>
             <tr>
-              <th class="th-despesa">
-                Variáveis
-                <button id="troca-despesa">
-                  <img
-                    src="img/return.svg"
-                    alt="Botão trocar tipo de despesa"
-                  />
-                </button>
-              </th>
-              <th style="display: none">
-                Fixas
-                <button id="troca-despesa">
-                  <img
-                    src="img/return.svg"
-                    alt="Botão trocar tipo de despesa"
-                  />
+              <th id="th-despesas">
+                <span id="titulo-despesa">Despesas Variáveis</span>
+                <button id="troca-tipo-despesa">
+                  <img src="img/return.svg" alt="Trocar" />
                 </button>
               </th>
               <th>Orçamento</th>
@@ -78,9 +66,11 @@
           <tfoot>
             <tr>
               <td colspan="3">
-                <button class="adicionar-btn" data-tipo="despesa">
-                  + Adicionar Despesa
-                </button>
+                <a href="categoria.html">
+                  <button class="adicionar-btn" data-tipo="categoria">
+                    + Adicionar Categoria
+                  </button></a
+                >
               </td>
             </tr>
           </tfoot>
@@ -183,7 +173,7 @@
       <ul>
         <li><a href="index.html">Nova Transação</a></li>
         <hr />
-        <li class="hidden"><a href="#">Minhas Categorias</a></li>
+        <li><a href="categoria.html">Minhas Categorias</a></li>
         <hr />
         <li class="hidden"><a href="#">Meus Métodos</a></li>
         <hr />

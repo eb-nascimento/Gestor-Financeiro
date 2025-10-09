@@ -45,7 +45,7 @@ h2 {
 
 h1 {
   margin-top: 40px;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   font-size: 38px;
   margin-inline: 0;
 }
@@ -72,32 +72,57 @@ h1 {
   height: 20px;
 }
 
-#troca-despesa {
-  display: flex;
-  all: inherit;
-  height: fit-content;
-  padding: 0;
-  margin-left: 15px;
-}
-
-#troca-despesa img {
-  height: 22px;
-}
-
 table {
-  box-shadow: #334666 0px 0px 10px 0px;
   margin-bottom: 50px;
   margin-top: 50px;
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
 }
 
 th,
 td {
   padding: 10px;
-  text-align: center;
-  border: 1px solid #334666;
+}
+
+/* ============================================= */
+/* ARQUIVO: public/css/budget.css                */
+/* Estilos para o cabeçalho da tabela de despesas*/
+/* ============================================= */
+
+#th-despesas {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Adiciona um espaço entre o título e o botão */
+}
+
+#titulo-despesa {
+  font-weight: bold; /* Mantém o texto do título em negrito */
+}
+
+#troca-tipo-despesa {
+  all: unset; /* Remove todos os estilos padrão do botão */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 5px; /* Adiciona bordas arredondadas */
+  padding: 2px;
+  transition: background-color 0.2s ease; /* Efeito suave ao passar o rato */
+}
+
+#troca-tipo-despesa:hover {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* Cor de fundo subtil ao passar o rato */
+}
+
+#troca-tipo-despesa img {
+  width: 20px; /* Define o tamanho do ícone */
+  height: 20px;
 }
 
 .th-despesa {
@@ -131,10 +156,6 @@ td {
   width: 100%; /* Garante que o contentor ocupe a largura disponível */
   max-width: 450px; /* Impede que o gráfico fique gigante em telas largas */
   margin: 20px auto; /* Adiciona margem e centraliza o gráfico */
-}
-
-#graficoDespesas {
-  width: fit-content;
 }
 
 #valorOrçado {

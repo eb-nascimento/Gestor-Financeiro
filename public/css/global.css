@@ -31,6 +31,11 @@ li {
   margin-top: 30px;
 }
 
+td {
+  align-items: center;
+  justify-content: center;
+}
+
 input,
 select {
   font-family: "Inter", sans-serif;
@@ -186,10 +191,16 @@ td {
   background-color: #fff;
 }
 
-tr:last-child td:first-child {
+tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 0px;
+}
+tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 1px;
+}
+tfoot tr:last-child td:first-child {
   border-bottom-left-radius: 10px;
 }
-tr:last-child td:last-child {
+tfoot tr:last-child td:last-child {
   border-bottom-right-radius: 10px;
 }
 
