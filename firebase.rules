@@ -2,10 +2,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Regras que não mudam
     match /categoria/{docId} {
       allow read: if true;
-      allow write: if false; 
+      allow write: if request.auth != null; 
     }
     match /metodo/{docId} {
       allow read: if true;

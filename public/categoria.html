@@ -23,7 +23,7 @@
           <th>Classificação</th>
           <th>Ocultar</th>
         </thead>
-        <tbody>
+        <tbody id="copo-tabela-categorias">
           <tr>
             <td>Supermercado</td>
             <td>
@@ -50,33 +50,34 @@
         </tbody>
         <tfoot>
           <tr>
-            <td><input type="text" placeholder="Nova Categoria" /></td>
             <td>
-              <select>
+              <input
+                type="text"
+                placeholder="Nova Categoria"
+                id="input-nova-categoria"
+              />
+            </td>
+
+            <td>
+              <select id="select-novo-tipo">
                 <option value="">Tipo de Despesa</option>
                 <option value="saida">Saída</option>
                 <option value="entrada">Entrada</option>
-                <option value="Economia">Economia</option>
               </select>
             </td>
             <td>
-              <select>
+              <select id="select-nova-classificacao">
                 <option value="">Classificação da Despesa</option>
                 <option value="variavel">Variável</option>
                 <option value="fixa">Fixa</option>
               </select>
             </td>
-            <td class="td-ocultar">
-              <button class="ocultar-categoria">
-                <img src="img/eye-slash-blue-com.svg" alt="Ocultar Categoria" />
-              </button>
-            </td>
+            <td class="td-ocultar"></td>
           </tr>
           <tr>
             <td colspan="4">
-              <!-- <button>Nova Categoria</button>  -->
-              <button>Ocultados</button>
-              <button>Salvar</button>
+              <button id="btn-toggle-ocultos">Exibir Ocultados</button>
+              <button id="btn-salvar">Salvar Alterações</button>
             </td>
           </tr>
         </tfoot>
