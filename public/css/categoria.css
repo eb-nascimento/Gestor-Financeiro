@@ -10,10 +10,6 @@ table {
   width: 70%;
 }
 
-tfoot .td-ocultar {
-  all: inherit;
-}
-
 td,
 th {
   padding: 5px;
@@ -26,6 +22,181 @@ tbody tr:last-child td:last-child {
   border-bottom-right-radius: 0px;
 }
 
+/* Cores para as linhas da tabela de categorias */
+.linha-entrada td {
+  background-color: #f0fff4; /* Verde claro */
+}
+
+.linha-saida td {
+  background-color: #ffe8e8; /* Vermelho/rosa claro */
+}
+
+/* Estilo para as novas células de ação */
+.td-acao {
+  width: 10%; /* Define uma largura pequena para as colunas de ícones */
+  text-align: center;
+}
+
+/* Estilo genérico para os botões de ação (Regra combinada) */
+.ocultar-categoria,
+.excluir-categoria {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ocultar-categoria img,
+.excluir-categoria img {
+  height: 20px;
+  width: 20px;
+}
+
+/* Estilo para o botão de excluir quando está desativado */
+.excluir-categoria:disabled {
+  cursor: not-allowed;
+}
+
+.excluir-categoria:disabled img {
+  opacity: 0.4;
+}
+
+/* Garante que os inputs e selects fiquem transparentes para mostrar a cor da linha */
+tbody tr select,
+tbody tr .input-nome-categoria {
+  background-color: transparent;
+}
+
+/* Melhora o efeito visual ao passar o rato por cima de uma linha */
+tbody tr:hover td {
+  background-color: #e9ecef !important;
+}
+
+/* Estilo para o input de nome de categoria */
+.input-nome-categoria {
+  all: unset;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+  text-align: center;
+}
+
+/* Estilo para a célula do botão Adicionar */
+.td-adicionar {
+  vertical-align: middle;
+  text-align: center;
+}
+
+#btn-adicionar {
+  width: 60%; /* Ocupa a maior parte da célula */
+  padding: 8px 16px; /* Ajusta o padding do botão */
+  font-size: 14px;
+}
+
+/* Estilos para os ícones na tabela */
+.icone-categoria {
+  height: 24px;
+  width: 24px;
+  opacity: 0.7;
+}
+
+.btn-editar-icone {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.btn-editar-icone img {
+  height: 24px;
+  width: 24px;
+  transition: transform 0.2s ease;
+}
+
+.btn-editar-icone:hover img {
+  transform: scale(1.2);
+}
+
+/* Estilos para o botão de escolher ícone no rodapé */
+#btn-escolher-icone {
+  all: unset;
+  cursor: pointer;
+}
+
+#btn-escolher-icone img {
+  height: 28px;
+  width: 28px;
+}
+
+/* Estilos para o Modal de Ícones */
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: #f1f1f1;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#grid-icones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.btn-selecionar-icone {
+  all: unset;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.btn-selecionar-icone:hover {
+  background-color: #c1cbd7;
+}
+
+.btn-selecionar-icone img {
+  height: 40px;
+  width: 40px;
+}
+
+/* Regra genérica para inputs e selects (mantida como no seu original) */
 select,
 input {
   border: none;
@@ -41,22 +212,4 @@ input {
 option {
   color: #334666;
   background-color: #f1f1f1;
-}
-
-.ocultar-categoria {
-  all: inherit;
-  border: none;
-  width: 100%;
-}
-
-.ocultar-categoria:hover {
-  cursor: pointer;
-}
-
-.ocultar-categoria img {
-  height: 20px;
-}
-
-.td-ocultar {
-  display: flex;
 }

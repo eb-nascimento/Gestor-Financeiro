@@ -18,14 +18,26 @@
       <h1>Categorias</h1>
       <table>
         <thead>
+          <th>Ícone</th>
           <th>Categoria</th>
           <th>Tipo</th>
           <th>Classificação</th>
           <th>Ocultar</th>
+          <th>Excluir</th>
         </thead>
         <tbody id="corpo-tabela-categorias"></tbody>
         <tfoot>
           <tr>
+            <td class="td-acao">
+              <button id="btn-escolher-icone">
+                <img
+                  id="img-novo-icone"
+                  src="img/icons/tag.svg"
+                  alt="Ícone da Categoria"
+                />
+              </button>
+              <input type="hidden" id="input-novo-icone-nome" value="tag" />
+            </td>
             <td>
               <input
                 type="text"
@@ -33,25 +45,24 @@
                 id="input-nova-categoria"
               />
             </td>
-
             <td>
               <select id="select-novo-tipo">
-                <option value="">Tipo de Despesa</option>
                 <option value="saida">Saída</option>
                 <option value="entrada">Entrada</option>
               </select>
             </td>
             <td>
               <select id="select-nova-classificacao">
-                <option value="">Classificação da Despesa</option>
                 <option value="variavel">Variável</option>
                 <option value="fixa">Fixa</option>
               </select>
             </td>
-            <td class="td-ocultar">&nbsp;</td>
+            <td colspan="2" class="td-adicionar">
+              <button id="btn-adicionar">Adicionar</button>
+            </td>
           </tr>
           <tr>
-            <td colspan="4">
+            <td colspan="6">
               <button id="btn-toggle-ocultos">Exibir Ocultados</button>
               <button id="btn-salvar">Salvar Alterações</button>
             </td>
@@ -94,5 +105,12 @@
         </li>
       </ul>
     </aside>
+    <div id="modal-icones-container" class="modal-container hidden">
+      <div id="modal-icones-content" class="modal-content">
+        <button id="btn-fechar-modal-icones" class="close-btn">&times;</button>
+        <h2>Escolha um Ícone</h2>
+        <div id="grid-icones"></div>
+      </div>
+    </div>
   </body>
 </html>
