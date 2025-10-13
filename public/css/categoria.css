@@ -11,7 +11,7 @@ table {
 }
 
 tfoot .td-ocultar {
-  display: none;
+  all: inherit;
 }
 
 td,
