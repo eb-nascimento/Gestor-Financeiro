@@ -6,6 +6,9 @@ import {
   updateDoc,
   doc,
   query,
+  where,
+  getDoc, // Adicionado
+  setDoc, // Adicionado
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth,
@@ -15,6 +18,7 @@ import {
 let currentUser = null;
 let todasCategorias = [];
 let mostrandoOcultos = false;
+let hiddenDefaultCategories = []; // <-- ADICIONE ESTA LINHA
 
 // --- INICIALIZAÇÃO DA PÁGINA ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -33,64 +37,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- FUNÇÕES PRINCIPAIS ---
 
+// Em public/js/categoria.js
 async function carregarCategorias() {
-  console.log("A função carregarCategorias foi chamada.");
+  console.log("A carregar categorias e preferências...");
   try {
-    const q = query(collection(db, "categoria"));
-    const querySnapshot = await getDocs(q);
+    // 1. Busca as preferências de visibilidade do utilizador
+    const prefRef = doc(db, "user_preferences", currentUser.uid);
+    const prefSnap = await getDoc(prefRef);
+    hiddenDefaultCategories = prefSnap.exists()
+      ? prefSnap.data().hiddenDefaultCategories || []
+      : [];
 
-    console.log(`Firebase retornou ${querySnapshot.size} categorias.`);
+    // 2. Busca as categorias (padrão e do utilizador)
+    const qPadrao = query(
+      collection(db, "categoria"),
+      where("userId", "==", null)
+    );
+    const qUsuario = query(
+      collection(db, "categoria"),
+      where("userId", "==", currentUser.uid)
+    );
 
-    todasCategorias = querySnapshot.docs.map((doc) => ({
+    const [snapshotPadrao, snapshotUsuario] = await Promise.all([
+      getDocs(qPadrao),
+      getDocs(qUsuario),
+    ]);
+
+    const categoriasPadrao = snapshotPadrao.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    const categoriasUsuario = snapshotUsuario.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    console.log(
-      "Dados das categorias guardados localmente:",
-      JSON.parse(JSON.stringify(todasCategorias))
-    );
+    todasCategorias = [...categoriasPadrao, ...categoriasUsuario];
 
     renderizarTabela();
   } catch (error) {
-    console.error("Erro CRÍTICO ao carregar categorias:", error);
-    const corpoTabela = document.getElementById("corpo-tabela-categorias");
-    if (corpoTabela)
-      corpoTabela.innerHTML =
-        '<tr><td colspan="4">Erro ao carregar categorias. Verifique a consola.</td></tr>';
+    console.error("Erro CRÍTICO ao carregar dados:", error);
   }
 }
 
 function renderizarTabela() {
-  console.log("A função renderizarTabela foi chamada.");
   const corpoTabela = document.getElementById("corpo-tabela-categorias");
-  if (!corpoTabela) {
-    console.error(
-      "ERRO: Elemento com id 'corpo-tabela-categorias' não foi encontrado."
-    );
-    return;
-  }
+  if (!corpoTabela) return;
 
-  // Ordenação (mantida como estava)
   todasCategorias.sort((a, b) => {
+    // A sua lógica de ordenação continua igual
     const classOrder = { fixa: 3, variavel: 2 };
     const classA = classOrder[a.classificacao] || 1;
     const classB = classOrder[b.classificacao] || 1;
     if (classA !== classB) return classB - classA;
-
     const tipoOrder = { saida: 2, entrada: 1 };
     const tipoA = tipoOrder[a.tipo] || 0;
     const tipoB = tipoOrder[b.tipo] || 0;
     if (tipoA !== tipoB) return tipoB - tipoA;
-
-    return a.nome.localeCompare(b.nome);
+    return (a.nome || "").localeCompare(b.nome || "");
   });
 
   corpoTabela.innerHTML = "";
-
   let categoriasVisiveis = 0;
+
   todasCategorias.forEach((categoria) => {
-    const estaOculta = categoria.oculta === true;
+    const ehDoUsuario = categoria.userId === currentUser.uid;
+    let estaOculta;
+
+    // A lógica de verificação de "oculta" agora é dividida
+    if (ehDoUsuario) {
+      estaOculta = categoria.oculta === true;
+    } else {
+      // Se for uma categoria padrão...
+      estaOculta = hiddenDefaultCategories.includes(categoria.id);
+    }
 
     if (!estaOculta || (estaOculta && mostrandoOcultos)) {
       categoriasVisiveis++;
@@ -100,52 +120,45 @@ function renderizarTabela() {
         linha.classList.add("linha-oculta");
       }
 
+      const nomeHtml = ehDoUsuario
+        ? `<input type="text" class="input-nome-categoria" value="${categoria.nome}" />`
+        : categoria.nome;
+
       const iconeBotao = estaOculta
         ? "img/eye.svg"
         : "img/eye-slash-blue-com.svg";
+      const botaoOcultarHtml = `<button class="ocultar-categoria"><img src="${iconeBotao}" alt="Ocultar/Exibir" /></button>`;
 
       linha.innerHTML = `
-                <td>${categoria.nome}</td>
-                <td>
-                    <select class="select-tipo" data-field="tipo">
-                        <option value="saida" ${
-                          categoria.tipo === "saida" ? "selected" : ""
-                        }>Saída</option>
-                        <option value="entrada" ${
-                          categoria.tipo === "entrada" ? "selected" : ""
-                        }>Entrada</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="select-classificacao" data-field="classificacao">
-                        <option value="variavel" ${
-                          categoria.classificacao === "variavel"
-                            ? "selected"
-                            : ""
-                        }>Variável</option>
-                        <option value="fixa" ${
-                          categoria.classificacao === "fixa" ? "selected" : ""
-                        }>Fixa</option>
-                    </select>
-                </td>
-                <td class="td-ocultar">
-                    <button class="ocultar-categoria">
-                        <img src="${iconeBotao}" alt="Ocultar/Exibir Categoria" />
-                    </button>
-                </td>
-            `;
+        <td>${nomeHtml}</td>
+        <td><select class="select-tipo" ${
+          !ehDoUsuario ? "disabled" : ""
+        }>...</select></td>
+        <td><select class="select-classificacao" ${
+          !ehDoUsuario ? "disabled" : ""
+        }>...</select></td>
+        <td class="td-ocultar">${botaoOcultarHtml}</td>
+      `;
+      // Preenchendo os selects (código omitido por brevidade, o seu já está correto)
       corpoTabela.appendChild(linha);
+      const selectTipo = linha.querySelector(".select-tipo");
+      selectTipo.innerHTML = `<option value="saida" ${
+        categoria.tipo === "saida" ? "selected" : ""
+      }>Saída</option><option value="entrada" ${
+        categoria.tipo === "entrada" ? "selected" : ""
+      }>Entrada</option>`;
+      const selectClassif = linha.querySelector(".select-classificacao");
+      selectClassif.innerHTML = `<option value="variavel" ${
+        categoria.classificacao === "variavel" ? "selected" : ""
+      }>Variável</option><option value="fixa" ${
+        categoria.classificacao === "fixa" ? "selected" : ""
+      }>Fixa</option>`;
     }
   });
 
-  console.log(`${categoriasVisiveis} categorias foram renderizadas na tabela.`);
   if (categoriasVisiveis === 0) {
+    // Lógica para tabela vazia
     corpoTabela.innerHTML = `<tr><td colspan="4">Nenhuma categoria para exibir.</td></tr>`;
-    if (todasCategorias.length > 0) {
-      console.warn(
-        "Aviso: Existem categorias carregadas, mas nenhuma está visível. Verifique o estado 'oculta' das categorias ou clique em 'Exibir Ocultados'."
-      );
-    }
   }
 }
 
@@ -179,11 +192,13 @@ function configurarEventListeners() {
   });
 }
 
+// Em public/js/categoria.js
 async function salvarAlteracoes() {
   const inputNome = document.getElementById("input-nova-categoria");
   const selectTipo = document.getElementById("select-novo-tipo");
   const selectClassif = document.getElementById("select-nova-classificacao");
 
+  // Adicionar nova categoria (agora com userId)
   if (inputNome.value.trim() !== "") {
     try {
       await addDoc(collection(db, "categoria"), {
@@ -191,6 +206,7 @@ async function salvarAlteracoes() {
         tipo: selectTipo.value || "saida",
         classificacao: selectClassif.value || "variavel",
         oculta: false,
+        userId: currentUser.uid, // ADICIONADO: A nova categoria pertence a este utilizador
       });
     } catch (error) {
       console.error("Erro ao adicionar nova categoria:", error);
@@ -198,15 +214,26 @@ async function salvarAlteracoes() {
     }
   }
 
+  // Atualizar categorias existentes
   const promises = [];
-  document.querySelectorAll("#corpo-tabela-categorias tr").forEach((linha) => {
-    const id = linha.dataset.id;
-    const tipo = linha.querySelector(".select-tipo").value;
-    const classificacao = linha.querySelector(".select-classificacao").value;
+  document
+    .querySelectorAll("#corpo-tabela-categorias tr[data-id]")
+    .forEach((linha) => {
+      const id = linha.dataset.id;
+      const categoriaOriginal = todasCategorias.find((c) => c.id === id);
 
-    const categoriaRef = doc(db, "categoria", id);
-    promises.push(updateDoc(categoriaRef, { tipo, classificacao }));
-  });
+      // SÓ TENTA ATUALIZAR SE A CATEGORIA PERTENCER AO UTILIZADOR
+      if (categoriaOriginal && categoriaOriginal.userId === currentUser.uid) {
+        const nome = linha.querySelector(".input-nome-categoria").value;
+        const tipo = linha.querySelector(".select-tipo").value;
+        const classificacao = linha.querySelector(
+          ".select-classificacao"
+        ).value;
+
+        const categoriaRef = doc(db, "categoria", id);
+        promises.push(updateDoc(categoriaRef, { nome, tipo, classificacao }));
+      }
+    });
 
   try {
     await Promise.all(promises);
@@ -225,14 +252,38 @@ async function toggleOcultarCategoria(categoriaId) {
   const categoria = todasCategorias.find((c) => c.id === categoriaId);
   if (!categoria) return;
 
-  const novoEstadoOculto = !(categoria.oculta === true);
+  const ehDoUsuario = categoria.userId === currentUser.uid;
 
   try {
-    const categoriaRef = doc(db, "categoria", categoriaId);
-    await updateDoc(categoriaRef, { oculta: novoEstadoOculto });
+    if (ehDoUsuario) {
+      // Se a categoria é do utilizador, altera o campo 'oculta' no próprio documento.
+      const novoEstadoOculto = !(categoria.oculta === true);
+      const categoriaRef = doc(db, "categoria", categoriaId);
+      await updateDoc(categoriaRef, { oculta: novoEstadoOculto });
+    } else {
+      // Se a categoria é padrão, altera a lista de preferências do utilizador.
+      const prefRef = doc(db, "user_preferences", currentUser.uid);
+      const isCurrentlyHidden = hiddenDefaultCategories.includes(categoriaId);
 
-    categoria.oculta = novoEstadoOculto;
-    renderizarTabela();
+      let updatedHiddenList;
+      if (isCurrentlyHidden) {
+        // Remove o ID da lista
+        updatedHiddenList = hiddenDefaultCategories.filter(
+          (id) => id !== categoriaId
+        );
+      } else {
+        // Adiciona o ID à lista
+        updatedHiddenList = [...hiddenDefaultCategories, categoriaId];
+      }
+      // Salva a lista atualizada no documento de preferências
+      await setDoc(
+        prefRef,
+        { hiddenDefaultCategories: updatedHiddenList },
+        { merge: true }
+      );
+    }
+    // Recarrega tudo para a interface refletir a alteração
+    await carregarCategorias();
   } catch (error) {
     console.error("Erro ao atualizar visibilidade:", error);
     alert("Não foi possível alterar a visibilidade.");

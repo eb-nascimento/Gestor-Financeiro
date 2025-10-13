@@ -2,35 +2,42 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Regra para 'categoria' (versão segura)
     match /categoria/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null; 
+      // Dentro de: match /databases/{database}/documents { ... match /categoria/{docId} { ...
+
+      // Permite que qualquer utilizador autenticado leia a lista de categorias.
+      // A lógica de quem vê o quê já é tratada no frontend.
+      allow read: if request.auth != null;
+
+      // As regras de escrita (create, update, delete) permanecem como estão,
+      // pois são elas que garantem que só o dono pode modificar as suas categorias.
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+
+// ...
     }
+
+    // NOVA REGRA: para as preferências do utilizador
+    match /user_preferences/{userId} {
+      // Um utilizador só pode ler e escrever no seu próprio documento de preferências.
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // O resto das suas regras permanece igual
     match /metodo/{docId} {
       allow read: if true;
       allow write: if false;
     }
-
-    // ===============================================
-    //           REGRAS CORRIGIDAS ABAIXO
-    // ===============================================
-
     match /transacao/{transactionId} {
       allow read: if request.auth != null;
-      
-      // Permite CRIAR e ATUALIZAR se o utilizador for o dono dos novos dados
       allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      
-      // Permite APAGAR se o utilizador for o dono do documento existente
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
-
     match /orcamentos/{orcamentoId} {
-      // A mesma lógica aplica-se aqui
       allow read: if request.auth != null;
       allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
-    
   }
 }
