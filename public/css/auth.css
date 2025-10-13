@@ -37,6 +37,7 @@
   display: none;
   padding-inline: 20px;
   flex: 1;
+  height: 100vh;
 }
 
 #bem-vindo-text {
@@ -65,11 +66,6 @@
   display: list-item;
 }
 
-#registe-body {
-  display: flex;
-  height: 90%;
-}
-
 #registerForm {
   padding: 0;
   height: 100vh;
@@ -79,7 +75,6 @@
   align-items: center;
   justify-content: center;
   background-color: #f1f1f1;
-  padding: 40px;
   box-shadow: #334666 0px 0px 10px 0px;
 }
 
@@ -91,6 +86,10 @@
   color: #334666;
   font-size: 36px;
   text-align: center;
+}
+
+.register-link {
+  margin: 0;
 }
 
 .form-group {
@@ -133,6 +132,24 @@ button {
   background-color: #2c3e50;
 }
 
+/* ================================================================== */
+/* ================================================================== */
+/* POLITICA E TERMOS */
+/* ================================================================== */
+/* ================================================================== */
+/* Adicione ao final do seu auth.css */
+.auth-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 14px;
+}
+.auth-footer a {
+  color: #334666;
+  text-decoration: none;
+}
+.auth-footer a:hover {
+  text-decoration: underline;
+}
 /* --- Media Queries para Telas Maiores --- */
 
 @media (min-width: 768px) {
@@ -188,5 +205,32 @@ button {
 @media (max-width: 424px) {
   .form-group {
     width: 80%;
+  }
+}
+
+@media (max-height: 680px) {
+  h1 {
+    margin-top: 60px;
+    margin-bottom: 30px;
+  }
+
+  #bem-vindo-text {
+    margin-top: 30px;
+  }
+
+  #o-que {
+    margin-top: 30px;
+  }
+  #o-que b:last-child {
+    margin-top: 30px;
+  }
+
+  input {
+    padding: 10px;
+    height: fit-content;
+  }
+
+  .login-form h2 {
+    padding: 20px;
   }
 }
