@@ -66,6 +66,7 @@ tbody tr:last-child td:last-child {
 tbody tr select,
 tbody tr .input-nome-categoria {
   background-color: transparent;
+  width: fit-content;
 }
 
 /* Melhora o efeito visual ao passar o rato por cima de uma linha */
@@ -76,10 +77,17 @@ tbody tr:hover td {
 /* Estilo para o input de nome de categoria */
 .input-nome-categoria {
   all: unset;
-  width: 100%;
   box-sizing: border-box;
   padding: 5px;
   text-align: center;
+  width: 100%; /* <-- ADICIONE ESTA LINHA */
+}
+
+/* Define uma largura menor para a coluna NOME (a segunda) */
+th:nth-child(2),
+td:nth-child(2) {
+  width: 30%; /* Você pode ajustar este valor, ex: 25% */
+  word-break: break-word; /* Garante que o texto quebre a linha */
 }
 
 /* Estilo para a célula do botão Adicionar */
@@ -212,4 +220,7 @@ input {
 option {
   color: #334666;
   background-color: #f1f1f1;
+}
+
+@media (max-width: 688px) {
 }
