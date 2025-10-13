@@ -167,6 +167,7 @@ table {
 
 th,
 td {
+  justify-content: center;
   text-align: center;
   border: 1px solid #334666;
 }

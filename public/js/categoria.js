@@ -145,8 +145,8 @@ function renderizarTabela() {
 
       const iconeHtml = ehDoUsuario
         ? `<button class="btn-editar-icone"><img src="img/icons/${iconName}.svg" alt="${categoria.nome}" /></button>`
-        : `<img src="img/icons/${iconName}.svg" alt="${categoria.nome}" class="icone-categoria" />`;
-
+        : // ...
+          `<div class="icone-wrapper"><img src="img/icons/${iconName}.svg" alt="${categoria.nome}" class="icone-categoria" /></div>`;
       const nomeHtml = ehDoUsuario
         ? `<input type="text" class="input-nome-categoria" value="${categoria.nome}" data-field="nome" />`
         : categoria.nome;
