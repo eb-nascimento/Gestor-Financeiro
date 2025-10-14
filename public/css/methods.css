@@ -1,138 +1,188 @@
+/* === LAYOUT GERAL === */
 body {
   width: 100%;
 }
+
 #section-metodos {
   display: flex;
-  align-items: center;
   flex-direction: column;
-  padding: 30px;
-  flex: 1;
-}
-
-h3 {
-  margin-left: 20px;
-  flex: 1;
-}
-
-.nome-metodo {
-  display: flex;
-  width: 100%;
   align-items: center;
-  background-color: #334666;
-  color: #f1f1f1;
+  flex: 1;
 }
 
-#btExpandir,
-#btOcultar {
-  all: inherit;
-  display: flex;
-  height: 40px;
-  margin-right: 20px;
-  /* background-color: #f1f1f1; */
-  border-radius: 50%;
-  width: fit-content;
+/* Container que agrupa a lista de métodos */
+#div-metodos {
+  width: 80%; /* Define a largura do bloco principal */
 }
 
-#btExpandir {
-  background-color: #f1f1f1;
-}
-
-#btExpandir img {
-  transition: transform 0.3s ease; /* Adiciona animação suave */
-}
-
-/* 1. ESTILO BASE: Todos os métodos têm cantos retos e uma pequena margem para separá-los */
+/* === BLOCO DE CADA MÉTODO === */
 .metodo {
-  width: 60%;
+  width: 100%; /* Ocupa 100% do container #div-metodos */
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #fff;
   box-shadow: #334666 0px 0px 10px 0px;
   overflow: hidden;
-  margin-bottom: 2px; /* Espaçamento entre os itens */
+  margin-bottom: 2px; /* Pequeno espaçamento entre os itens */
 }
 
-/* 2. ARREDONDAR EM CIMA: Pega no PRIMEIRO item da lista e arredonda SÓ os cantos de cima */
-#section-metodos .metodo:first-child {
+/* Arredonda os cantos do PRIMEIRO item da lista */
+#div-metodos .metodo:first-child {
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
 }
 
-/* 3. ARREDONDAR EM BAIXO: Pega no ÚLTIMO item da lista e arredonda SÓ os cantos de baixo */
-#section-metodos .metodo:last-child {
+/* Arredonda os cantos do ÚLTIMO item da lista */
+#div-metodos .metodo:last-child {
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
-  margin-bottom: 0; /* Remove a margem do último item para um acabamento perfeito */
+  margin-bottom: 0;
 }
 
-.metodo img {
+/* === CABEÇALHO DO MÉTODO (COM CORREÇÃO DE COR) === */
+.nome-metodo {
+  position: relative; /* Necessário para o efeito da película */
+  display: flex;
+  width: 100%;
+  align-items: center;
+  color: #f1f1f1;
+  height: 60px;
+}
+
+/* Cria uma película escura semi-transparente sobre a cor de fundo */
+.nome-metodo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.2
+  ); /* Película escura com 20% de opacidade */
+  z-index: 1; /* A película fica na camada 1 */
+}
+
+/* Garante que o texto e os botões fiquem na FRENTE da película */
+.nome-metodo h3,
+.nome-metodo .btOcultar,
+.nome-metodo .btExpandir,
+.nome-metodo .placeholder-button {
+  position: relative;
+  z-index: 2; /* O conteúdo fica na camada 2, acima da película */
+}
+
+.nome-metodo h3 {
+  margin-left: 20px;
+  flex: 1;
+}
+
+/* Estilo base para os botões de ação (Ocultar/Expandir) */
+.btOcultar,
+.btExpandir {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 40px;
+  width: 40px;
   border-radius: 50%;
 }
 
-label {
-  margin: 10px 10px 10px 20px;
+.btExpandir {
+  background-color: #f1f1f1;
 }
 
-input {
-  margin-right: 20px;
+.btOcultar img,
+.btExpandir img {
+  height: 24px;
+  width: auto;
 }
 
+.btExpandir img {
+  transition: transform 0.3s ease; /* Animação suave de rotação */
+}
+
+/* === CONTEÚDO EXPANSÍVEL (COM CAMPOS AJUSTADOS) === */
 .info-metodo {
   display: flex;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
   width: 100%;
   padding: 20px;
   box-sizing: border-box;
   background-color: #f1f1f1;
 }
 
-/* Esconde por defeito para a lógica de expandir funcionar */
 .info-metodo.hidden {
   display: none;
-}
-
-.info-metodo,
-.info {
-  background-color: #f1f1f1;
-  display: flex;
-  width: 100%;
 }
 
 .info {
   display: flex;
   justify-content: space-between; /* Alinha label à esquerda e input à direita */
-  align-items: center;
+  align-items: center; /* Centraliza verticalmente */
   width: 100%;
   margin-bottom: 15px;
+  background-color: #f1f1f1;
+  padding-bottom: 10px;
+  border-bottom: 0.1px solid #7b7b7b;
 }
 
 .info label {
   margin: 0;
+  margin-right: 10px; /* Remove margens desnecessárias */
   font-weight: 500;
   color: #334666;
+  flex: 1; /* Faz o label ocupar o espaço disponível */
+  text-align: start;
 }
 
 .info input {
   margin: 0;
   width: 50%; /* Ajusta a largura do input */
+  max-width: 200px; /* Define uma largura máxima */
   text-align: right;
   padding: 8px;
   font-size: 16px;
 }
 
+/* === BOTÕES INFERIORES === */
 #div-buttons {
-  margin-top: 20px;
+  margin: 20px 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 60%;
+  gap: 20px;
+  width: 80%;
 }
 
 #btSalvar {
-  width: 50%;
+  width: 40%;
   margin-top: 15px;
   margin-bottom: 0;
+}
+
+/* === ESTILO PARA MÉTODO OCULTO === */
+.metodo.oculto {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.metodo.oculto:hover {
+  opacity: 1;
+}
+
+@media (max-width: 612px) {
+  button {
+    padding: 5px 10px;
+  }
 }

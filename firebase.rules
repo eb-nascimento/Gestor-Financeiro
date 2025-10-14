@@ -2,40 +2,37 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Regra para 'categoria' (versão segura)
+    // Regra para 'categoria'
     match /categoria/{docId} {
-      // Dentro de: match /databases/{database}/documents { ... match /categoria/{docId} { ...
-
-      // Permite que qualquer utilizador autenticado leia a lista de categorias.
-      // A lógica de quem vê o quê já é tratada no frontend.
       allow read: if request.auth != null;
-
-      // As regras de escrita (create, update, delete) permanecem como estão,
-      // pois são elas que garantem que só o dono pode modificar as suas categorias.
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
-
-// ...
     }
 
-    // NOVA REGRA: para as preferências do utilizador
+    // Regra para as preferências do utilizador (correta)
     match /user_preferences/{userId} {
-      // Um utilizador só pode ler e escrever no seu próprio documento de preferências.
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // O resto das suas regras permanece igual
+    // Regra para 'metodo' (corrigida)
     match /metodo/{docId} {
-      allow read: if true;
-      allow write: if false;
+      // Qualquer pessoa pode ler a lista de métodos.
+      allow read: if true; 
+      // Apenas utilizadores autenticados podem escrever (para salvar limite, vencimento, etc.).
+      // A regra "allow write: if false;" que estava antes impediria o botão "Salvar" de funcionar.
+      allow write: if request.auth != null; 
     }
+
+    // Regra para 'transacao'
     match /transacao/{transactionId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
+
+    // Regra para 'orcamentos'
     match /orcamentos/{orcamentoId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }

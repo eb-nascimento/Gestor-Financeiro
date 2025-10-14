@@ -16,61 +16,63 @@
   <body>
     <section id="section-metodos">
       <h1>Métodos de Pagamento</h1>
-      <div class="metodo">
-        <div class="nome-metodo">
-          <h3>Nubank (crédito)</h3>
-          <button id="btOcultar">
-            <img src="img/eye-slash-white.svg" alt="Ocultar" />
-          </button>
-          <button id="btExpandir">
-            <img src="img/ArrowDown.svg" alt="expandir" />
-          </button>
+      <div id="div-metodos">
+        <div class="metodo">
+          <div class="nome-metodo">
+            <h3>Nubank (crédito)</h3>
+            <button id="btOcultar">
+              <img src="img/eye-slash-white.svg" alt="Ocultar" />
+            </button>
+            <button id="btExpandir">
+              <img src="img/ArrowDown.svg" alt="expandir" />
+            </button>
+          </div>
+          <div class="info-metodo hidden">
+            <div id="limite-info" class="info">
+              <label for="Limite"> Limite do Cartão</label>
+              <input type="number" placeholder="R$ 1.000,00" />
+            </div>
+            <!--  -->
+            <div id="vcto-info" class="info">
+              <label for="Vencimento"> Vencimento da Fatura</label>
+              <input type="date" />
+            </div>
+            <!--  -->
+            <div id="fechamento-info" class="info">
+              <label for="Limite"> Fechamento da Fatura</label>
+              <input type="date" />
+            </div>
+            <button id="btSalvar">Salvar</button>
+          </div>
         </div>
-        <div class="info-metodo hidden">
-          <div id="limite-info" class="info">
-            <label for="Limite"> Limite do Cartão</label>
-            <input type="number" placeholder="R$ 1.000,00" />
+        <!--  -->
+        <div class="metodo">
+          <div class="nome-metodo">
+            <h3>Banco Inter (crédito)</h3>
+            <button id="btOcultar">
+              <img src="img/eye-slash-white.svg" alt="Ocultar" />
+            </button>
+            <button id="btExpandir">
+              <img src="img/ArrowDown.svg" alt="expandir" />
+            </button>
           </div>
-          <!--  -->
-          <div id="vcto-info" class="info">
-            <label for="Vencimento"> Vencimento da Fatura</label>
-            <input type="date" />
+          <div class="info-metodo hidden">
+            <div id="limite-info" class="info">
+              <label for="Limite"> Limite do Cartão</label>
+              <input type="number" placeholder="R$ 1.000,00" />
+            </div>
+            <!--  -->
+            <div id="vcto-info" class="info">
+              <label for="Vencimento"> Vencimento da Fatura</label>
+              <input type="date" />
+            </div>
+            <!--  -->
+            <div id="fechamento-info" class="info">
+              <label for="Limite"> Fechamento da Fatura</label>
+              <input type="date" />
+            </div>
+            <button id="btSalvar">Salvar</button>
           </div>
-          <!--  -->
-          <div id="fechamento-info" class="info">
-            <label for="Limite"> Fechamento da Fatura</label>
-            <input type="date" />
-          </div>
-          <button id="btSalvar">Salvar</button>
-        </div>
-      </div>
-      <!--  -->
-      <div class="metodo">
-        <div class="nome-metodo">
-          <h3>Banco Inter (crédito)</h3>
-          <button id="btOcultar">
-            <img src="img/eye-slash-white.svg" alt="Ocultar" />
-          </button>
-          <button id="btExpandir">
-            <img src="img/ArrowDown.svg" alt="expandir" />
-          </button>
-        </div>
-        <div class="info-metodo hidden">
-          <div id="limite-info" class="info">
-            <label for="Limite"> Limite do Cartão</label>
-            <input type="number" placeholder="R$ 1.000,00" />
-          </div>
-          <!--  -->
-          <div id="vcto-info" class="info">
-            <label for="Vencimento"> Vencimento da Fatura</label>
-            <input type="date" />
-          </div>
-          <!--  -->
-          <div id="fechamento-info" class="info">
-            <label for="Limite"> Fechamento da Fatura</label>
-            <input type="date" />
-          </div>
-          <button id="btSalvar">Salvar</button>
         </div>
       </div>
       <div id="div-buttons">

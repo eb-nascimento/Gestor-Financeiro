@@ -351,4 +351,16 @@ hr {
   .right button {
     display: none;
   }
+  #menuLateral {
+    width: 400px;
+  }
+}
+
+@media (max-width: 500px) {
+  .right button {
+    display: none;
+  }
+  #menuLateral {
+    width: 200px;
+  }
 }

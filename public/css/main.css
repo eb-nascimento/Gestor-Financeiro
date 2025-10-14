@@ -7,6 +7,10 @@
   flex-direction: row;
   align-items: stretch;
 }
+
+aside {
+  max-width: 80%;
+}
 /* === NOVA MOVIMENTAÇÃO (LADO ESQUERDO) === */
 #novaMovimentacao {
   display: flex;
@@ -556,6 +560,9 @@ select {
     margin-right: 0px;
     width: 50px;
     height: 50px;
+  }
+  #menuLateral {
+    max-width: 80%;
   }
 }
 /* ========================================================= */
