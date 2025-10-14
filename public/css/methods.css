@@ -1,14 +1,13 @@
 body {
-  justify-content: start;
-  align-items: center;
+  width: 100%;
 }
 #section-metodos {
   display: flex;
-  width: 80%;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
   padding: 30px;
+  border-radius: 15px;
+  flex: 1;
 }
 
 h3 {
@@ -39,8 +38,8 @@ h3 {
   background-color: #f1f1f1;
 }
 
-#btExpandir:hover {
-  cursor: pointer;
+#btExpandir img {
+  transition: transform 0.3s ease; /* Adiciona animação suave */
 }
 
 .metodo {
@@ -49,8 +48,6 @@ h3 {
   width: 60%;
   align-items: center;
   justify-content: center;
-  border: 1px solid #334666;
-  border-radius: 5px;
   gap: 5%;
 }
 
@@ -69,7 +66,17 @@ input {
 
 .info-metodo {
   display: flex;
+  align-items: center;
+  flex-direction: column;
   width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #f1f1f1;
+}
+
+/* Esconde por defeito para a lógica de expandir funcionar */
+.info-metodo.hidden {
+  display: none;
 }
 
 .info-metodo,
@@ -79,18 +86,38 @@ input {
   width: 100%;
 }
 
-.info-metodo {
-  flex-direction: column;
+.info {
+  display: flex;
+  justify-content: space-between; /* Alinha label à esquerda e input à direita */
   align-items: center;
-}
-
-#btSalvar,
-#btAdicionarMetodo {
-  width: 45%;
-  margin-top: 15px;
+  width: 100%;
   margin-bottom: 15px;
 }
 
-#btAdicionarMetodo {
-  width: 30%;
+.info label {
+  margin: 0;
+  font-weight: 500;
+  color: #334666;
+}
+
+.info input {
+  margin: 0;
+  width: 50%; /* Ajusta a largura do input */
+  text-align: right;
+  padding: 8px;
+  font-size: 16px;
+}
+
+#div-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+}
+
+#btSalvar {
+  width: 50%;
+  margin-top: 15px;
+  margin-bottom: 0;
 }
