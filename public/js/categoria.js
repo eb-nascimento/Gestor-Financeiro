@@ -145,10 +145,10 @@ function renderizarTabela() {
 
       const iconeHtml = ehDoUsuario
         ? `<button class="btn-editar-icone"><img src="img/icons/${iconName}.svg" alt="${categoria.nome}" /></button>`
-        : // ...
-          `<div class="icone-wrapper"><img src="img/icons/${iconName}.svg" alt="${categoria.nome}" class="icone-categoria" /></div>`;
+        : `<div class="icone-wrapper"><img src="img/icons/${iconName}.svg" alt="${categoria.nome}" class="icone-categoria" /></div>`;
+
       const nomeHtml = ehDoUsuario
-        ? `<input type="text" class="input-nome-categoria" value="${categoria.nome}" data-field="nome" />`
+        ? `<span class="nome-categoria-mobile">${categoria.nome}</span><input type="text" class="input-nome-categoria" value="${categoria.nome}" data-field="nome" />`
         : categoria.nome;
 
       const iconeOcultar = estaOculta
@@ -160,38 +160,54 @@ function renderizarTabela() {
         !ehDoUsuario ? "disabled" : ""
       }><img src="img/trash.svg" alt="Excluir Categoria" /></button>`;
 
+      // --- CORREÇÃO AQUI ---
+      // As variáveis foram movidas para dentro do loop
+      const tipoTexto =
+        categoria.tipo.charAt(0).toUpperCase() + categoria.tipo.slice(1);
+      const classificacaoTexto = categoria.classificacao
+        ? categoria.classificacao.charAt(0).toUpperCase() +
+          categoria.classificacao.slice(1)
+        : "N/A";
+
       linha.innerHTML = `
-                <td class="td-acao">${iconeHtml}</td>
-                <td>${nomeHtml}</td>
-                <td>
-                    <select class="select-tipo" data-field="tipo" ${
-                      !ehDoUsuario ? "disabled" : ""
-                    }>
-                        <option value="saida" ${
-                          categoria.tipo === "saida" ? "selected" : ""
-                        }>Saída</option>
-                        <option value="entrada" ${
-                          categoria.tipo === "entrada" ? "selected" : ""
-                        }>Entrada</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="select-classificacao" data-field="classificacao" ${
-                      !ehDoUsuario ? "disabled" : ""
-                    }>
-                        <option value="variavel" ${
-                          categoria.classificacao === "variavel"
-                            ? "selected"
-                            : ""
-                        }>Variável</option>
-                        <option value="fixa" ${
-                          categoria.classificacao === "fixa" ? "selected" : ""
-                        }>Fixa</option>
-                    </select>
-                </td>
-                <td class="td-acao">${botaoOcultarHtml}</td>
-                <td class="td-acao">${botaoExcluirHtml}</td>
-            `;
+          <td class="td-acao col-icone">${iconeHtml}</td>
+          <td class="col-nome">${nomeHtml}</td>
+          <td class="col-tipo">
+              <span class="nome-categoria-mobile">${tipoTexto}</span>
+              <select class="select-tipo" data-field="tipo" ${
+                !ehDoUsuario ? "disabled" : ""
+              }>
+                  <option value="saida" ${
+                    categoria.tipo === "saida" ? "selected" : ""
+                  }>Saída</option>
+                  <option value="entrada" ${
+                    categoria.tipo === "entrada" ? "selected" : ""
+                  }>Entrada</option>
+              </select>
+          </td>
+          <td class="col-classificacao">
+              <span class="nome-categoria-mobile">${classificacaoTexto}</span>
+              <select class="select-classificacao" data-field="classificacao" ${
+                !ehDoUsuario ? "disabled" : ""
+              }>
+                  <option value="variavel" ${
+                    categoria.classificacao === "variavel" ? "selected" : ""
+                  }>Variável</option>
+                  <option value="fixa" ${
+                    categoria.classificacao === "fixa" ? "selected" : ""
+                  }>Fixa</option>
+              </select>
+          </td>
+          <td class="td-acao col-ocultar">
+              ${botaoOcultarHtml}
+          </td>
+          <td class="td-acao col-acoes">
+              ${botaoExcluirHtml}
+              <button class="btn-edit-mobile" data-id="${categoria.id}">
+                  <img src="img/GearSix.svg" alt="Editar" style="width:20px; height:20px;">
+              </button>
+          </td>
+      `;
       corpoTabela.appendChild(linha);
     }
   });
@@ -441,3 +457,54 @@ async function excluirCategoria(categoriaId, nomeCategoria) {
     alert("Ocorreu um erro ao tentar excluir a categoria.");
   }
 }
+
+// ... dentro de configurarEventListeners() ...
+
+// --- INÍCIO DO CÓDIGO PARA O MODAL DE ADICIONAR ---
+
+const addModalContainer = document.getElementById("add-modal-mobile-container");
+const closeAddModalBtn = document.getElementById("close-add-modal-btn");
+const addModalForm = document.getElementById("add-modal-form");
+const btnAdicionarMobile = document.getElementById("btn-adicionar-mobile");
+
+// Evento para ABRIR o modal de adicionar
+btnAdicionarMobile.addEventListener("click", () => {
+  addModalForm.reset(); // Limpa o formulário
+  addModalContainer.classList.remove("hidden");
+});
+
+// Evento para FECHAR o modal de adicionar
+closeAddModalBtn.addEventListener("click", () => {
+  addModalContainer.classList.add("hidden");
+});
+
+// Evento para SALVAR a nova categoria a partir do modal
+addModalForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const nome = document.getElementById("add-modal-nome").value.trim();
+  if (!nome) {
+    alert("Por favor, insira o nome da nova categoria.");
+    return;
+  }
+
+  const novaCategoria = {
+    nome: nome,
+    tipo: document.getElementById("add-modal-tipo").value,
+    classificacao: document.getElementById("add-modal-classificacao").value,
+    iconName: "tag", // Usando um ícone padrão por simplicidade
+    oculta: false,
+    userId: currentUser.uid,
+  };
+
+  try {
+    await addDoc(collection(db, "categoria"), novaCategoria);
+    alert(`Categoria "${nome}" adicionada com sucesso!`);
+    addModalContainer.classList.add("hidden");
+    carregarCategorias(); // Atualiza a tabela
+  } catch (error) {
+    console.error("Erro ao adicionar categoria pelo modal:", error);
+    alert("Não foi possível adicionar a nova categoria.");
+  }
+});
+
+// --- FIM DO CÓDIGO PARA O MODAL DE ADICIONAR ---

@@ -11,13 +11,19 @@ h1 {
   margin-bottom: 20px;
 }
 
+h2 {
+  margin: 0;
+  color: #334666;
+  text-align: center;
+}
+
 table {
   width: 70%;
 }
 
 td,
 th {
-  padding: 3px;
+  padding: 7px 5px;
 }
 
 tbody tr:last-child td:first-child {
@@ -25,6 +31,11 @@ tbody tr:last-child td:first-child {
 }
 tbody tr:last-child td:last-child {
   border-bottom-right-radius: 0px;
+}
+
+button {
+  padding: 5px 20px;
+  width: fit-content;
 }
 
 /* Cores para as linhas da tabela de categorias */
@@ -117,7 +128,7 @@ td:nth-child(2) {
 }
 
 #btn-adicionar {
-  width: 60%; /* Ocupa a maior parte da célula */
+  width: 80%; /* Ocupa a maior parte da célula */
   padding: 8px 16px; /* Ajusta o padding do botão */
   font-size: 14px;
 }
@@ -212,6 +223,26 @@ tfoot .td-acao {
   width: 90%;
   max-width: 500px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#add-modal-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content .form-group {
+  width: 100%;
+}
+
+.modal-content button {
+  font-size: 16px;
+  padding-inline: 10px;
 }
 
 .close-btn {
@@ -223,6 +254,7 @@ tfoot .td-acao {
   cursor: pointer;
   border: none;
   background: none;
+  color: #334666;
 }
 
 #grid-icones {
@@ -260,7 +292,6 @@ input {
   border: none;
   margin: 0;
   padding: 0;
-  /* width: fit-content;  <-- REMOVA OU COMENTE ESTA LINHA */
   height: fit-content;
   box-shadow: none;
   background-color: white;
@@ -296,7 +327,6 @@ option {
 }
 
 #btn-adicionar {
-  /* height: 80%; */
   padding: 3px 0;
 }
 
@@ -304,23 +334,165 @@ option {
   padding: 0;
 }
 
+/* ============================================= */
+/* === RESPONSIVIDADE PARA EDIÇÃO EM MODAL ===   */
+/* ============================================= */
+
+/* Começa escondido em todas as telas */
+.btn-edit-mobile {
+  display: none;
+}
+
+.nome-categoria-mobile {
+  display: none;
+}
+
+.mobile-add-row {
+  display: none;
+}
+
+/* Estilos para os campos do novo modal */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  margin-bottom: 15px;
+}
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.full-width-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.modal-actions {
+  margin-top: 20px;
+  width: 80%;
+}
+#btn-salvar-modal {
+  width: 100%;
+}
+
+/* ============================================= */
+/* === RESPONSIVIDADE PARA BOTÕES DO RODAPÉ ===  */
+/* ============================================= */
+
+/* Por defeito (desktop), esconde o botão "+ Adicionar" do mobile */
+.mobile-only-btn {
+  display: none;
+  width: fit-content;
+}
+
+/* Container dos botões */
+.footer-buttons-container {
+  display: flex;
+  justify-content: center; /* Centraliza os botões em desktop */
+  gap: 15px; /* Espaço entre os botões */
+}
+
+/* Quando a tela for menor que 768px (tablets e telemóveis) */
+@media (max-width: 768px) {
+  table {
+    width: 90%;
+  }
+  td,
+  th {
+    padding: 10px 2px;
+  }
+
+  /* Transforma o container para ocupar o espaço todo */
+  .footer-buttons-container {
+    justify-content: space-around;
+  }
+
+  /* Mostra o botão "+ Adicionar" do mobile */
+  .mobile-only-btn {
+    display: block; /* Ou inline-block */
+    min-width: 30%; /* Ocupa quase metade do espaço */
+  }
+
+  /* Faz o botão "Exibir Ocultados" ocupar a outra metade */
+  #btn-toggle-ocultos {
+    min-width: 30%;
+  }
+
+  /* Esconde o botão "Salvar Alterações" do desktop */
+  .desktop-only-btn {
+    display: none;
+  }
+
+  /* Em mobile, esconde a linha de adicionar do desktop */
+  .desktop-add-row {
+    display: none;
+  }
+
+  /* E mostra a linha de adicionar do mobile */
+  .mobile-add-row {
+    display: table-row; /* 'display' correto para uma linha de tabela */
+  }
+
+  /* 1. Esconde as colunas de "Tipo" e "Classificação" */
+  .col-tipo,
+  .col-classificacao {
+    display: none;
+  }
+
+  /* 2. Na última coluna, esconde o botão de excluir (desktop) */
+  .col-acoes .excluir-categoria {
+    display: none;
+  }
+
+  /* 3. E mostra o botão de editar (mobile) */
+  .col-acoes .btn-edit-mobile {
+    display: inline-flex; /* ou flex */
+  }
+
+  .btn-edit-mobile {
+    padding: 0;
+  }
+
+  /* 4. Renomeia o cabeçalho da última coluna para "Editar" */
+  .col-acoes {
+    font-size: 0; /* Esconde o texto original "Excluir" */
+  }
+  thead .col-acoes::after {
+    content: "Editar";
+    font-size: 16px; /* Restaura o tamanho do texto (ajuste se necessário) */
+  }
+
+  /* 5. Esconde o botão de salvar geral, já que a edição é via modal */
+  #btn-salvar {
+    display: none;
+  }
+}
+
 @media (max-width: 688px) {
   td,
   th {
-    padding: 2px;
+    padding: 10px 2px;
+    font-weight: 600;
   }
 }
 
 @media (max-width: 500px) {
+  td,
+  th {
+    font-weight: 600;
+  }
+
   #btn-adicionar {
     width: 100%;
-    font-size: 12px;
+    font-size: 14px;
   }
+
   table,
   input,
   select,
   button {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .icone-categoria,
@@ -328,9 +500,5 @@ option {
   #img-novo-icone {
     height: 20px;
     width: 20px;
-    /* opacity: 0.7; */
-  }
-  button {
-    padding: 5px 10px;
   }
 }

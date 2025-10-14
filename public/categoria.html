@@ -18,17 +18,17 @@
       <h1>Categorias</h1>
       <table>
         <thead>
-          <th>Ícone</th>
-          <th>Categoria</th>
-          <th>Tipo</th>
-          <th>Classificação</th>
-          <th>Ocultar</th>
-          <th>Excluir</th>
+          <th class="col-icone">Ícone</th>
+          <th class="col-nome">Categoria</th>
+          <th class="col-tipo">Tipo</th>
+          <th class="col-classificacao">Classificação</th>
+          <th class="col-ocultar">Ocultar</th>
+          <th class="col-acoes">Excluir</th>
         </thead>
         <tbody id="corpo-tabela-categorias"></tbody>
         <tfoot>
-          <tr>
-            <td class="td-acao">
+          <tr class="desktop-add-row">
+            <td class="td-acao col-icone">
               <button id="btn-escolher-icone">
                 <img
                   id="img-novo-icone"
@@ -38,20 +38,20 @@
               </button>
               <input type="hidden" id="input-novo-icone-nome" value="tag" />
             </td>
-            <td>
+            <td class="col-nome">
               <input
                 type="text"
                 placeholder="Nova Categoria"
                 id="input-nova-categoria"
               />
             </td>
-            <td>
+            <td class="col-tipo">
               <select id="select-novo-tipo">
                 <option value="saida">Saída</option>
                 <option value="entrada">Entrada</option>
               </select>
             </td>
-            <td>
+            <td class="col-classificacao">
               <select id="select-nova-classificacao">
                 <option value="variavel">Variável</option>
                 <option value="fixa">Fixa</option>
@@ -61,10 +61,18 @@
               <button id="btn-adicionar">Adicionar</button>
             </td>
           </tr>
-          <tr>
+
+          <tr class="actions-row">
             <td colspan="6">
-              <button id="btn-toggle-ocultos">Exibir Ocultados</button>
-              <button id="btn-salvar">Salvar Alterações</button>
+              <div class="footer-buttons-container">
+                <button id="btn-toggle-ocultos">Exibir Ocultados</button>
+                <button id="btn-adicionar-mobile" class="mobile-only-btn">
+                  + Adicionar
+                </button>
+                <button id="btn-salvar" class="desktop-only-btn">
+                  Salvar Alterações
+                </button>
+              </div>
             </td>
           </tr>
         </tfoot>
@@ -112,7 +120,73 @@
         <div id="grid-icones"></div>
       </div>
     </div>
-    <script type="module" src="js/categoria.js"></script>
-    <script type="module" src="js/menu.js"></script>
+    <div id="add-modal-mobile-container" class="modal-container hidden">
+      <div id="add-modal-mobile-content" class="modal-content">
+        <button id="close-add-modal-btn" class="close-btn">&times;</button>
+        <h2>Nova Categoria</h2>
+        <form id="add-modal-form">
+          <div class="form-group">
+            <label for="add-modal-nome">Nome</label>
+            <input
+              type="text"
+              id="add-modal-nome"
+              class="full-width-input"
+              placeholder="Ex: Supermercado"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="add-modal-tipo">Tipo</label>
+            <select id="add-modal-tipo" class="full-width-input">
+              <option value="saida">Saída</option>
+              <option value="entrada">Entrada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="add-modal-classificacao">Classificação</label>
+            <select id="add-modal-classificacao" class="full-width-input">
+              <option value="variavel">Variável</option>
+              <option value="fixa">Fixa</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" id="btn-salvar-add-modal">
+              Adicionar Categoria
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="edit-modal-mobile-container" class="modal-container hidden">
+      <div id="edit-modal-mobile-content" class="modal-content">
+        <button id="close-edit-modal-btn" class="close-btn">&times;</button>
+        <h2>Editar Categoria</h2>
+        <form id="edit-modal-form">
+          <input type="hidden" id="edit-modal-categoria-id" />
+
+          <div class="form-group">
+            <label for="edit-modal-nome">Nome</label>
+            <input type="text" id="edit-modal-nome" class="full-width-input" />
+          </div>
+          <div class="form-group">
+            <label for="edit-modal-tipo">Tipo</label>
+            <select id="edit-modal-tipo" class="full-width-input">
+              <option value="saida">Saída</option>
+              <option value="entrada">Entrada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-modal-classificacao">Classificação</label>
+            <select id="edit-modal-classificacao" class="full-width-input">
+              <option value="variavel">Variável</option>
+              <option value="fixa">Fixa</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" id="btn-salvar-modal">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </body>
 </html>
