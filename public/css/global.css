@@ -1,4 +1,8 @@
 /* === BODY === */
+html {
+  color: #334666;
+}
+
 body {
   font-family: "Inter", sans-serif;
   display: flex;

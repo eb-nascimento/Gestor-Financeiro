@@ -1,0 +1,96 @@
+body {
+  justify-content: start;
+  align-items: center;
+}
+#section-metodos {
+  display: flex;
+  width: 80%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 30px;
+}
+
+h3 {
+  margin-left: 20px;
+  flex: 1;
+}
+
+.nome-metodo {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  background-color: #334666;
+  color: #f1f1f1;
+}
+
+#btExpandir,
+#btOcultar {
+  all: inherit;
+  display: flex;
+  height: 40px;
+  margin-right: 20px;
+  /* background-color: #f1f1f1; */
+  border-radius: 50%;
+  width: fit-content;
+}
+
+#btExpandir {
+  background-color: #f1f1f1;
+}
+
+#btExpandir:hover {
+  cursor: pointer;
+}
+
+.metodo {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #334666;
+  border-radius: 5px;
+  gap: 5%;
+}
+
+.metodo img {
+  height: 40px;
+  border-radius: 50%;
+}
+
+label {
+  margin: 10px 10px 10px 20px;
+}
+
+input {
+  margin-right: 20px;
+}
+
+.info-metodo {
+  display: flex;
+  width: 100%;
+}
+
+.info-metodo,
+.info {
+  background-color: #f1f1f1;
+  display: flex;
+  width: 100%;
+}
+
+.info-metodo {
+  flex-direction: column;
+  align-items: center;
+}
+
+#btSalvar,
+#btAdicionarMetodo {
+  width: 45%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+#btAdicionarMetodo {
+  width: 30%;
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Métodos</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/methods.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="js/methods.js"></script>
+    <script type="module" src="js/menu.js"></script>
+  </head>
+  <body>
+    <section id="section-metodos">
+      <h1>Métodos de Pagamento</h1>
+      <div class="metodo">
+        <div class="nome-metodo">
+          <h3>Nubank (crédito)</h3>
+          <button id="btOcultar">
+            <img src="img/eye-slash-white.svg" alt="Ocultar" />
+          </button>
+          <button id="btExpandir">
+            <img src="img/ArrowDown.svg" alt="expandir" />
+          </button>
+        </div>
+        <div class="info-metodo">
+          <div id="limite-info" class="info">
+            <label for="Limite"> Limite do Cartão</label>
+            <input type="number" placeholder="R$ 1.000,00" />
+          </div>
+          <!--  -->
+          <div id="vcto-info" class="info">
+            <label for="Vencimento"> Vencimento da Fatura</label>
+            <input type="date" />
+          </div>
+          <!--  -->
+          <div id="fechamento-info" class="info">
+            <label for="Limite"> Fechamento da Fatura</label>
+            <input type="date" />
+          </div>
+          <button id="btSalvar">Salvar</button>
+        </div>
+      </div>
+      <button id="btAdicionarMetodo">Novo Método</button>
+    </section>
+    <section id="menu">
+      <button id="btMenu">
+        <img class="menu-item" src="img/CirclesFour.svg" alt="menu" />
+      </button>
+      <div class="right">
+        <button>
+          <img class="menu-item" src="img/GearSix.svg" alt="menu" />
+        </button>
+        <button class="sair" id="btSignOut">
+          <img class="menu-item" src="img/SignOut.svg" alt="menu" />
+        </button>
+      </div>
+    </section>
+    <aside id="menuLateral">
+      <h2>Menu</h2>
+      <ul>
+        <li><a href="budget.html">Planejamento</a></li>
+        <hr />
+        <li><a href="categoria.html">Minhas Categorias</a></li>
+        <hr />
+        <li><a href="methods.html">Meus Métodos</a></li>
+        <hr />
+        <li class="hidden"><a href="#">Média de Gastos ou Objetivos (?)</a></li>
+        <hr />
+        <li class="hidden"><a href="#">Perfil</a></li>
+        <hr />
+        <li class="hidden"><a href="#">Configurações</a></li>
+        <hr />
+        <li><a href="#" class="btFechaMenu">Fechar Menu</a></li>
+        <hr />
+        <li>
+          <img src="img/SignOut.svg" alt="sair" id="sair-menu-lateral" />
+          <a href="#" class="btSignOut">Sair</a>
+        </li>
+      </ul>
+    </aside>
+  </body>
+</html>
