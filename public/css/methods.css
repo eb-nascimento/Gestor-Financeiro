@@ -12,7 +12,7 @@ body {
 
 /* Container que agrupa a lista de métodos */
 #div-metodos {
-  width: 80%; /* Define a largura do bloco principal */
+  width: 50%; /* Define a largura do bloco principal */
 }
 
 /* === BLOCO DE CADA MÉTODO === */
@@ -184,5 +184,23 @@ body {
 @media (max-width: 612px) {
   button {
     padding: 5px 10px;
+  }
+}
+
+@media (max-width: 1712px) {
+  #div-metodos {
+    width: 60%; /* Define a largura do bloco principal */
+  }
+}
+
+@media (max-width: 1024px) {
+  #div-metodos {
+    width: 70%; /* Define a largura do bloco principal */
+  }
+}
+
+@media (max-width: 812px) {
+  #div-metodos {
+    width: 80%; /* Define a largura do bloco principal */
   }
 }
